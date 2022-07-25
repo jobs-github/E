@@ -249,7 +249,7 @@ func testEval(input string) (object.Object, error) {
 	if nil != err {
 		return object.Nil, err
 	}
-	env := object.NewEnv(nil)
+	env := object.NewEnv()
 	return program.Eval(env, false)
 }
 
