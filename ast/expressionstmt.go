@@ -1,8 +1,8 @@
 package ast
 
 import (
-	"github.com/jobs-github/Q/function"
-	"github.com/jobs-github/Q/object"
+	"github.com/jobs-github/escript/function"
+	"github.com/jobs-github/escript/object"
 )
 
 // ExpressionStmt : implement Statement

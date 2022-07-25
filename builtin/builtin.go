@@ -1,7 +1,7 @@
 package builtin
 
 import (
-	"github.com/jobs-github/Q/object"
+	"github.com/jobs-github/escript/object"
 )
 
 var builtins = map[string]object.Object{

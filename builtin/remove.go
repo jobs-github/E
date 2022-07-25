@@ -3,7 +3,7 @@ package builtin
 import (
 	"os"
 
-	"github.com/jobs-github/Q/object"
+	"github.com/jobs-github/escript/object"
 )
 
 func builtinRemove(args object.Objects) (object.Object, error) {

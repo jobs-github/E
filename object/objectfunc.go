@@ -3,8 +3,8 @@ package object
 import (
 	"fmt"
 
-	"github.com/jobs-github/Q/function"
-	"github.com/jobs-github/Q/token"
+	"github.com/jobs-github/escript/function"
+	"github.com/jobs-github/escript/token"
 )
 
 func NewObjectFunc(obj Object, name string, fn objectFn) Object {

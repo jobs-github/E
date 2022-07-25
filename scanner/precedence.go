@@ -1,6 +1,6 @@
 package scanner
 
-import "github.com/jobs-github/Q/token"
+import "github.com/jobs-github/escript/token"
 
 const (
 	_ int = iota

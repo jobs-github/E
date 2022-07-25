@@ -3,8 +3,8 @@ package ast
 import (
 	"bytes"
 
-	"github.com/jobs-github/Q/object"
-	"github.com/jobs-github/Q/token"
+	"github.com/jobs-github/escript/object"
+	"github.com/jobs-github/escript/token"
 )
 
 // BreakStmt : implement Statement

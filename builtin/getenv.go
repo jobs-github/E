@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/jobs-github/Q/object"
+	"github.com/jobs-github/escript/object"
 )
 
 func builtinGetenv(args object.Objects) (object.Object, error) {

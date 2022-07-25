@@ -3,7 +3,7 @@ package ast
 import (
 	"encoding/json"
 
-	"github.com/jobs-github/Q/object"
+	"github.com/jobs-github/escript/object"
 )
 
 // String : implement Expression

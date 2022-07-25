@@ -6,7 +6,7 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	"github.com/jobs-github/Q/eval"
+	"github.com/jobs-github/escript/eval"
 )
 
 func main() {

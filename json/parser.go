@@ -3,8 +3,8 @@ package json
 import (
 	"fmt"
 
-	"github.com/jobs-github/Q/function"
-	"github.com/jobs-github/Q/object"
+	"github.com/jobs-github/escript/function"
+	"github.com/jobs-github/escript/object"
 )
 
 func Decode(s string) (object.Object, error) {

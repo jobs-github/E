@@ -8,11 +8,11 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/jobs-github/Q/ast"
-	"github.com/jobs-github/Q/cycle"
-	"github.com/jobs-github/Q/lexer"
-	"github.com/jobs-github/Q/object"
-	"github.com/jobs-github/Q/parser"
+	"github.com/jobs-github/escript/ast"
+	"github.com/jobs-github/escript/cycle"
+	"github.com/jobs-github/escript/lexer"
+	"github.com/jobs-github/escript/object"
+	"github.com/jobs-github/escript/parser"
 )
 
 func scriptsDir() string {

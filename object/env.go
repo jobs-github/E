@@ -3,7 +3,7 @@ package object
 import (
 	"fmt"
 
-	"github.com/jobs-github/Q/function"
+	"github.com/jobs-github/escript/function"
 )
 
 type Env interface {

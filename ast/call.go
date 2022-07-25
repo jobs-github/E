@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"strings"
 
-	"github.com/jobs-github/Q/function"
-	"github.com/jobs-github/Q/object"
-	"github.com/jobs-github/Q/token"
+	"github.com/jobs-github/escript/function"
+	"github.com/jobs-github/escript/object"
+	"github.com/jobs-github/escript/token"
 )
 
 // Call : implement Expression

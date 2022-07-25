@@ -3,8 +3,8 @@ package cycle
 import (
 	"fmt"
 
-	"github.com/jobs-github/Q/ast"
-	"github.com/jobs-github/Q/function"
+	"github.com/jobs-github/escript/ast"
+	"github.com/jobs-github/escript/function"
 )
 
 func Detect(

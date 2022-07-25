@@ -4,9 +4,9 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/jobs-github/Q/ast"
-	"github.com/jobs-github/Q/interfaces"
-	"github.com/jobs-github/Q/lexer"
+	"github.com/jobs-github/escript/ast"
+	"github.com/jobs-github/escript/interfaces"
+	"github.com/jobs-github/escript/lexer"
 )
 
 func parseProgram(t *testing.T, p interfaces.Parser) *ast.Program {

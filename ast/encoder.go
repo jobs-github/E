@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"path/filepath"
 
-	"github.com/jobs-github/Q/function"
+	"github.com/jobs-github/escript/function"
 )
 
 const (

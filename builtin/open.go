@@ -1,7 +1,7 @@
 package builtin
 
 import (
-	"github.com/jobs-github/Q/object"
+	"github.com/jobs-github/escript/object"
 )
 
 func builtinOpen(args object.Objects) (object.Object, error) {

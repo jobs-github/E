@@ -3,7 +3,7 @@ package builtin
 import (
 	"fmt"
 
-	"github.com/jobs-github/Q/object"
+	"github.com/jobs-github/escript/object"
 )
 
 func builtinInt(args object.Objects) (object.Object, error) {

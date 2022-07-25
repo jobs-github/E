@@ -1,8 +1,8 @@
 package interfaces
 
 import (
-	"github.com/jobs-github/Q/ast"
-	"github.com/jobs-github/Q/token"
+	"github.com/jobs-github/escript/ast"
+	"github.com/jobs-github/escript/token"
 )
 
 type Parser interface {

@@ -3,12 +3,12 @@ package stmt
 import (
 	"fmt"
 
-	"github.com/jobs-github/Q/ast"
-	"github.com/jobs-github/Q/builtin"
-	"github.com/jobs-github/Q/function"
-	"github.com/jobs-github/Q/interfaces"
-	"github.com/jobs-github/Q/scanner"
-	"github.com/jobs-github/Q/token"
+	"github.com/jobs-github/escript/ast"
+	"github.com/jobs-github/escript/builtin"
+	"github.com/jobs-github/escript/function"
+	"github.com/jobs-github/escript/interfaces"
+	"github.com/jobs-github/escript/scanner"
+	"github.com/jobs-github/escript/token"
 )
 
 // varStmt : implement stmtDecoder

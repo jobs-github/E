@@ -53,7 +53,7 @@ Q is a tiny, dynamic interpreted language for Go.
     package main
 
     import (
-        "github.com/jobs-github/Q/eval"
+        "github.com/jobs-github/escript/eval"
     )
 
     func main() {
@@ -352,7 +352,7 @@ But also:
     package main
 
     import (
-        "github.com/jobs-github/Q/eval"
+        "github.com/jobs-github/escript/eval"
     )
 
     func main() {

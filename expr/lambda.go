@@ -1,9 +1,9 @@
 package expr
 
 import (
-	"github.com/jobs-github/Q/ast"
-	"github.com/jobs-github/Q/interfaces"
-	"github.com/jobs-github/Q/scanner"
+	"github.com/jobs-github/escript/ast"
+	"github.com/jobs-github/escript/interfaces"
+	"github.com/jobs-github/escript/scanner"
 )
 
 // lambdaFunction : implement tokenDecoder
