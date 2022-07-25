@@ -1,0 +1,1 @@
+{"type":"program","value":[{"type":"expr","value":{"type":"import","value":{"as":"level1","module":"level1"}}},{"type":"expr","value":{"type":"call","value":{"args":[{"type":"string","value":"hello"}],"func":{"type":"builtin","value":"println"}}}}]}

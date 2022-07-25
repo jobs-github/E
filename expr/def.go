@@ -1,0 +1,58 @@
+package expr
+
+import (
+	"fmt"
+
+	"github.com/jobs-github/Q/ast"
+	"github.com/jobs-github/Q/function"
+	"github.com/jobs-github/Q/interfaces"
+	"github.com/jobs-github/Q/scanner"
+	"github.com/jobs-github/Q/token"
+)
+
+type ExprParser interface {
+	Decode(tok token.TokenType) (ast.Expression, error)
+}
+
+func NewExprParser(s scanner.Scanner, p interfaces.Parser) ExprParser {
+	bd := &boolean{s}
+	pd := &prefixExpr{s, p}
+
+	return &exprParser{
+		m: map[token.TokenType]tokenDecoder{
+			token.IDENT:  &identifier{s},
+			token.INT:    &integer{s},
+			token.STRING: &string{s},
+			token.TRUE:   bd,
+			token.FALSE:  bd,
+			token.NULL:   &null{s},
+			token.NOT:    pd,
+			token.SUB:    pd,
+			token.LPAREN: &lparen{s, p},
+			token.LBRACK: &lbrack{s, p},
+			token.LBRACE: &lbrace{s, p},
+			token.IF:     &ifExpr{s, p},
+			token.IMPORT: &importExpr{s, p},
+			token.FUNC:   &lambdaFunction{s, p},
+			token.FOR:    &forExpr{s, p},
+		},
+	}
+}
+
+type tokenDecoder interface {
+	decode() (ast.Expression, error)
+}
+
+// exprParser : implement ExprParser
+type exprParser struct {
+	m map[token.TokenType]tokenDecoder
+}
+
+func (this *exprParser) Decode(tok token.TokenType) (ast.Expression, error) {
+	fn, ok := this.m[tok]
+	if !ok {
+		err := fmt.Errorf("%v has no parser", token.ToString(tok))
+		return nil, function.NewError(err)
+	}
+	return fn.decode()
+}
