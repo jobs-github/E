@@ -1,15 +1,12 @@
 package eval
 
 import (
-	"fmt"
 	"path"
 	"path/filepath"
 	"reflect"
 	"runtime"
 	"testing"
 
-	"github.com/jobs-github/escript/ast"
-	"github.com/jobs-github/escript/cycle"
 	"github.com/jobs-github/escript/lexer"
 	"github.com/jobs-github/escript/object"
 	"github.com/jobs-github/escript/parser"
@@ -19,35 +16,6 @@ func scriptsDir() string {
 	_, filename, _, _ := runtime.Caller(1)
 	cur := path.Dir(filename)
 	return filepath.Join(filepath.Dir(cur), "scripts")
-}
-
-func TestCycleDetect(t *testing.T) {
-	loadAst := ast.LoadAst(scriptsDir(), ast.SuffixQs, loadAst)
-	loadAstJson := ast.LoadAst(scriptsDir(), ast.SuffixJson, loadAst)
-	type args struct {
-		module       string
-		loadAst      func(module string) (ast.Node, error)
-		nonrecursive bool
-	}
-	tests := []struct {
-		name    string
-		args    args
-		wantErr bool
-	}{
-		{"TestCycleDetectQs", args{"level1", loadAst, false}, true},
-		{"TestCycleDetectJson", args{"level1", loadAstJson, false}, true},
-		{"TestCycleDetectQsNonrecursive", args{"level1", loadAst, true}, true},
-		{"TestCycleDetectJsonNonrecursive", args{"level1", loadAstJson, true}, true},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if err := cycle.Detect(tt.args.module, tt.args.loadAst, tt.args.nonrecursive); (err != nil) != tt.wantErr {
-				t.Errorf("%v: Detect() error = %v, wantErr %v", tt.name, err, tt.wantErr)
-			} else {
-				fmt.Printf("%v: cycle: %v\n", tt.name, err.Error())
-			}
-		})
-	}
 }
 
 func TestEvalExpr(t *testing.T) {

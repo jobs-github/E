@@ -40,9 +40,6 @@ func (this *Identifier) Eval(env object.Env, insideLoop bool) (object.Object, er
 	if val, ok := env.Get(this.Value); ok {
 		return val, nil
 	}
-	if s, ok := env.Symbol(this.Value); ok {
-		return object.NewModule(s.ModuleName, s.AsKey, s.E), nil
-	}
 	if fn := builtin.Get(this.Value); nil != fn {
 		return fn, nil
 	}

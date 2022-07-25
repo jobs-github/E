@@ -5,11 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"path/filepath"
 	"strings"
 
 	"github.com/jobs-github/escript/ast"
-	"github.com/jobs-github/escript/cycle"
 	"github.com/jobs-github/escript/function"
 	"github.com/jobs-github/escript/lexer"
 	"github.com/jobs-github/escript/object"
@@ -23,7 +21,7 @@ type evalImpl struct {
 
 func (this evalImpl) Repl(baseDir string, in io.Reader, out io.Writer) {
 	scanner := bufio.NewScanner(in)
-	env := object.NewEnv(this.NewImporter(baseDir, ast.SuffixQs))
+	env := object.NewEnv()
 	for {
 		fmt.Printf(">> ")
 		scanned := scanner.Scan()
@@ -62,13 +60,7 @@ func (this evalImpl) EvalJson(path string, args []string) {
 		fmt.Println(err.Error())
 		return
 	}
-	baseDir := filepath.Dir(path)
-	loadAst := ast.LoadAst(baseDir, ast.SuffixJson, this.LoadAst)
-	if err := cycle.Detect(getModuleName(path), loadAst, this.nonrecursive); nil != err {
-		fmt.Println(err.Error())
-		return
-	}
-	env := this.NewEnv(this.NewImporter(baseDir, ast.SuffixJson), args)
+	env := this.NewEnv(args)
 	val, err := node.Eval(env, false)
 	if nil != err {
 		fmt.Println(err.Error())
@@ -85,21 +77,11 @@ func (this evalImpl) EvalScript(path string, args []string) {
 		fmt.Println(err.Error())
 		return
 	}
-	baseDir := filepath.Dir(path)
-	loadAst := ast.LoadAst(baseDir, ast.SuffixQs, this.LoadAst)
-	if err := cycle.Detect(getModuleName(path), loadAst, this.nonrecursive); nil != err {
-		fmt.Println(err.Error())
-		return
-	}
-	this.EvalCode(this.NewImporter(baseDir, ast.SuffixQs), function.BytesToString(b), args)
+	this.EvalCode(function.BytesToString(b), args)
 }
 
-func (this evalImpl) NewImporter(baseDir string, suffix string) object.Importer {
-	return &importer{baseDir: baseDir, suffix: suffix}
-}
-
-func (this evalImpl) NewEnv(importer object.Importer, args []string) object.Env {
-	env := object.NewEnv(importer)
+func (this evalImpl) NewEnv(args []string) object.Env {
+	env := object.NewEnv()
 	arr := object.Objects{}
 	if nil != args && len(args) > 0 {
 		for _, s := range args {
@@ -110,8 +92,8 @@ func (this evalImpl) NewEnv(importer object.Importer, args []string) object.Env 
 	return env
 }
 
-func (this evalImpl) EvalCode(importer object.Importer, code string, args []string) {
-	env := this.NewEnv(importer, args)
+func (this evalImpl) EvalCode(code string, args []string) {
+	env := this.NewEnv(args)
 	node, err := this.LoadAst(code)
 	if nil != err {
 		fmt.Println(err.Error())

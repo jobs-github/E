@@ -36,7 +36,6 @@ type Scanner interface {
 	NewVar() *ast.VarStmt
 	NewFor() *ast.ForExpr
 	NewIf() *ast.IfExpr
-	NewImport() *ast.ImportExpr
 	NewBoolean() *ast.Boolean
 	NewInteger() (*ast.Integer, error)
 	NewString() *ast.String
@@ -220,10 +219,6 @@ func (this *scanner) NewFor() *ast.ForExpr {
 
 func (this *scanner) NewIf() *ast.IfExpr {
 	return &ast.IfExpr{Clauses: ast.IfClauseSlice{}}
-}
-
-func (this *scanner) NewImport() *ast.ImportExpr {
-	return ast.NewImport()
 }
 
 func (this *scanner) NewBoolean() *ast.Boolean {

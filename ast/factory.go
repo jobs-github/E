@@ -31,7 +31,6 @@ const (
 	typeExprFor          = token.For
 	typeExprHash         = object.TypeHash
 	typeExprIf           = token.If
-	typeExprImport       = token.Import
 	typeExprIndex        = "index"
 	typeExprInfix        = "infix"
 	typeExprPrefix       = "prefix"
@@ -60,7 +59,6 @@ func NewConditional() *ConditionalExpr { return &ConditionalExpr{} }
 func NewFor() *ForExpr                 { return &ForExpr{} }
 func NewHash() *Hash                   { return &Hash{} }
 func NewIf() *IfExpr                   { return &IfExpr{} }
-func NewImport() *ImportExpr           { return &ImportExpr{} }
 func NewIndex() *IndexExpr             { return &IndexExpr{} }
 func NewInfix() *InfixExpr             { return &InfixExpr{} }
 func NewPrefix() *PrefixExpr           { return &PrefixExpr{} }
@@ -93,7 +91,6 @@ var (
 		typeExprFor:          func() Expression { return NewFor() },
 		typeExprHash:         func() Expression { return NewHash() },
 		typeExprIf:           func() Expression { return NewIf() },
-		typeExprImport:       func() Expression { return NewImport() },
 		typeExprIndex:        func() Expression { return NewIndex() },
 		typeExprInfix:        func() Expression { return NewInfix() },
 		typeExprPrefix:       func() Expression { return NewPrefix() },

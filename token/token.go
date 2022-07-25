@@ -50,7 +50,6 @@ const (
 	FUNC
 	VAR
 	IF
-	IMPORT
 	ELSE
 	RETURN
 	FOR
@@ -118,7 +117,6 @@ var (
 		Func:   FUNC,
 		Var:    VAR,
 		If:     IF,
-		Import: IMPORT,
 		"else": ELSE,
 		Return: RETURN,
 		For:    FOR,
@@ -163,7 +161,6 @@ var (
 		FUNC:      "FUNC",
 		VAR:       "VAR",
 		IF:        "IF",
-		IMPORT:    "IMPORT",
 		ELSE:      "ELSE",
 		RETURN:    "RETURN",
 		FOR:       "FOR",
