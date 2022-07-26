@@ -52,24 +52,18 @@ const (
 	IF
 	ELSE
 	RETURN
-	FOR
-	BREAK
-	DEFER
 	//keyword_end
 )
 
 const (
-	Break  = "break"
 	Return = "return"
 	Var    = "var"
 	Func   = "func"
 	If     = "if"
 	Import = "import"
-	For    = "for"
 	Null   = "null"
 	True   = "true"
 	False  = "false"
-	Defer  = "defer"
 )
 
 var (
@@ -119,9 +113,6 @@ var (
 		If:     IF,
 		"else": ELSE,
 		Return: RETURN,
-		For:    FOR,
-		Break:  BREAK,
-		Defer:  DEFER,
 	}
 
 	tokenTypeStrings = map[TokenType]string{
@@ -163,9 +154,6 @@ var (
 		IF:        "IF",
 		ELSE:      "ELSE",
 		RETURN:    "RETURN",
-		FOR:       "FOR",
-		BREAK:     "BREAK",
-		DEFER:     "DEFER",
 	}
 )
 

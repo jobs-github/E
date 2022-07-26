@@ -24,11 +24,9 @@ func NewStmtParser(
 		assignDecoder:      &assignStmt{s, p},
 		assignIndexDecoder: &assignIndexStmt{s, p},
 		exprDecoder:        &exprStmt{s, p},
-		deferDecoder:       &deferStmt{s, p},
 		m: map[token.TokenType]stmtDecoder{
 			token.VAR:    &varStmt{s, p},
 			token.RETURN: &returnStmt{s, p},
-			token.BREAK:  &breakStmt{s},
 		},
 	}
 }
@@ -61,8 +59,6 @@ func (this *stmtParser) Decode(t token.TokenType, endTok token.TokenType) (ast.S
 			return this.assignDecoder.decode(endTok)
 		} else if this.isAssignIndexStmt() {
 			return this.assignIndexDecoder.decode(endTok)
-		} else if this.isDeferStmt() {
-			return this.deferDecoder.decode(endTok)
 		} else {
 			return this.exprDecoder.decode(endTok)
 		}
@@ -81,8 +77,4 @@ func (this *stmtParser) isAssignIndexStmt() bool {
 	s := this.scanner.Clone()
 	parser := &assignIndexStmt{s, this.newParser(s)}
 	return parser.match()
-}
-
-func (this *stmtParser) isDeferStmt() bool {
-	return nil == this.scanner.CurrentIs(token.DEFER)
 }

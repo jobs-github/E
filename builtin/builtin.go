@@ -16,8 +16,6 @@ var builtins = map[string]object.Object{
 	"getenv":     object.NewBuiltin(builtinGetenv, "getenv"),
 	"loads":      object.NewBuiltin(builtinLoads, "loads"),
 	"dumps":      object.NewBuiltin(builtinDumps, "dumps"),
-	"open":       object.NewBuiltin(builtinOpen, "open"),
-	"remove":     object.NewBuiltin(builtinRemove, "remove"),
 }
 
 func IsBuiltin(key string) bool {

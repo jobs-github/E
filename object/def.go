@@ -19,14 +19,11 @@ const (
 	objectTypeNull
 	objectTypeReturnValue
 	objectTypeFunction
-	objectTypeBreakObject
 	objectTypeArray
 	objectTypeHash
 	objectTypeObjectFunc
 	objectTypeArrayIter
 	objectTypeHashIter
-	objectTypeModule
-	objectTypeFile
 )
 
 const (
@@ -73,14 +70,11 @@ var (
 		objectTypeNull:        token.Null,
 		objectTypeReturnValue: token.Return,
 		objectTypeFunction:    "function",
-		objectTypeBreakObject: token.Break,
 		objectTypeArray:       TypeArray,
 		objectTypeHash:        TypeHash,
 		objectTypeObjectFunc:  "object_func",
 		objectTypeArrayIter:   "array_iter",
 		objectTypeHashIter:    "hash_iter",
-		objectTypeModule:      "module",
-		objectTypeFile:        "file",
 	}
 )
 

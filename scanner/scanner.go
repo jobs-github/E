@@ -29,12 +29,9 @@ type Scanner interface {
 	NewAssign() *ast.AssignStmt
 	NewAssignIndex() *ast.AssignIndexStmt
 	NewReturn() *ast.ReturnStmt
-	NewBreak() *ast.BreakStmt
-	NewDefer() *ast.DeferStmt
 	NewExpr() *ast.ExpressionStmt
 	NewBlock() *ast.BlockStmt
 	NewVar() *ast.VarStmt
-	NewFor() *ast.ForExpr
 	NewIf() *ast.IfExpr
 	NewBoolean() *ast.Boolean
 	NewInteger() (*ast.Integer, error)
@@ -193,14 +190,6 @@ func (this *scanner) NewReturn() *ast.ReturnStmt {
 	return ast.NewReturn()
 }
 
-func (this *scanner) NewBreak() *ast.BreakStmt {
-	return ast.NewBreak()
-}
-
-func (this *scanner) NewDefer() *ast.DeferStmt {
-	return ast.NewDefer()
-}
-
 func (this *scanner) NewExpr() *ast.ExpressionStmt {
 	return ast.NewExpr()
 }
@@ -211,10 +200,6 @@ func (this *scanner) NewBlock() *ast.BlockStmt {
 
 func (this *scanner) NewVar() *ast.VarStmt {
 	return ast.NewVar()
-}
-
-func (this *scanner) NewFor() *ast.ForExpr {
-	return ast.NewFor()
 }
 
 func (this *scanner) NewIf() *ast.IfExpr {

@@ -33,7 +33,6 @@ func NewExprParser(s scanner.Scanner, p interfaces.Parser) ExprParser {
 			token.LBRACE: &lbrace{s, p},
 			token.IF:     &ifExpr{s, p},
 			token.FUNC:   &lambdaFunction{s, p},
-			token.FOR:    &forExpr{s, p},
 		},
 	}
 }

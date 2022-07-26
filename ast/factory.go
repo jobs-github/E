@@ -13,8 +13,6 @@ const (
 	typeStmtAssignindex  = "assignindex"
 	typeStmtAssign       = "assign"
 	typeStmtBlock        = "block"
-	typeStmtBreak        = token.Break
-	typeStmtDefer        = token.Defer
 	typeStmtReturn       = token.Return
 	typeExprIdent        = "ident"
 	typeExprBuiltin      = object.TypeBuiltin
@@ -28,7 +26,6 @@ const (
 	typeExprCallmember   = "callmember"
 	typeExprObjectmember = "objectmember"
 	typeExprConditional  = "conditional"
-	typeExprFor          = token.For
 	typeExprHash         = object.TypeHash
 	typeExprIf           = token.If
 	typeExprIndex        = "index"
@@ -42,8 +39,6 @@ func NewExpr() *ExpressionStmt         { return &ExpressionStmt{} }
 func NewAssignIndex() *AssignIndexStmt { return &AssignIndexStmt{} }
 func NewAssign() *AssignStmt           { return &AssignStmt{} }
 func NewBlock() *BlockStmt             { return &BlockStmt{} }
-func NewBreak() *BreakStmt             { return &BreakStmt{} }
-func NewDefer() *DeferStmt             { return &DeferStmt{} }
 func NewReturn() *ReturnStmt           { return &ReturnStmt{} }
 func NewIdent() *Identifier            { return &Identifier{} }
 func NewFn() *Function                 { return &Function{} }
@@ -56,7 +51,6 @@ func NewCall() *Call                   { return &Call{} }
 func NewCallMember() *CallMember       { return &CallMember{} }
 func NewObjectMember() *ObjectMember   { return &ObjectMember{} }
 func NewConditional() *ConditionalExpr { return &ConditionalExpr{} }
-func NewFor() *ForExpr                 { return &ForExpr{} }
 func NewHash() *Hash                   { return &Hash{} }
 func NewIf() *IfExpr                   { return &IfExpr{} }
 func NewIndex() *IndexExpr             { return &IndexExpr{} }
@@ -71,9 +65,7 @@ var (
 		typeStmtAssignindex: func() Statement { return NewAssignIndex() },
 		typeStmtAssign:      func() Statement { return NewAssign() },
 		typeStmtBlock:       func() Statement { return NewBlock() },
-		typeStmtBreak:       func() Statement { return NewBreak() },
 		typeStmtReturn:      func() Statement { return NewReturn() },
-		typeStmtDefer:       func() Statement { return NewDefer() },
 	}
 	exprFactory = map[string]func() Expression{
 		typeExprIdent:        func() Expression { return NewIdent() },
@@ -88,7 +80,6 @@ var (
 		typeExprCallmember:   func() Expression { return NewCallMember() },
 		typeExprObjectmember: func() Expression { return NewObjectMember() },
 		typeExprConditional:  func() Expression { return NewConditional() },
-		typeExprFor:          func() Expression { return NewFor() },
 		typeExprHash:         func() Expression { return NewHash() },
 		typeExprIf:           func() Expression { return NewIf() },
 		typeExprIndex:        func() Expression { return NewIndex() },

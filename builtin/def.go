@@ -3,10 +3,8 @@ package builtin
 import (
 	"errors"
 	"fmt"
-	"os"
 	"strconv"
 
-	"github.com/jobs-github/escript/function"
 	"github.com/jobs-github/escript/object"
 )
 
@@ -68,61 +66,4 @@ func newFormatArgs(entry string, args object.Objects) (*formatArgs, error) {
 		return nil, fmt.Errorf("%v the first argument should be string (%v given)", entry, object.Typeof(format))
 	}
 	return &formatArgs{format: unquote(format.String()), args: s}, nil
-}
-
-type openArgs struct {
-	url  string
-	mode string
-	flag int
-}
-
-func (this *openArgs) size() int64 {
-	n, _ := function.FileSize(this.url)
-	return n
-}
-
-func (this *openArgs) open() object.Object {
-	f, err := os.OpenFile(this.url, this.flag, 0666)
-	if nil != err {
-		return object.Nil
-	}
-	return object.NewFile(this.url, this.mode, f, this.size())
-}
-
-func getFlag(mode string) (int, error) {
-	if modeRead == mode {
-		return os.O_RDONLY, nil
-	} else if modeWrite == mode {
-		return os.O_WRONLY, nil
-	} else if modeAppend == mode {
-		return os.O_WRONLY | os.O_APPEND | os.O_CREATE, nil
-	} else if modeReadUpdate == mode {
-		return os.O_RDWR, nil
-	} else if modeWriteUpdate == mode {
-		return os.O_RDWR | os.O_CREATE | os.O_TRUNC, nil
-	} else if modeAppendUpdate == mode {
-		return os.O_RDWR | os.O_APPEND | os.O_CREATE, nil
-	} else {
-		return 0, function.NewError(errMode)
-	}
-}
-
-func newOpenArgs(args object.Objects) (*openArgs, error) {
-	url := args[0]
-	if !object.IsString(url) {
-		return nil, fmt.Errorf("open() the first argument should be string (%v given)", object.Typeof(url))
-	}
-	if len(args) == 1 {
-		return &openArgs{url.String(), modeRead, os.O_RDONLY}, nil
-	}
-	m := args[1]
-	if !object.IsString(m) {
-		return nil, fmt.Errorf("open() argument 2 must be string (%v given)", object.Typeof(m))
-	}
-	mode := m.String()
-	flag, err := getFlag(mode)
-	if nil != err {
-		return nil, function.NewError(err)
-	}
-	return &openArgs{url.String(), mode, flag}, nil
 }
