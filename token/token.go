@@ -49,15 +49,12 @@ const (
 	NULL
 	FUNC
 	VAR
-	IF
-	ELSE
 	//keyword_end
 )
 
 const (
 	Var   = "var"
 	Func  = "func"
-	If    = "if"
 	Null  = "null"
 	True  = "true"
 	False = "false"
@@ -102,13 +99,11 @@ var (
 		'?': QUESTION,
 	}
 	keywords = map[string]TokenType{
-		True:   TRUE,
-		False:  FALSE,
-		Null:   NULL,
-		Func:   FUNC,
-		Var:    VAR,
-		If:     IF,
-		"else": ELSE,
+		True:  TRUE,
+		False: FALSE,
+		Null:  NULL,
+		Func:  FUNC,
+		Var:   VAR,
 	}
 
 	tokenTypeStrings = map[TokenType]string{
@@ -147,8 +142,6 @@ var (
 		NULL:      "NULL",
 		FUNC:      "FUNC",
 		VAR:       "VAR",
-		IF:        "IF",
-		ELSE:      "ELSE",
 	}
 )
 

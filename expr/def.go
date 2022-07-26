@@ -31,7 +31,6 @@ func NewExprParser(s scanner.Scanner, p interfaces.Parser) ExprParser {
 			token.LPAREN: &lparen{s, p},
 			token.LBRACK: &lbrack{s, p},
 			token.LBRACE: &lbrace{s, p},
-			token.IF:     &ifExpr{s, p},
 			token.FUNC:   &lambdaFunction{s, p},
 		},
 	}

@@ -31,7 +31,6 @@ type Scanner interface {
 	NewExpr() *ast.ExpressionStmt
 	NewBlock() *ast.BlockStmt
 	NewVar() *ast.VarStmt
-	NewIf() *ast.IfExpr
 	NewBoolean() *ast.Boolean
 	NewInteger() (*ast.Integer, error)
 	NewString() *ast.String
@@ -195,10 +194,6 @@ func (this *scanner) NewBlock() *ast.BlockStmt {
 
 func (this *scanner) NewVar() *ast.VarStmt {
 	return ast.NewVar()
-}
-
-func (this *scanner) NewIf() *ast.IfExpr {
-	return &ast.IfExpr{Clauses: ast.IfClauseSlice{}}
 }
 
 func (this *scanner) NewBoolean() *ast.Boolean {

@@ -26,7 +26,6 @@ const (
 	typeExprObjectmember = "objectmember"
 	typeExprConditional  = "conditional"
 	typeExprHash         = object.TypeHash
-	typeExprIf           = token.If
 	typeExprIndex        = "index"
 	typeExprInfix        = "infix"
 	typeExprPrefix       = "prefix"
@@ -50,7 +49,6 @@ func NewCallMember() *CallMember       { return &CallMember{} }
 func NewObjectMember() *ObjectMember   { return &ObjectMember{} }
 func NewConditional() *ConditionalExpr { return &ConditionalExpr{} }
 func NewHash() *Hash                   { return &Hash{} }
-func NewIf() *IfExpr                   { return &IfExpr{} }
 func NewIndex() *IndexExpr             { return &IndexExpr{} }
 func NewInfix() *InfixExpr             { return &InfixExpr{} }
 func NewPrefix() *PrefixExpr           { return &PrefixExpr{} }
@@ -78,7 +76,6 @@ var (
 		typeExprObjectmember: func() Expression { return NewObjectMember() },
 		typeExprConditional:  func() Expression { return NewConditional() },
 		typeExprHash:         func() Expression { return NewHash() },
-		typeExprIf:           func() Expression { return NewIf() },
 		typeExprIndex:        func() Expression { return NewIndex() },
 		typeExprInfix:        func() Expression { return NewInfix() },
 		typeExprPrefix:       func() Expression { return NewPrefix() },
