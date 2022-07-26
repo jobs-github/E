@@ -62,14 +62,6 @@ func (this *String) True() bool {
 	return true
 }
 
-func (this *String) Return() (bool, Object) {
-	return false, nil
-}
-
-func (this *String) Break() (bool, int) {
-	return false, 0
-}
-
 func (this *String) getType() ObjectType {
 	return objectTypeString
 }

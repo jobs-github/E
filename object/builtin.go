@@ -57,14 +57,6 @@ func (this *Builtin) True() bool {
 	return false
 }
 
-func (this *Builtin) Return() (bool, Object) {
-	return false, nil
-}
-
-func (this *Builtin) Break() (bool, int) {
-	return false, 0
-}
-
 func (this *Builtin) getType() ObjectType {
 	return objectTypeBuiltin
 }

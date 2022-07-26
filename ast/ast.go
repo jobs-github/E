@@ -77,45 +77,10 @@ func (this *StatementSlice) eval(isBlockStmts bool, env object.Env, insideLoop b
 		if v, err := stmt.Eval(env, insideLoop); nil != err {
 			return object.Nil, function.NewError(err)
 		} else {
-			if needReturn, returnValue := v.Return(); needReturn {
-				if isBlockStmts {
-					// it stops execution in a possible deeper block statement and bubbles up to Program.Eval
-					// where it finally get's unwrapped
-					return v, nil
-				} else {
-					return returnValue, nil
-				}
-			}
-			if insideLoop {
-				isBreak, _ := v.Break()
-				if isBreak {
-					return v, nil
-				}
-			} else { // outside loop
-				isBreak, breakCount := v.Break()
-				if isBreak && 1 == breakCount { // orginal break
-					err := fmt.Errorf("'break' outside loop, stmt(`%v`)", stmt.String())
-					return object.Nil, function.NewError(err)
-				}
-			}
 			result = v
 		}
 	}
-	if err := this.doDefer(env); nil != err {
-		return object.Nil, function.NewError(err)
-	}
 	return result, nil
-}
-
-func (this *StatementSlice) doDefer(env object.Env) error {
-	sz := len(*this)
-	for i := sz - 1; i >= 0; i-- {
-		stmt := (*this)[i]
-		if err := stmt.doDefer(env); nil != err {
-			return function.NewError(err)
-		}
-	}
-	return nil
 }
 
 func evalPrefixExpression(op *token.Token, right object.Object) (object.Object, error) {

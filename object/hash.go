@@ -116,14 +116,6 @@ func (this *Hash) True() bool {
 	return false
 }
 
-func (this *Hash) Return() (bool, Object) {
-	return false, nil
-}
-
-func (this *Hash) Break() (bool, int) {
-	return false, 0
-}
-
 func (this *Hash) getType() ObjectType {
 	return objectTypeHash
 }

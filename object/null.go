@@ -52,14 +52,6 @@ func (this *Null) True() bool {
 	return false
 }
 
-func (this *Null) Return() (bool, Object) {
-	return false, nil
-}
-
-func (this *Null) Break() (bool, int) {
-	return false, 0
-}
-
 func (this *Null) getType() ObjectType {
 	return objectTypeNull
 }

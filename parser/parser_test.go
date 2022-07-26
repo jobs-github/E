@@ -66,39 +66,6 @@ func TestVarStatements(t *testing.T) {
 	}
 }
 
-func TestReturnStatements(t *testing.T) {
-	cases := []struct {
-		input     string
-		wantValue interface{}
-	}{
-		{"return 5;", 5},
-		{"return true;", true},
-		{"return abc;", "abc"},
-	}
-
-	for _, tt := range cases {
-		l := lexer.New(tt.input)
-		p, err := New(l)
-		if nil != err {
-			t.Fatal(err)
-		}
-
-		program := parseProgram(t, p)
-		if len(program.Stmts) != 1 {
-			t.Fatalf("number of program Statements: %v", len(program.Stmts))
-		}
-		stmt := program.Stmts[0]
-		returnStmt, ok := stmt.(*ast.ReturnStmt)
-		if !ok {
-			t.Errorf("stmt not *ast.ReturnStatement, got %v", reflect.TypeOf(stmt).String())
-			continue
-		}
-		if !testLiteralExpression(t, returnStmt.ReturnValue, tt.wantValue) {
-			return
-		}
-	}
-}
-
 func TestIdentExpr(t *testing.T) {
 	input := `foobar;`
 

@@ -25,8 +25,7 @@ func NewStmtParser(
 		assignIndexDecoder: &assignIndexStmt{s, p},
 		exprDecoder:        &exprStmt{s, p},
 		m: map[token.TokenType]stmtDecoder{
-			token.VAR:    &varStmt{s, p},
-			token.RETURN: &returnStmt{s, p},
+			token.VAR: &varStmt{s, p},
 		},
 	}
 }

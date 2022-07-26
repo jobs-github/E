@@ -17,7 +17,6 @@ const (
 	objectTypeString
 	objectTypeBoolean
 	objectTypeNull
-	objectTypeReturnValue
 	objectTypeFunction
 	objectTypeArray
 	objectTypeHash
@@ -63,18 +62,17 @@ var (
 
 var (
 	objectTypeStrings = map[ObjectType]string{
-		objectTypeBuiltin:     TypeBuiltin,
-		objectTypeInteger:     TypeInt,
-		objectTypeString:      TypeStr,
-		objectTypeBoolean:     TypeBool,
-		objectTypeNull:        token.Null,
-		objectTypeReturnValue: token.Return,
-		objectTypeFunction:    "function",
-		objectTypeArray:       TypeArray,
-		objectTypeHash:        TypeHash,
-		objectTypeObjectFunc:  "object_func",
-		objectTypeArrayIter:   "array_iter",
-		objectTypeHashIter:    "hash_iter",
+		objectTypeBuiltin:    TypeBuiltin,
+		objectTypeInteger:    TypeInt,
+		objectTypeString:     TypeStr,
+		objectTypeBoolean:    TypeBool,
+		objectTypeNull:       token.Null,
+		objectTypeFunction:   "function",
+		objectTypeArray:      TypeArray,
+		objectTypeHash:       TypeHash,
+		objectTypeObjectFunc: "object_func",
+		objectTypeArrayIter:  "array_iter",
+		objectTypeHashIter:   "hash_iter",
 	}
 )
 

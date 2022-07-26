@@ -13,7 +13,6 @@ const (
 	typeStmtAssignindex  = "assignindex"
 	typeStmtAssign       = "assign"
 	typeStmtBlock        = "block"
-	typeStmtReturn       = token.Return
 	typeExprIdent        = "ident"
 	typeExprBuiltin      = object.TypeBuiltin
 	typeExprFn           = "fn"
@@ -39,7 +38,6 @@ func NewExpr() *ExpressionStmt         { return &ExpressionStmt{} }
 func NewAssignIndex() *AssignIndexStmt { return &AssignIndexStmt{} }
 func NewAssign() *AssignStmt           { return &AssignStmt{} }
 func NewBlock() *BlockStmt             { return &BlockStmt{} }
-func NewReturn() *ReturnStmt           { return &ReturnStmt{} }
 func NewIdent() *Identifier            { return &Identifier{} }
 func NewFn() *Function                 { return &Function{} }
 func NewArray() *Array                 { return &Array{} }
@@ -65,7 +63,6 @@ var (
 		typeStmtAssignindex: func() Statement { return NewAssignIndex() },
 		typeStmtAssign:      func() Statement { return NewAssign() },
 		typeStmtBlock:       func() Statement { return NewBlock() },
-		typeStmtReturn:      func() Statement { return NewReturn() },
 	}
 	exprFactory = map[string]func() Expression{
 		typeExprIdent:        func() Expression { return NewIdent() },

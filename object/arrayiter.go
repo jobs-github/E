@@ -58,14 +58,6 @@ func (this *ArrayIterator) True() bool {
 	return false
 }
 
-func (this *ArrayIterator) Return() (bool, Object) {
-	return false, nil
-}
-
-func (this *ArrayIterator) Break() (bool, int) {
-	return false, 0
-}
-
 func (this *ArrayIterator) getType() ObjectType {
 	return objectTypeArrayIter
 }

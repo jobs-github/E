@@ -59,14 +59,6 @@ func (this *ObjectFunc) True() bool {
 	return false
 }
 
-func (this *ObjectFunc) Return() (bool, Object) {
-	return false, nil
-}
-
-func (this *ObjectFunc) Break() (bool, int) {
-	return false, 0
-}
-
 func (this *ObjectFunc) getType() ObjectType {
 	return objectTypeObjectFunc
 }

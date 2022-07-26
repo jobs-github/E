@@ -63,9 +63,6 @@ func (this *Function) Call(args Objects) (Object, error) {
 	if nil != err {
 		return Nil, function.NewError(err)
 	}
-	if isReturn, rc := evaluated.Return(); isReturn {
-		return rc, nil
-	}
 	return evaluated, nil
 }
 
@@ -79,14 +76,6 @@ func (this *Function) GetMember(name string) (Object, error) {
 
 func (this *Function) True() bool {
 	return false
-}
-
-func (this *Function) Return() (bool, Object) {
-	return false, nil
-}
-
-func (this *Function) Break() (bool, int) {
-	return false, 0
 }
 
 func (this *Function) getType() ObjectType {

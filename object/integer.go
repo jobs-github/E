@@ -64,14 +64,6 @@ func (this *Integer) True() bool {
 	return true
 }
 
-func (this *Integer) Return() (bool, Object) {
-	return false, nil
-}
-
-func (this *Integer) Break() (bool, int) {
-	return false, 0
-}
-
 func (this *Integer) getType() ObjectType {
 	return objectTypeInteger
 }

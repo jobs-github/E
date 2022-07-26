@@ -51,19 +51,16 @@ const (
 	VAR
 	IF
 	ELSE
-	RETURN
 	//keyword_end
 )
 
 const (
-	Return = "return"
-	Var    = "var"
-	Func   = "func"
-	If     = "if"
-	Import = "import"
-	Null   = "null"
-	True   = "true"
-	False  = "false"
+	Var   = "var"
+	Func  = "func"
+	If    = "if"
+	Null  = "null"
+	True  = "true"
+	False = "false"
 )
 
 var (
@@ -112,7 +109,6 @@ var (
 		Var:    VAR,
 		If:     IF,
 		"else": ELSE,
-		Return: RETURN,
 	}
 
 	tokenTypeStrings = map[TokenType]string{
@@ -153,7 +149,6 @@ var (
 		VAR:       "VAR",
 		IF:        "IF",
 		ELSE:      "ELSE",
-		RETURN:    "RETURN",
 	}
 )
 

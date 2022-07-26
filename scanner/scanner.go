@@ -28,7 +28,6 @@ type Scanner interface {
 	NewFunction() *ast.FunctionStmt
 	NewAssign() *ast.AssignStmt
 	NewAssignIndex() *ast.AssignIndexStmt
-	NewReturn() *ast.ReturnStmt
 	NewExpr() *ast.ExpressionStmt
 	NewBlock() *ast.BlockStmt
 	NewVar() *ast.VarStmt
@@ -184,10 +183,6 @@ func (this *scanner) NewAssign() *ast.AssignStmt {
 
 func (this *scanner) NewAssignIndex() *ast.AssignIndexStmt {
 	return &ast.AssignIndexStmt{Name: &ast.Identifier{Value: this.curTok.Literal}}
-}
-
-func (this *scanner) NewReturn() *ast.ReturnStmt {
-	return ast.NewReturn()
 }
 
 func (this *scanner) NewExpr() *ast.ExpressionStmt {

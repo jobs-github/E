@@ -60,14 +60,6 @@ func (this *HashIterator) True() bool {
 	return false
 }
 
-func (this *HashIterator) Return() (bool, Object) {
-	return false, nil
-}
-
-func (this *HashIterator) Break() (bool, int) {
-	return false, 0
-}
-
 func (this *HashIterator) getType() ObjectType {
 	return objectTypeHashIter
 }

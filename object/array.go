@@ -82,14 +82,6 @@ func (this *Array) True() bool {
 	return false
 }
 
-func (this *Array) Return() (bool, Object) {
-	return false, nil
-}
-
-func (this *Array) Break() (bool, int) {
-	return false, 0
-}
-
 func (this *Array) getType() ObjectType {
 	return objectTypeArray
 }

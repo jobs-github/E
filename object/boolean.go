@@ -61,14 +61,6 @@ func (this *Boolean) True() bool {
 	return this.Value
 }
 
-func (this *Boolean) Return() (bool, Object) {
-	return false, nil
-}
-
-func (this *Boolean) Break() (bool, int) {
-	return false, 0
-}
-
 func (this *Boolean) getType() ObjectType {
 	return objectTypeBoolean
 }
