@@ -17,13 +17,11 @@ func NewStmtParser(
 	newParser func(s scanner.Scanner) interfaces.Parser,
 ) StmtParser {
 	return &stmtParser{
-		scanner:            s,
-		p:                  p,
-		newParser:          newParser,
-		functionDecoder:    &functionStmt{s, p},
-		assignDecoder:      &assignStmt{s, p},
-		assignIndexDecoder: &assignIndexStmt{s, p},
-		exprDecoder:        &exprStmt{s, p},
+		scanner:         s,
+		p:               p,
+		newParser:       newParser,
+		functionDecoder: &functionStmt{s, p},
+		exprDecoder:     &exprStmt{s, p},
 		m: map[token.TokenType]stmtDecoder{
 			token.VAR: &varStmt{s, p},
 		},
@@ -36,15 +34,12 @@ type stmtDecoder interface {
 
 // stmtParser : implement StmtParser
 type stmtParser struct {
-	scanner            scanner.Scanner
-	p                  interfaces.Parser
-	newParser          func(s scanner.Scanner) interfaces.Parser
-	functionDecoder    stmtDecoder
-	assignDecoder      stmtDecoder
-	assignIndexDecoder stmtDecoder
-	exprDecoder        stmtDecoder
-	deferDecoder       stmtDecoder
-	m                  map[token.TokenType]stmtDecoder
+	scanner         scanner.Scanner
+	p               interfaces.Parser
+	newParser       func(s scanner.Scanner) interfaces.Parser
+	functionDecoder stmtDecoder
+	exprDecoder     stmtDecoder
+	m               map[token.TokenType]stmtDecoder
 }
 
 func (this *stmtParser) Decode(t token.TokenType, endTok token.TokenType) (ast.Statement, error) {
@@ -54,10 +49,6 @@ func (this *stmtParser) Decode(t token.TokenType, endTok token.TokenType) (ast.S
 	} else {
 		if this.isFunctionStmt() {
 			return this.functionDecoder.decode(endTok)
-		} else if this.isAssignStmt() {
-			return this.assignDecoder.decode(endTok)
-		} else if this.isAssignIndexStmt() {
-			return this.assignIndexDecoder.decode(endTok)
 		} else {
 			return this.exprDecoder.decode(endTok)
 		}
@@ -66,14 +57,4 @@ func (this *stmtParser) Decode(t token.TokenType, endTok token.TokenType) (ast.S
 
 func (this *stmtParser) isFunctionStmt() bool {
 	return this.scanner.ExpectCur2(token.FUNC, token.IDENT)
-}
-
-func (this *stmtParser) isAssignStmt() bool {
-	return this.scanner.ExpectCur2(token.IDENT, token.ASSIGN)
-}
-
-func (this *stmtParser) isAssignIndexStmt() bool {
-	s := this.scanner.Clone()
-	parser := &assignIndexStmt{s, this.newParser(s)}
-	return parser.match()
 }

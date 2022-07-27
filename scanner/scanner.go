@@ -26,8 +26,6 @@ type Scanner interface {
 	NewCall(left ast.Expression) *ast.Call
 	NewConditional(left ast.Expression) *ast.ConditionalExpr
 	NewFunction() *ast.FunctionStmt
-	NewAssign() *ast.AssignStmt
-	NewAssignIndex() *ast.AssignIndexStmt
 	NewExpr() *ast.ExpressionStmt
 	NewBlock() *ast.BlockStmt
 	NewVar() *ast.VarStmt
@@ -174,14 +172,6 @@ func (this *scanner) NewConditional(left ast.Expression) *ast.ConditionalExpr {
 
 func (this *scanner) NewFunction() *ast.FunctionStmt {
 	return &ast.FunctionStmt{Name: &ast.Identifier{Value: this.curTok.Literal}}
-}
-
-func (this *scanner) NewAssign() *ast.AssignStmt {
-	return &ast.AssignStmt{Name: &ast.Identifier{Value: this.curTok.Literal}}
-}
-
-func (this *scanner) NewAssignIndex() *ast.AssignIndexStmt {
-	return &ast.AssignIndexStmt{Name: &ast.Identifier{Value: this.curTok.Literal}}
 }
 
 func (this *scanner) NewExpr() *ast.ExpressionStmt {

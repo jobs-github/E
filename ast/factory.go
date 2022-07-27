@@ -10,8 +10,6 @@ const (
 	typeStmtVar          = token.Var
 	typeStmtFn           = token.Func
 	typeStmtExpr         = "expr"
-	typeStmtAssignindex  = "assignindex"
-	typeStmtAssign       = "assign"
 	typeStmtBlock        = "block"
 	typeExprIdent        = "ident"
 	typeExprBuiltin      = object.TypeBuiltin
@@ -34,8 +32,6 @@ const (
 func NewVar() *VarStmt                 { return &VarStmt{} }
 func NewFunction() *FunctionStmt       { return &FunctionStmt{} }
 func NewExpr() *ExpressionStmt         { return &ExpressionStmt{} }
-func NewAssignIndex() *AssignIndexStmt { return &AssignIndexStmt{} }
-func NewAssign() *AssignStmt           { return &AssignStmt{} }
 func NewBlock() *BlockStmt             { return &BlockStmt{} }
 func NewIdent() *Identifier            { return &Identifier{} }
 func NewFn() *Function                 { return &Function{} }
@@ -55,12 +51,10 @@ func NewPrefix() *PrefixExpr           { return &PrefixExpr{} }
 
 var (
 	stmtFactory = map[string]func() Statement{
-		typeStmtVar:         func() Statement { return NewVar() },
-		typeStmtFn:          func() Statement { return NewFunction() },
-		typeStmtExpr:        func() Statement { return NewExpr() },
-		typeStmtAssignindex: func() Statement { return NewAssignIndex() },
-		typeStmtAssign:      func() Statement { return NewAssign() },
-		typeStmtBlock:       func() Statement { return NewBlock() },
+		typeStmtVar:   func() Statement { return NewVar() },
+		typeStmtFn:    func() Statement { return NewFunction() },
+		typeStmtExpr:  func() Statement { return NewExpr() },
+		typeStmtBlock: func() Statement { return NewBlock() },
 	}
 	exprFactory = map[string]func() Expression{
 		typeExprIdent:        func() Expression { return NewIdent() },

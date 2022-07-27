@@ -46,10 +46,6 @@ func TestEvalExpr(t *testing.T) {
 
 		{`var arr = [1,2,3]; var f = arr.len; f();`, 3},
 		{`var arr = [1,2,3]; arr.len();`, 3},
-		{`var arr = [1,2,3,4,5]; arr[1] = 20; arr[1]`, 20},
-		{`var arr = [1,2,3,4,5]; arr[5-4] = 20; arr[2-1]`, 20},
-		{`var m = {"k1": "v1", "k2": "v2"}; m["k1"] = "hello"; m["k1"]`, "hello"},
-		{`var m = {"k1": "v1", "k2": "v2"}; var k = "k1"; m[k] = "hello"; m[k]`, "hello"},
 
 		{`{"foo": 5}["foo"]`, 5},
 		{`var k = "foo"; {"foo": 5}[k]`, 5},
@@ -441,29 +437,6 @@ func TestArrayCases(t *testing.T) {
 		for i := 0; i < sz; i++ {
 			testEvalObject(t, obj.Items[i], tt.expected[i])
 		}
-	}
-}
-
-func TestAssignStmts(t *testing.T) {
-	stmts := `
-	var a = 5; 
-	var b = a; 
-	var c = a + b + 5; 
-	a = c; 
-	a;
-	`
-	tests := []struct {
-		input    string
-		expected interface{}
-	}{
-		{stmts, 15},
-	}
-	for _, tt := range tests {
-		evaluated, err := testEval(tt.input)
-		if nil != err {
-			t.Fatal(err)
-		}
-		testEvalObject(t, evaluated, tt.expected)
 	}
 }
 
