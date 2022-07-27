@@ -60,5 +60,3 @@ func (this *Hash) Eval(env object.Env) (object.Object, error) {
 	}
 	return object.NewHash(m), nil
 }
-func (this *Hash) walk(cb func(module string))  {}
-func (this *Hash) doDefer(env object.Env) error { return nil }

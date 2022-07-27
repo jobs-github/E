@@ -60,7 +60,3 @@ func (this *PrefixExpr) Eval(env object.Env) (object.Object, error) {
 	}
 	return evalPrefixExpression(this.Op, right)
 }
-func (this *PrefixExpr) walk(cb func(module string)) {
-	this.Right.walk(cb)
-}
-func (this *PrefixExpr) doDefer(env object.Env) error { return nil }

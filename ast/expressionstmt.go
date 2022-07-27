@@ -35,7 +35,3 @@ func (this *ExpressionStmt) String() string {
 func (this *ExpressionStmt) Eval(env object.Env) (object.Object, error) {
 	return this.Expr.Eval(env)
 }
-func (this *ExpressionStmt) walk(cb func(module string)) {
-	this.Expr.walk(cb)
-}
-func (this *ExpressionStmt) doDefer(env object.Env) error { return nil }

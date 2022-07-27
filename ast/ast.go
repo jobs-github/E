@@ -15,8 +15,6 @@ type Node interface {
 	Decode(b []byte) error
 	String() string
 	Eval(env object.Env) (object.Object, error)
-	walk(cb func(module string))
-	doDefer(env object.Env) error
 }
 
 type Statement interface {

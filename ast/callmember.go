@@ -82,5 +82,3 @@ func (this *CallMember) Eval(env object.Env) (object.Object, error) {
 	}
 	return obj.CallMember(this.Func.Value, args)
 }
-func (this *CallMember) walk(cb func(module string))  {}
-func (this *CallMember) doDefer(env object.Env) error { return nil }

@@ -38,9 +38,3 @@ func (this *Program) String() string {
 func (this *Program) Eval(env object.Env) (object.Object, error) {
 	return this.Stmts.eval(false, env)
 }
-func (this *Program) walk(cb func(module string)) {
-	for _, s := range this.Stmts {
-		s.walk(cb)
-	}
-}
-func (this *Program) doDefer(env object.Env) error { return nil }

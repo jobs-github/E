@@ -48,7 +48,3 @@ func (this *VarStmt) String() string {
 func (this *VarStmt) Eval(env object.Env) (object.Object, error) {
 	return evalVar(env, this.Name, this.Value)
 }
-func (this *VarStmt) walk(cb func(module string)) {
-	this.Value.walk(cb)
-}
-func (this *VarStmt) doDefer(env object.Env) error { return nil }

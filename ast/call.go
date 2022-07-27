@@ -73,5 +73,3 @@ func (this *Call) Eval(env object.Env) (object.Object, error) {
 	}
 	return fn.Call(args)
 }
-func (this *Call) walk(cb func(module string))  {}
-func (this *Call) doDefer(env object.Env) error { return nil }

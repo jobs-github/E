@@ -24,5 +24,3 @@ func (this *Null) String() string {
 func (this *Null) Eval(env object.Env) (object.Object, error) {
 	return object.Nil, nil
 }
-func (this *Null) walk(cb func(module string))  {}
-func (this *Null) doDefer(env object.Env) error { return nil }

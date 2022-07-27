@@ -74,5 +74,3 @@ func (this *ConditionalExpr) Eval(env object.Env) (object.Object, error) {
 		return this.No.Eval(env.NewEnclosedEnv())
 	}
 }
-func (this *ConditionalExpr) walk(cb func(module string))  {}
-func (this *ConditionalExpr) doDefer(env object.Env) error { return nil }

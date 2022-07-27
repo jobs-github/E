@@ -74,8 +74,3 @@ func (this *InfixExpr) Eval(env object.Env) (object.Object, error) {
 	}
 	return left.Calc(this.Op, right)
 }
-func (this *InfixExpr) walk(cb func(module string)) {
-	this.Left.walk(cb)
-	this.Right.walk(cb)
-}
-func (this *InfixExpr) doDefer(env object.Env) error { return nil }

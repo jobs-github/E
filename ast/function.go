@@ -122,7 +122,3 @@ func (this *Function) argumentOf(idx int) string {
 func (this *Function) body() string {
 	return this.Body.String()
 }
-func (this *Function) walk(cb func(module string)) {
-	this.Body.walk(cb)
-}
-func (this *Function) doDefer(env object.Env) error { return nil }

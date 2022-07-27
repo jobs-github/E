@@ -36,5 +36,3 @@ func (this *Integer) String() string {
 func (this *Integer) Eval(env object.Env) (object.Object, error) {
 	return object.NewInteger(this.Value), nil
 }
-func (this *Integer) walk(cb func(module string))  {}
-func (this *Integer) doDefer(env object.Env) error { return nil }

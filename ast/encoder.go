@@ -49,18 +49,6 @@ func LoadAst(
 	}
 }
 
-func Imports(module string, loadAst func(module string) (Node, error)) ([]string, error) {
-	node, err := loadAst(module)
-	if nil != err {
-		return nil, function.NewError(err)
-	}
-	s := function.StringSet{}
-	node.walk(func(module string) {
-		s.Add(module)
-	})
-	return s.Keys(), nil
-}
-
 func Decode(b []byte) (Node, error) {
 	var root JsonNode
 	if err := json.Unmarshal(b, &root); nil != err {

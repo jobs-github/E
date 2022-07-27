@@ -49,5 +49,3 @@ func (this *Array) Eval(env object.Env) (object.Object, error) {
 	}
 	return object.NewArray(items), nil
 }
-func (this *Array) walk(cb func(module string))  {}
-func (this *Array) doDefer(env object.Env) error { return nil }

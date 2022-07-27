@@ -46,8 +46,6 @@ func (this *Identifier) Eval(env object.Env) (object.Object, error) {
 	err := fmt.Errorf("`%v` not found", this.Value)
 	return object.Nil, function.NewError(err)
 }
-func (this *Identifier) walk(cb func(module string))  {}
-func (this *Identifier) doDefer(env object.Env) error { return nil }
 
 type IdentifierSlice []*Identifier
 

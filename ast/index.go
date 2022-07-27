@@ -66,5 +66,3 @@ func (this *IndexExpr) Eval(env object.Env) (object.Object, error) {
 	}
 	return left.CallMember(object.FnIndex, object.Objects{idx})
 }
-func (this *IndexExpr) walk(cb func(module string))  {}
-func (this *IndexExpr) doDefer(env object.Env) error { return nil }

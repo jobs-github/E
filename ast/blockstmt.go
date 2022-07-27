@@ -39,9 +39,3 @@ func (this *BlockStmt) String() string {
 func (this *BlockStmt) Eval(env object.Env) (object.Object, error) {
 	return this.Stmts.eval(true, env)
 }
-func (this *BlockStmt) walk(cb func(module string)) {
-	for _, s := range this.Stmts {
-		s.walk(cb)
-	}
-}
-func (this *BlockStmt) doDefer(env object.Env) error { return nil }
