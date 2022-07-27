@@ -115,14 +115,6 @@ func (this *Integer) equalObjectFunc(other *ObjectFunc) error {
 	return fmt.Errorf("type mismatch, this: %v, other: %v", Typeof(this), Typeof(other))
 }
 
-func (this *Integer) equalArrayIter(other *ArrayIterator) error {
-	return fmt.Errorf("type mismatch, this: %v, other: %v", Typeof(this), Typeof(other))
-}
-
-func (this *Integer) equalHashIter(other *HashIterator) error {
-	return fmt.Errorf("type mismatch, this: %v, other: %v", Typeof(this), Typeof(other))
-}
-
 func (this *Integer) calcInteger(op *token.Token, left *Integer) (Object, error) {
 	switch op.Type {
 	case token.ADD:
@@ -185,14 +177,6 @@ func (this *Integer) calcFunction(op *token.Token, left *Function) (Object, erro
 }
 
 func (this *Integer) calcObjectFunc(op *token.Token, left *ObjectFunc) (Object, error) {
-	return notEqual(function.GetFunc(), this, op)
-}
-
-func (this *Integer) calcArrayIter(op *token.Token, left *ArrayIterator) (Object, error) {
-	return notEqual(function.GetFunc(), this, op)
-}
-
-func (this *Integer) calcHashIter(op *token.Token, left *HashIterator) (Object, error) {
 	return notEqual(function.GetFunc(), this, op)
 }
 

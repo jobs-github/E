@@ -29,8 +29,6 @@ type Object interface {
 	equalBuiltin(other *Builtin) error
 	equalFunction(other *Function) error
 	equalObjectFunc(other *ObjectFunc) error
-	equalArrayIter(other *ArrayIterator) error
-	equalHashIter(other *HashIterator) error
 	// calc
 	calcInteger(op *token.Token, left *Integer) (Object, error)
 	calcString(op *token.Token, left *String) (Object, error)
@@ -41,8 +39,6 @@ type Object interface {
 	calcBuiltin(op *token.Token, left *Builtin) (Object, error)
 	calcFunction(op *token.Token, left *Function) (Object, error)
 	calcObjectFunc(op *token.Token, left *ObjectFunc) (Object, error)
-	calcArrayIter(op *token.Token, left *ArrayIterator) (Object, error)
-	calcHashIter(op *token.Token, left *HashIterator) (Object, error)
 }
 
 type objectFn func(args Objects) (Object, error)

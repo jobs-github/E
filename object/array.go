@@ -16,7 +16,6 @@ func NewArray(items Objects) Object {
 		FnLen:   obj.builtinLen,
 		FnIndex: obj.builtinIndex,
 		FnNot:   obj.builtinNot,
-		"iter":  obj.builtinIter,
 		"first": obj.builtinFirst,
 		"last":  obj.builtinLast,
 		"tail":  obj.builtinTail,
@@ -142,14 +141,6 @@ func (this *Array) equalObjectFunc(other *ObjectFunc) error {
 	return fmt.Errorf("type mismatch, this: %v, other: %v", Typeof(this), Typeof(other))
 }
 
-func (this *Array) equalArrayIter(other *ArrayIterator) error {
-	return fmt.Errorf("type mismatch, this: %v, other: %v", Typeof(this), Typeof(other))
-}
-
-func (this *Array) equalHashIter(other *HashIterator) error {
-	return fmt.Errorf("type mismatch, this: %v, other: %v", Typeof(this), Typeof(other))
-}
-
 func (this *Array) calcInteger(op *token.Token, left *Integer) (Object, error) {
 	return notEqual(function.GetFunc(), this, op)
 }
@@ -186,14 +177,6 @@ func (this *Array) calcObjectFunc(op *token.Token, left *ObjectFunc) (Object, er
 	return notEqual(function.GetFunc(), this, op)
 }
 
-func (this *Array) calcArrayIter(op *token.Token, left *ArrayIterator) (Object, error) {
-	return notEqual(function.GetFunc(), this, op)
-}
-
-func (this *Array) calcHashIter(op *token.Token, left *HashIterator) (Object, error) {
-	return notEqual(function.GetFunc(), this, op)
-}
-
 // builtin
 func (this *Array) builtinLen(args Objects) (Object, error) {
 	argc := len(args)
@@ -201,17 +184,6 @@ func (this *Array) builtinLen(args Objects) (Object, error) {
 		return Nil, fmt.Errorf("len() takes no argument (%v given), (`%v`)", argc, this.String())
 	}
 	return NewInteger(int64(len(this.Items))), nil
-}
-
-func (this *Array) builtinIter(args Objects) (Object, error) {
-	argc := len(args)
-	if argc != 0 {
-		return Nil, fmt.Errorf("iter() takes no argument (%v given), (`%v`)", argc, this.String())
-	}
-	if nil == this.Items {
-		return Nil, nil
-	}
-	return NewArrayIterator(this), nil
 }
 
 func (this *Array) builtinSet(args Objects) (Object, error) {

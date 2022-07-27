@@ -113,14 +113,6 @@ func (this *String) equalObjectFunc(other *ObjectFunc) error {
 	return fmt.Errorf("type mismatch, this: %v, other: %v", Typeof(this), Typeof(other))
 }
 
-func (this *String) equalArrayIter(other *ArrayIterator) error {
-	return fmt.Errorf("type mismatch, this: %v, other: %v", Typeof(this), Typeof(other))
-}
-
-func (this *String) equalHashIter(other *HashIterator) error {
-	return fmt.Errorf("type mismatch, this: %v, other: %v", Typeof(this), Typeof(other))
-}
-
 func (this *String) calcInteger(op *token.Token, left *Integer) (Object, error) {
 	return notEqual(function.GetFunc(), this, op)
 }
@@ -175,14 +167,6 @@ func (this *String) calcFunction(op *token.Token, left *Function) (Object, error
 }
 
 func (this *String) calcObjectFunc(op *token.Token, left *ObjectFunc) (Object, error) {
-	return notEqual(function.GetFunc(), this, op)
-}
-
-func (this *String) calcArrayIter(op *token.Token, left *ArrayIterator) (Object, error) {
-	return notEqual(function.GetFunc(), this, op)
-}
-
-func (this *String) calcHashIter(op *token.Token, left *HashIterator) (Object, error) {
 	return notEqual(function.GetFunc(), this, op)
 }
 

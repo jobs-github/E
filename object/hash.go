@@ -50,7 +50,6 @@ func NewHash(pairs HashMap) Object {
 		FnLen:   obj.builtinLen,
 		FnIndex: obj.builtinIndex,
 		FnNot:   obj.builtinNot,
-		"iter":  obj.builtinIter,
 	}
 	return obj
 }
@@ -178,14 +177,6 @@ func (this *Hash) equalObjectFunc(other *ObjectFunc) error {
 	return fmt.Errorf("type mismatch, this: %v, other: %v", Typeof(this), Typeof(other))
 }
 
-func (this *Hash) equalArrayIter(other *ArrayIterator) error {
-	return fmt.Errorf("type mismatch, this: %v, other: %v", Typeof(this), Typeof(other))
-}
-
-func (this *Hash) equalHashIter(other *HashIterator) error {
-	return fmt.Errorf("type mismatch, this: %v, other: %v", Typeof(this), Typeof(other))
-}
-
 func (this *Hash) calcInteger(op *token.Token, left *Integer) (Object, error) {
 	return notEqual(function.GetFunc(), this, op)
 }
@@ -222,14 +213,6 @@ func (this *Hash) calcObjectFunc(op *token.Token, left *ObjectFunc) (Object, err
 	return notEqual(function.GetFunc(), this, op)
 }
 
-func (this *Hash) calcArrayIter(op *token.Token, left *ArrayIterator) (Object, error) {
-	return notEqual(function.GetFunc(), this, op)
-}
-
-func (this *Hash) calcHashIter(op *token.Token, left *HashIterator) (Object, error) {
-	return notEqual(function.GetFunc(), this, op)
-}
-
 // builtin
 func (this *Hash) builtinLen(args Objects) (Object, error) {
 	argc := len(args)
@@ -237,17 +220,6 @@ func (this *Hash) builtinLen(args Objects) (Object, error) {
 		return Nil, fmt.Errorf("len() takes no argument (%v given), (`%v`)", argc, this.String())
 	}
 	return NewInteger(int64(len(this.Pairs))), nil
-}
-
-func (this *Hash) builtinIter(args Objects) (Object, error) {
-	argc := len(args)
-	if argc != 0 {
-		return Nil, fmt.Errorf("iter() takes no argument (%v given), (`%v`)", argc, this.String())
-	}
-	if nil == this.Pairs {
-		return Nil, nil
-	}
-	return NewHashIterator(this), nil
 }
 
 func (this *Hash) builtinSet(args Objects) (Object, error) {

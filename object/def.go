@@ -21,8 +21,6 @@ const (
 	objectTypeArray
 	objectTypeHash
 	objectTypeObjectFunc
-	objectTypeArrayIter
-	objectTypeHashIter
 )
 
 const (
@@ -71,8 +69,6 @@ var (
 		objectTypeArray:      TypeArray,
 		objectTypeHash:       TypeHash,
 		objectTypeObjectFunc: "object_func",
-		objectTypeArrayIter:  "array_iter",
-		objectTypeHashIter:   "hash_iter",
 	}
 )
 
