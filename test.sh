@@ -1,0 +1,9 @@
+./Q scripts/closure.qs
+./Q scripts/double.qs
+./Q scripts/example.qs
+./Q scripts/int.qs
+./Q scripts/mapreduce.qs
+./Q scripts/conditional.qs
+./Q scripts/env.qs
+./Q scripts/hello.qs
+./Q scripts/json.qs

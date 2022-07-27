@@ -1,12 +1,12 @@
 var r = func (x) {
-    return x * 2;
+    x * 2;
 }(2);
 
 println(r);
 
 func add(x) {
-    return func(y) {
-        return x + y;
+    func(y) {
+        x + y;
     };
 };
 

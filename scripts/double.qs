@@ -1,7 +1,7 @@
 /* comment */
 
 func double(x) {
-    return x * 2;
+    x * 2;
 };
 
 /* comment */
