@@ -75,7 +75,7 @@ func (this *Function) String() string {
 	return out.String()
 }
 
-func (this *Function) Eval(env object.Env, insideLoop bool) (object.Object, error) {
+func (this *Function) Eval(env object.Env) (object.Object, error) {
 	return object.NewFunction(
 		this.Name,
 		function.Function{
@@ -89,8 +89,8 @@ func (this *Function) Eval(env object.Env, insideLoop bool) (object.Object, erro
 	), nil
 }
 
-func (this *Function) evalBody(env object.Env, insideLoop bool) (object.Object, error) {
-	return this.Body.Eval(env, insideLoop)
+func (this *Function) evalBody(env object.Env) (object.Object, error) {
+	return this.Body.Eval(env)
 }
 
 func (this *Function) toString() string {

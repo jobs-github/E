@@ -55,12 +55,12 @@ func (this *IndexExpr) String() string {
 }
 
 // IndexExpr -> ast -> Eval() -> object -> Index
-func (this *IndexExpr) Eval(env object.Env, insideLoop bool) (object.Object, error) {
-	left, err := this.Left.Eval(env, insideLoop)
+func (this *IndexExpr) Eval(env object.Env) (object.Object, error) {
+	left, err := this.Left.Eval(env)
 	if nil != err {
 		return object.Nil, function.NewError(err)
 	}
-	idx, err := this.Index.Eval(env, insideLoop)
+	idx, err := this.Index.Eval(env)
 	if nil != err {
 		return object.Nil, function.NewError(err)
 	}

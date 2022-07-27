@@ -53,8 +53,8 @@ func (this *PrefixExpr) String() string {
 	out.WriteString(")")
 	return out.String()
 }
-func (this *PrefixExpr) Eval(env object.Env, insideLoop bool) (object.Object, error) {
-	right, err := this.Right.Eval(env, insideLoop)
+func (this *PrefixExpr) Eval(env object.Env) (object.Object, error) {
+	right, err := this.Right.Eval(env)
 	if nil != err {
 		return object.Nil, function.NewError(err)
 	}

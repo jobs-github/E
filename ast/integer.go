@@ -33,7 +33,7 @@ func (this *Integer) expressionNode() {}
 func (this *Integer) String() string {
 	return fmt.Sprintf("%v", this.Value)
 }
-func (this *Integer) Eval(env object.Env, insideLoop bool) (object.Object, error) {
+func (this *Integer) Eval(env object.Env) (object.Object, error) {
 	return object.NewInteger(this.Value), nil
 }
 func (this *Integer) walk(cb func(module string))  {}

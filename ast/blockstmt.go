@@ -36,8 +36,8 @@ func (this *BlockStmt) String() string {
 	}
 	return out.String()
 }
-func (this *BlockStmt) Eval(env object.Env, insideLoop bool) (object.Object, error) {
-	return this.Stmts.eval(true, env, insideLoop)
+func (this *BlockStmt) Eval(env object.Env) (object.Object, error) {
+	return this.Stmts.eval(true, env)
 }
 func (this *BlockStmt) walk(cb func(module string)) {
 	for _, s := range this.Stmts {

@@ -63,12 +63,12 @@ func (this *InfixExpr) String() string {
 	out.WriteString(")")
 	return out.String()
 }
-func (this *InfixExpr) Eval(env object.Env, insideLoop bool) (object.Object, error) {
-	left, err := this.Left.Eval(env, insideLoop)
+func (this *InfixExpr) Eval(env object.Env) (object.Object, error) {
+	left, err := this.Left.Eval(env)
 	if nil != err {
 		return object.Nil, function.NewError(err)
 	}
-	right, err := this.Right.Eval(env, insideLoop)
+	right, err := this.Right.Eval(env)
 	if nil != err {
 		return object.Nil, function.NewError(err)
 	}

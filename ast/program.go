@@ -35,8 +35,8 @@ func (this *Program) String() string {
 	return out.String()
 }
 
-func (this *Program) Eval(env object.Env, insideLoop bool) (object.Object, error) {
-	return this.Stmts.eval(false, env, false)
+func (this *Program) Eval(env object.Env) (object.Object, error) {
+	return this.Stmts.eval(false, env)
 }
 func (this *Program) walk(cb func(module string)) {
 	for _, s := range this.Stmts {

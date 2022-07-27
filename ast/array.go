@@ -42,8 +42,8 @@ func (this *Array) String() string {
 	out.WriteString("]")
 	return out.String()
 }
-func (this *Array) Eval(env object.Env, insideLoop bool) (object.Object, error) {
-	items, err := this.Items.eval(env, insideLoop)
+func (this *Array) Eval(env object.Env) (object.Object, error) {
+	items, err := this.Items.eval(env)
 	if nil != err {
 		return object.Nil, function.NewError(err)
 	}

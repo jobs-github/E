@@ -70,13 +70,13 @@ func (this *CallMember) String() string {
 
 	return out.String()
 }
-func (this *CallMember) Eval(env object.Env, insideLoop bool) (object.Object, error) {
-	obj, err := this.Left.Eval(env, insideLoop)
+func (this *CallMember) Eval(env object.Env) (object.Object, error) {
+	obj, err := this.Left.Eval(env)
 	if nil != err {
 		return object.Nil, function.NewError(err)
 	}
 
-	args, err := this.Args.eval(env, insideLoop)
+	args, err := this.Args.eval(env)
 	if nil != err {
 		return object.Nil, function.NewError(err)
 	}

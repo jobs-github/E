@@ -41,10 +41,10 @@ func (this *Hash) String() string {
 	out.WriteString("}")
 	return out.String()
 }
-func (this *Hash) Eval(env object.Env, insideLoop bool) (object.Object, error) {
+func (this *Hash) Eval(env object.Env) (object.Object, error) {
 	m := object.HashMap{}
 	for k, v := range this.Pairs {
-		key, err := k.Eval(env, insideLoop)
+		key, err := k.Eval(env)
 		if nil != err {
 			return object.Nil, function.NewError(err)
 		}
@@ -52,7 +52,7 @@ func (this *Hash) Eval(env object.Env, insideLoop bool) (object.Object, error) {
 		if nil != err {
 			return object.Nil, function.NewError(err)
 		}
-		val, err := v.Eval(env, insideLoop)
+		val, err := v.Eval(env)
 		if nil != err {
 			return object.Nil, function.NewError(err)
 		}

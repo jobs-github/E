@@ -36,7 +36,7 @@ func (this *Identifier) expressionNode() {}
 func (this *Identifier) String() string {
 	return this.Value
 }
-func (this *Identifier) Eval(env object.Env, insideLoop bool) (object.Object, error) {
+func (this *Identifier) Eval(env object.Env) (object.Object, error) {
 	if val, ok := env.Get(this.Value); ok {
 		return val, nil
 	}

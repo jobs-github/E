@@ -21,7 +21,7 @@ func (this *Null) expressionNode() {}
 func (this *Null) String() string {
 	return token.Null
 }
-func (this *Null) Eval(env object.Env, insideLoop bool) (object.Object, error) {
+func (this *Null) Eval(env object.Env) (object.Object, error) {
 	return object.Nil, nil
 }
 func (this *Null) walk(cb func(module string))  {}

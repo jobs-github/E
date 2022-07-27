@@ -53,8 +53,8 @@ func (this *ObjectMember) String() string {
 
 	return out.String()
 }
-func (this *ObjectMember) Eval(env object.Env, insideLoop bool) (object.Object, error) {
-	obj, err := this.Left.Eval(env, insideLoop)
+func (this *ObjectMember) Eval(env object.Env) (object.Object, error) {
+	obj, err := this.Left.Eval(env)
 	if nil != err {
 		return object.Nil, function.NewError(err)
 	}

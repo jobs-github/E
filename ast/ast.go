@@ -14,7 +14,7 @@ type Node interface {
 	Encode() interface{}
 	Decode(b []byte) error
 	String() string
-	Eval(env object.Env, insideLoop bool) (object.Object, error)
+	Eval(env object.Env) (object.Object, error)
 	walk(cb func(module string))
 	doDefer(env object.Env) error
 }
@@ -39,10 +39,10 @@ func (this *ExpressionSlice) encode() interface{} {
 	return r
 }
 
-func (this *ExpressionSlice) eval(env object.Env, insideLoop bool) (object.Objects, error) {
+func (this *ExpressionSlice) eval(env object.Env) (object.Objects, error) {
 	result := object.Objects{}
 	for _, expr := range *this {
-		evaluated, err := expr.Eval(env, insideLoop)
+		evaluated, err := expr.Eval(env)
 		if nil != err {
 			return nil, function.NewError(err)
 		}
@@ -71,10 +71,10 @@ func (this *StatementSlice) encode() interface{} {
 	return r
 }
 
-func (this *StatementSlice) eval(isBlockStmts bool, env object.Env, insideLoop bool) (object.Object, error) {
+func (this *StatementSlice) eval(isBlockStmts bool, env object.Env) (object.Object, error) {
 	var result object.Object
 	for _, stmt := range *this {
-		if v, err := stmt.Eval(env, insideLoop); nil != err {
+		if v, err := stmt.Eval(env); nil != err {
 			return object.Nil, function.NewError(err)
 		} else {
 			result = v
@@ -97,11 +97,10 @@ func evalPrefixExpression(op *token.Token, right object.Object) (object.Object, 
 
 func evalVar(
 	env object.Env,
-	insideLoop bool,
 	name *Identifier,
 	value Expression,
 ) (object.Object, error) {
-	val, err := value.Eval(env, insideLoop)
+	val, err := value.Eval(env)
 	if nil != err {
 		return object.Nil, function.NewError(err)
 	}

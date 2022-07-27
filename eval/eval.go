@@ -41,7 +41,7 @@ func (this evalImpl) Repl(baseDir string, in io.Reader, out io.Writer) {
 			io.WriteString(out, fmt.Sprintf("\t%v\n", err))
 			continue
 		}
-		val, err := program.Eval(env, false)
+		val, err := program.Eval(env)
 		if nil != err {
 			io.WriteString(out, err.Error())
 			io.WriteString(out, "\n")
@@ -61,7 +61,7 @@ func (this evalImpl) EvalJson(path string, args []string) {
 		return
 	}
 	env := this.NewEnv(args)
-	val, err := node.Eval(env, false)
+	val, err := node.Eval(env)
 	if nil != err {
 		fmt.Println(err.Error())
 	} else {
@@ -99,7 +99,7 @@ func (this evalImpl) EvalCode(code string, args []string) {
 		fmt.Println(err.Error())
 		return
 	}
-	val, err := node.Eval(env, false)
+	val, err := node.Eval(env)
 	if nil != err {
 		fmt.Println(err.Error())
 	} else {
@@ -138,7 +138,7 @@ func (this evalImpl) LoadJson(path string) (ast.Node, error) {
 }
 
 func (this evalImpl) EvalAst(node ast.Node, env object.Env) (object.Object, error) {
-	return node.Eval(env, false)
+	return node.Eval(env)
 }
 
 func (this evalImpl) LoadAst(code string) (ast.Node, error) {

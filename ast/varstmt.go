@@ -45,8 +45,8 @@ func (this *VarStmt) String() string {
 	out.WriteString(";")
 	return out.String()
 }
-func (this *VarStmt) Eval(env object.Env, insideLoop bool) (object.Object, error) {
-	return evalVar(env, insideLoop, this.Name, this.Value)
+func (this *VarStmt) Eval(env object.Env) (object.Object, error) {
+	return evalVar(env, this.Name, this.Value)
 }
 func (this *VarStmt) walk(cb func(module string)) {
 	this.Value.walk(cb)

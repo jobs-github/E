@@ -61,13 +61,13 @@ func (this *Call) String() string {
 
 	return out.String()
 }
-func (this *Call) Eval(env object.Env, insideLoop bool) (object.Object, error) {
-	fn, err := this.Func.Eval(env, insideLoop)
+func (this *Call) Eval(env object.Env) (object.Object, error) {
+	fn, err := this.Func.Eval(env)
 	if nil != err {
 		return object.Nil, function.NewError(err)
 	}
 
-	args, err := this.Args.eval(env, insideLoop)
+	args, err := this.Args.eval(env)
 	if nil != err {
 		return object.Nil, function.NewError(err)
 	}

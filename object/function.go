@@ -11,7 +11,7 @@ func NewFunction(
 	name string,
 	fn function.Function,
 	args []string,
-	evalBody func(env Env, insideLoop bool) (Object, error),
+	evalBody func(env Env) (Object, error),
 	env Env,
 ) Object {
 	obj := &Function{
@@ -32,7 +32,7 @@ type Function struct {
 	Name     string
 	Fn       function.Function
 	Args     []string
-	EvalBody func(env Env, insideLoop bool) (Object, error)
+	EvalBody func(env Env) (Object, error)
 	Env      Env
 	fns      objectBuiltins
 }
@@ -59,7 +59,7 @@ func (this *Function) Call(args Objects) (Object, error) {
 		return Nil, function.NewError(err)
 	}
 	innerEnv := newFunctionEnv(this.Env, this.Args, args)
-	evaluated, err := this.EvalBody(innerEnv, false)
+	evaluated, err := this.EvalBody(innerEnv)
 	if nil != err {
 		return Nil, function.NewError(err)
 	}

@@ -26,7 +26,7 @@ func (this *Boolean) expressionNode() {}
 func (this *Boolean) String() string {
 	return token.Bool(this.Value)
 }
-func (this *Boolean) Eval(env object.Env, insideLoop bool) (object.Object, error) {
+func (this *Boolean) Eval(env object.Env) (object.Object, error) {
 	return object.ToBoolean(this.Value), nil
 }
 func (this *Boolean) walk(cb func(module string))  {}

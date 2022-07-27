@@ -63,15 +63,15 @@ func (this *ConditionalExpr) String() string {
 	return out.String()
 }
 
-func (this *ConditionalExpr) Eval(env object.Env, insideLoop bool) (object.Object, error) {
-	cond, err := this.Cond.Eval(env, insideLoop)
+func (this *ConditionalExpr) Eval(env object.Env) (object.Object, error) {
+	cond, err := this.Cond.Eval(env)
 	if nil != err {
 		return object.Nil, function.NewError(err)
 	}
 	if cond.True() {
-		return this.Yes.Eval(env.NewEnclosedEnv(), insideLoop)
+		return this.Yes.Eval(env.NewEnclosedEnv())
 	} else {
-		return this.No.Eval(env.NewEnclosedEnv(), insideLoop)
+		return this.No.Eval(env.NewEnclosedEnv())
 	}
 }
 func (this *ConditionalExpr) walk(cb func(module string))  {}
