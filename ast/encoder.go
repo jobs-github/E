@@ -62,16 +62,6 @@ type JsonNode struct {
 	Value json.RawMessage `json:"value,omitempty"`
 }
 
-func (this *JsonNode) empty() bool {
-	if "" == this.Type {
-		return true
-	}
-	if nil == this.Value {
-		return true
-	}
-	return false
-}
-
 func (this *JsonNode) decodeExpr() (Expression, error) {
 	expr := this.newExpr()
 	if nil == expr {
@@ -194,18 +184,6 @@ func newJsonNodes(b []byte) (JsonNodes, error) {
 	return arr, nil
 }
 
-func (this *JsonNodes) decodeNodes() (Nodes, error) {
-	nodes := Nodes{}
-	for _, v := range *this {
-		n, err := v.decode()
-		if nil != err {
-			return nil, function.NewError(err)
-		}
-		nodes = append(nodes, n)
-	}
-	return nodes, nil
-}
-
 func (this *JsonNodes) decodeStmts() (StatementSlice, error) {
 	stmts := StatementSlice{}
 	for _, v := range *this {
@@ -240,14 +218,6 @@ func (this *JsonNodes) decodeIdents() (IdentifierSlice, error) {
 		idents = append(idents, n)
 	}
 	return idents, nil
-}
-
-func decodeNodes(b []byte) (Nodes, error) {
-	arr, err := newJsonNodes(b)
-	if nil != err {
-		return nil, function.NewError(err)
-	}
-	return arr.decodeNodes()
 }
 
 func decodeStmts(b []byte) (StatementSlice, error) {
