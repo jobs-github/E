@@ -320,6 +320,9 @@ func (this *Array) builtinFilter(args Objects) (Object, error) {
 	if !Callable(cb) {
 		return Nil, errors.New("argument 1 is not callable")
 	}
+	if nil == this.Items || len(this.Items) < 1 {
+		return NewArray(Objects{}), nil
+	}
 	r := Objects{}
 	for _, item := range this.Items {
 		v, err := cb.Call(Objects{item})
