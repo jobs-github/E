@@ -43,6 +43,9 @@ const (
 	FnNot      = "not"
 	FnOpposite = "opposite"
 	FnInt      = "int"
+	FnMap      = "map"
+	FnReduce   = "reduce"
+	FnFilter   = "filter"
 )
 
 var (
@@ -82,6 +85,10 @@ func IsNull(v Object) bool {
 
 func IsInteger(v Object) bool {
 	return v.getType() == objectTypeInteger
+}
+
+func Callable(v Object) bool {
+	return v.getType() == objectTypeFunction
 }
 
 func Typeof(v Object) string {
