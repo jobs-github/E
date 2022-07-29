@@ -1,22 +1,13 @@
 package eval
 
 import (
-	"path"
-	"path/filepath"
 	"reflect"
-	"runtime"
 	"testing"
 
 	"github.com/jobs-github/escript/lexer"
 	"github.com/jobs-github/escript/object"
 	"github.com/jobs-github/escript/parser"
 )
-
-func scriptsDir() string {
-	_, filename, _, _ := runtime.Caller(1)
-	cur := path.Dir(filename)
-	return filepath.Join(filepath.Dir(cur), "scripts")
-}
 
 func TestEvalExpr(t *testing.T) {
 	tests := []struct {
@@ -26,10 +17,10 @@ func TestEvalExpr(t *testing.T) {
 		{`var s = "\"hello\""; s`, `\"hello\"`},
 		{`var a = [1,2,3]; (a[1] == 2) ? true : false`, true},
 		{`var a = [1,2,3]; var r = (a[1] == 2) ? (1 + 1) : (10 % 3); r;`, 2},
-		{`func f1() { return true; }; func f2() { return true; }; f1 == f2;`, false},
-		{`func f() { return true; }; var f1 = f; var f2 = f; f1 == f2;`, true},
-		{`var f1 = func() { return true; }; var f2 = func() { return true; }; f1 == f2;`, true},
-		{`var f1 = func() { return true; }; var f2 = func() { return false; }; f1 == f2;`, false},
+		{`func f1() { true }; func f2() { true }; f1 == f2;`, false},
+		{`func f() { true }; var f1 = f; var f2 = f; f1 == f2;`, true},
+		{`var f1 = func() { true }; var f2 = func() { true }; f1 == f2;`, true},
+		{`var f1 = func() { true }; var f2 = func() { false }; f1 == f2;`, false},
 		{`var d1 = {"k1": "v1", "k2": "v2"}; var d2 = {"k1": "v1", "k2": "v2"}; d1 == d2`, true},
 		{`var d1 = {"k1": "v1", "k2": "v2"}; var d2 = {"k1": "v1", "k2": "v"}; d1 == d2`, false},
 		{`var a1 = [1,2,3]; var a2 = [1,2,3]; a1 == a2;`, true},
@@ -384,7 +375,7 @@ func TestFunctionObject(t *testing.T) {
 		t.Fatalf("argument of 0 not x, got `%v`", argument)
 	}
 	body := fn.Fn.Body()
-	expected := "(x + 2)"
+	expected := "{(x + 2)}"
 	if body != expected {
 		t.Fatalf("body not (x + 2), got `%v`", body)
 	}

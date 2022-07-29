@@ -268,6 +268,18 @@ func decodeFn(b []byte) (*Function, error) {
 	return v, nil
 }
 
+func decodeStmt(b []byte) (Statement, error) {
+	var v JsonNode
+	if err := json.Unmarshal(b, &v); nil != err {
+		return nil, function.NewError(err)
+	}
+	stmt, err := v.decodeStmt()
+	if nil != err {
+		return nil, function.NewError(err)
+	}
+	return stmt, nil
+}
+
 func decodeExpr(b []byte) (Expression, error) {
 	var v JsonNode
 	if err := json.Unmarshal(b, &v); nil != err {

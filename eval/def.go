@@ -3,7 +3,6 @@ package eval
 import (
 	"fmt"
 	"io"
-	"path/filepath"
 	"strings"
 
 	"github.com/jobs-github/escript/ast"
@@ -40,10 +39,6 @@ func loadCode(path string) ([]byte, error) {
 		return nil, function.NewError(err)
 	}
 	return b, nil
-}
-
-func getModuleName(path string) string {
-	return strings.Split(filepath.Base(path), ".")[0]
 }
 
 func loadAst(code string) (ast.Node, error) {

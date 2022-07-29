@@ -9,18 +9,18 @@ import (
 
 // BlockStmt : implement Statement
 type BlockStmt struct {
-	Stmts StatementSlice
+	Stmt Statement
 }
 
 func (this *BlockStmt) Encode() interface{} {
 	return map[string]interface{}{
 		keyType:  typeStmtBlock,
-		keyValue: this.Stmts.encode(),
+		keyValue: this.Stmt.Encode(),
 	}
 }
 func (this *BlockStmt) Decode(b []byte) error {
 	var err error
-	this.Stmts, err = decodeStmts(b)
+	this.Stmt, err = decodeStmt(b)
 	if nil != err {
 		return function.NewError(err)
 	}
@@ -31,11 +31,11 @@ func (this *BlockStmt) statementNode() {}
 
 func (this *BlockStmt) String() string {
 	var out bytes.Buffer
-	for _, s := range this.Stmts {
-		out.WriteString(s.String())
-	}
+	out.WriteString("{")
+	out.WriteString(this.Stmt.String())
+	out.WriteString("}")
 	return out.String()
 }
 func (this *BlockStmt) Eval(env object.Env) (object.Object, error) {
-	return this.Stmts.eval(true, env)
+	return this.Stmt.Eval(env)
 }

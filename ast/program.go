@@ -36,5 +36,5 @@ func (this *Program) String() string {
 }
 
 func (this *Program) Eval(env object.Env) (object.Object, error) {
-	return this.Stmts.eval(false, env)
+	return this.Stmts.eval(env)
 }

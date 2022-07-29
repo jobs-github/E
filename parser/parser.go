@@ -86,21 +86,14 @@ func (this *parserImpl) ParseProgram() (ast.Node, error) {
 
 func (this *parserImpl) ParseBlockStmt() (*ast.BlockStmt, error) {
 	block := this.scanner.NewBlock()
-	block.Stmts = ast.StatementSlice{}
 	this.scanner.NextToken()
-	for nil != this.scanner.CurrentIs(token.RBRACE) {
-		// need to skip ;
-		if nil == this.scanner.CurrentIs(token.SEMICOLON) {
-			this.scanner.NextToken()
-			continue
-		}
-
-		stmt, err := this.ParseStmt(token.SEMICOLON)
-		if nil != err {
-			return nil, function.NewError(err)
-		}
-		block.Stmts = append(block.Stmts, stmt)
-		this.scanner.NextToken()
+	stmt, err := this.ParseStmt(token.SEMICOLON)
+	if nil != err {
+		return nil, function.NewError(err)
+	}
+	block.Stmt = stmt
+	if err := this.scanner.ExpectPeek(token.RBRACE); nil != err {
+		return nil, function.NewError(err)
 	}
 	return block, nil
 }

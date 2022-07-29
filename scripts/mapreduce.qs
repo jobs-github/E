@@ -18,13 +18,9 @@ func sum(arr) {
     reduce(arr, 0, add);
 };
 
-func main() {
-    var a = [1,2,3,4,5];
-    var result = map(a, double);
-    println(result);
+var a = [1,2,3,4,5];
+var result = map(a, double);
+println(result);
 
-    var rc = sum([1,2,3,4,5]);
-    println(rc);
-};
-
-main();
+var rc = sum([1,2,3,4,5]);
+println(rc);

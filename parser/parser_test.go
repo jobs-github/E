@@ -412,10 +412,7 @@ func TestFunctionParsing(t *testing.T) {
 	testLiteralExpression(t, expr.Args[0], "x")
 	testLiteralExpression(t, expr.Args[1], "y")
 
-	if len(expr.Body.Stmts) != 1 {
-		t.Fatalf("number of expr.Body.Stmts: %v", len(expr.Body.Stmts))
-	}
-	bodyStmt, ok := expr.Body.Stmts[0].(*ast.ExpressionStmt)
+	bodyStmt, ok := expr.Body.Stmt.(*ast.ExpressionStmt)
 	if !ok {
 		t.Fatalf("expr.Body.Stmts[0] is not *ast.ExpressionStmt, got %v", reflect.TypeOf(program.Stmts[0]).String())
 	}
@@ -427,9 +424,9 @@ func TestFuncArgsParsing(t *testing.T) {
 		input string
 		want  []string
 	}{
-		{input: "func() {};", want: []string{}},
-		{input: "func(x) {};", want: []string{"x"}},
-		{input: "func(x, y, z) {};", want: []string{"x", "y", "z"}},
+		{input: "func() { 0 };", want: []string{}},
+		{input: "func(x) { 0 };", want: []string{"x"}},
+		{input: "func(x, y, z) { 0 };", want: []string{"x", "y", "z"}},
 	}
 
 	for _, tt := range cases {
