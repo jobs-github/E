@@ -3,6 +3,7 @@ var h = {
     "k2": "v2",
     "k3": "v3"
 };
+println(h.keys());
 var r = h.map(func(k, v) { k + v });
 println(r);
 var h2 = {

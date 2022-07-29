@@ -54,6 +54,7 @@ func NewHash(pairs HashMap) Object {
 		FnMap:    obj.builtinMap,
 		FnReduce: obj.builtinReduce,
 		FnFilter: obj.builtinFilter,
+		"keys":   obj.builtinKeys,
 	}
 	return obj
 }
@@ -334,4 +335,15 @@ func (this *Hash) builtinFilter(args Objects) (Object, error) {
 		}
 	}
 	return NewHash(m), nil
+}
+
+func (this *Hash) builtinKeys(args Objects) (Object, error) {
+	argc := len(args)
+	if argc != 0 {
+		return Nil, fmt.Errorf("keys() takes no argument (%v given), (`%v`)", argc, this.String())
+	}
+	if nil == this.Pairs || len(this.Pairs) < 1 {
+		return NewArray(Objects{}), nil
+	}
+	return NewArray(this.Pairs.keys()), nil
 }
