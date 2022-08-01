@@ -95,6 +95,10 @@ func Typeof(v Object) string {
 	return toString(v.getType())
 }
 
+func ToInteger(v Object) (int64, error) {
+	return v.asInteger()
+}
+
 type BuiltinFunction func(args Objects) (Object, error)
 
 type HashKey struct {

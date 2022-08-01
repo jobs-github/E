@@ -230,7 +230,7 @@ func (this *Hash) builtinLen(args Objects) (Object, error) {
 func (this *Hash) builtinSet(args Objects) (Object, error) {
 	argc := len(args)
 	if argc != 2 {
-		return Nil, fmt.Errorf("set() takes 2 argument (%v given), (`%v`)", argc, this.String())
+		return Nil, fmt.Errorf("set() takes 2 arguments (%v given), (`%v`)", argc, this.String())
 	}
 	k := args[0]
 	v := args[1]
@@ -292,7 +292,7 @@ func (this *Hash) builtinMap(args Objects) (Object, error) {
 func (this *Hash) builtinReduce(args Objects) (Object, error) {
 	argc := len(args)
 	if argc != 2 {
-		return Nil, fmt.Errorf("reduce() takes 2 argument (%v given), (`%v`)", argc, this.String())
+		return Nil, fmt.Errorf("reduce() takes 2 arguments (%v given), (`%v`)", argc, this.String())
 	}
 	cb := args[0]
 	if !Callable(cb) {

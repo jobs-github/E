@@ -193,7 +193,7 @@ func (this *Array) builtinLen(args Objects) (Object, error) {
 func (this *Array) builtinSet(args Objects) (Object, error) {
 	argc := len(args)
 	if argc != 2 {
-		return Nil, fmt.Errorf("set() takes 2 argument (%v given), (`%v`)", argc, this.String())
+		return Nil, fmt.Errorf("set() takes 2 arguments (%v given), (`%v`)", argc, this.String())
 	}
 
 	if nil == this.Items || len(this.Items) < 1 {
@@ -291,7 +291,7 @@ func (this *Array) builtinMap(args Objects) (Object, error) {
 func (this *Array) builtinReduce(args Objects) (Object, error) {
 	argc := len(args)
 	if argc != 2 {
-		return Nil, fmt.Errorf("reduce() takes 2 argument (%v given), (`%v`)", argc, this.String())
+		return Nil, fmt.Errorf("reduce() takes 2 arguments (%v given), (`%v`)", argc, this.String())
 	}
 	cb := args[0]
 	if !Callable(cb) {
