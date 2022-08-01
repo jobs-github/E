@@ -28,7 +28,7 @@ func builtinFor(args object.Objects) (object.Object, error) {
 	if !object.Callable(fn) {
 		return object.Nil, fmt.Errorf("the fourth argument (fn) should be callable (%v given)", object.Typeof(next))
 	}
-	ret := args[4]
+	state := args[4]
 	iter := object.NewInteger(i)
 	for {
 		r, err := cond.Call(object.Objects{iter})
@@ -38,16 +38,16 @@ func builtinFor(args object.Objects) (object.Object, error) {
 		if !r.True() {
 			break
 		}
-		v, err := fn.Call(object.Objects{iter, ret})
+		v, err := fn.Call(object.Objects{iter, state})
 		if nil != err {
 			return object.Nil, function.NewError(err)
 		}
-		ret = v
+		state = v
 		nextVal, err := next.Call(object.Objects{iter})
 		if nil != err {
 			return object.Nil, function.NewError(err)
 		}
 		iter = nextVal
 	}
-	return ret, nil
+	return state, nil
 }
