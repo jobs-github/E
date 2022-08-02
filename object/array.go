@@ -85,6 +85,10 @@ func (this *Array) True() bool {
 	return false
 }
 
+func (this *Array) AsState() (*State, error) {
+	return nil, unsupported(function.GetFunc(), this)
+}
+
 func (this *Array) getType() ObjectType {
 	return objectTypeArray
 }

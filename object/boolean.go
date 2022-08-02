@@ -61,6 +61,10 @@ func (this *Boolean) True() bool {
 	return this.Value
 }
 
+func (this *Boolean) AsState() (*State, error) {
+	return nil, unsupported(function.GetFunc(), this)
+}
+
 func (this *Boolean) getType() ObjectType {
 	return objectTypeBoolean
 }

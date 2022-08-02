@@ -64,6 +64,10 @@ func (this *Integer) True() bool {
 	return true
 }
 
+func (this *Integer) AsState() (*State, error) {
+	return nil, unsupported(function.GetFunc(), this)
+}
+
 func (this *Integer) getType() ObjectType {
 	return objectTypeInteger
 }

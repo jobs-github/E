@@ -120,6 +120,10 @@ func (this *Hash) True() bool {
 	return false
 }
 
+func (this *Hash) AsState() (*State, error) {
+	return nil, unsupported(function.GetFunc(), this)
+}
+
 func (this *Hash) getType() ObjectType {
 	return objectTypeHash
 }

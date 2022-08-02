@@ -16,6 +16,7 @@ type Object interface {
 	CallMember(name string, args Objects) (Object, error)
 	GetMember(name string) (Object, error)
 	True() bool
+	AsState() (*State, error)
 
 	getType() ObjectType
 	asInteger() (int64, error)

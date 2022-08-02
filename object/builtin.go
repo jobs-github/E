@@ -57,6 +57,10 @@ func (this *Builtin) True() bool {
 	return false
 }
 
+func (this *Builtin) AsState() (*State, error) {
+	return nil, unsupported(function.GetFunc(), this)
+}
+
 func (this *Builtin) getType() ObjectType {
 	return objectTypeBuiltin
 }

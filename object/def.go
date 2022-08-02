@@ -21,6 +21,7 @@ const (
 	objectTypeArray
 	objectTypeHash
 	objectTypeObjectFunc
+	objectTypeState
 )
 
 const (
@@ -72,6 +73,7 @@ var (
 		objectTypeArray:      TypeArray,
 		objectTypeHash:       TypeHash,
 		objectTypeObjectFunc: "object_func",
+		objectTypeState:      "state",
 	}
 )
 

@@ -59,6 +59,10 @@ func (this *ObjectFunc) True() bool {
 	return false
 }
 
+func (this *ObjectFunc) AsState() (*State, error) {
+	return nil, unsupported(function.GetFunc(), this)
+}
+
 func (this *ObjectFunc) getType() ObjectType {
 	return objectTypeObjectFunc
 }
