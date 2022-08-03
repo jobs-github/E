@@ -47,7 +47,6 @@ func NewHash(pairs HashMap) Object {
 		Pairs: pairs,
 	}
 	obj.fns = objectBuiltins{
-		FnSet:    obj.builtinSet,
 		FnLen:    obj.builtinLen,
 		FnIndex:  obj.builtinIndex,
 		FnNot:    obj.builtinNot,
@@ -229,21 +228,6 @@ func (this *Hash) builtinLen(args Objects) (Object, error) {
 		return Nil, fmt.Errorf("len() takes no argument (%v given), (`%v`)", argc, this.String())
 	}
 	return NewInteger(int64(len(this.Pairs))), nil
-}
-
-func (this *Hash) builtinSet(args Objects) (Object, error) {
-	argc := len(args)
-	if argc != 2 {
-		return Nil, fmt.Errorf("set() takes 2 arguments (%v given), (`%v`)", argc, this.String())
-	}
-	k := args[0]
-	v := args[1]
-	key, err := k.Hash()
-	if nil != err {
-		return Nil, function.NewError(err)
-	}
-	this.Pairs.set(key, &HashPair{Key: k, Value: v})
-	return NewString(""), nil
 }
 
 func (this *Hash) builtinIndex(args Objects) (Object, error) {

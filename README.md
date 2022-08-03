@@ -1,6 +1,6 @@
 <p id="id_top"></p>
 
-- [Q - a tiny go-like script](#q---a-tiny-go-like-script)
+- [escript - a embedded script for Go](#escript---a-embedded-script-for-go)
   - [Features](#features)
   - [Quick Start](#quick-start)
     - [run interactive interpreter](#run-interactive-interpreter)
@@ -8,14 +8,9 @@
     - [conditional expression](#conditional-expression)
     - [recursion](#recursion)
     - [closure](#closure)
-    - [for loop](#for-loop)
-    - [iterator](#iterator)
-    - [defer](#defer)
     - [script parameters injection](#script-parameters-injection)
     - [eval AST](#eval-ast)
     - [dump & load AST as json](#dump--load-ast-as-json)
-    - [simple module management](#simple-module-management)
-    - [simple file I/O](#simple-file-io)
   - [builtin function](#builtin-function)
     - [type](#type)
     - [str](#str)
@@ -27,28 +22,23 @@
     - [getenv](#getenv)
     - [loads](#loads)
     - [dumps](#dumps)
-    - [open](#open)
-    - [remove](#remove)
   - [types](#types)
     - [null](#null)
     - [boolean](#boolean)
     - [integer](#integer)
     - [string](#string)
     - [array](#array)
-    - [array_iter](#array_iter)
     - [hash](#hash)
-    - [hash_iter](#hash_iter)
     - [builtin](#builtin)
     - [function](#function)
     - [method](#method)
-    - [file](#file)
   - [License](#license)
   - [Author](#author)
   - [More](#more)
 
-# Q - a tiny go-like script #
+# escript - a embedded script for Go #
 
-Q is a tiny, dynamic interpreted language for Go.
+escript is a tiny, expression-based embedded language for Go.
 
     package main
 
@@ -81,17 +71,11 @@ Not only ([Writing An Interpreter In Go](https://interpreterbook.com/))
     * hash
 
 But also:  
-* assign statement
 * conditional expression
-* go-like for loop
 * object member call
-* iterator
-* defer
 * script parameters injection
 * eval AST
 * dump & load AST as json
-* simple module management
-* simple file I/O
 
 [back to top](#id_top)
 
@@ -101,7 +85,7 @@ But also:
 
     chmod +x /make.sh
     ./make.sh
-    ./Q
+    ./escript
 
 [back to top](#id_top)
 
@@ -109,7 +93,7 @@ But also:
 
     chmod +x /make.sh
     ./make.sh
-    ./Q scripts/hello.qs
+    ./escript scripts/hello.qs
 
 [back to top](#id_top)
 
@@ -210,140 +194,11 @@ But also:
 
 [back to top](#id_top)
 
-### [for loop](scripts/for.qs) ###
-
-    func test_for1() {
-        var i = 0;
-        var result = 0;
-        for ;; {
-            if (i > 4) {
-                break;
-            }
-            result = result + i;
-            i = i + 1;
-        }
-        println("test_for1: ", result);
-    };
-
-    func test_for2() {
-        var result = 0;
-        for var i = 0; i < 5; i = i + 1 {
-            result = result + i;
-        }
-        println("test_for2: ", result);
-    };
-
-    func test_for3() {
-        var result = 0;
-        for var i = 0; i < 5;  {
-            result = result + i;
-            i = i + 1;
-        }
-        println("test_for3: ", result);
-    };
-
-    func test_for4() {
-        var i = 0;
-        var result = 0;
-        for ; i < 5;  {
-            result = result + i;
-            i = i + 1;
-        }
-        println("test_for4: ", result);
-    };
-
-    func test_for5() {
-        var i = 0;
-        var result = 0;
-        for i = 0; i < 5; i = i + 1 {
-            result = result + i;
-        }
-        println("test_for5: ", result);
-    };
-
-    func test_for6() {
-        var i = 0;
-        var result = 0;
-        for {
-            if (i > 4) {
-                break;
-            }
-            result = result + i;
-            i = i + 1;
-        }
-        println("test_for6: ", result);
-    };
-
-    func main() {
-        var fns = [test_for1, test_for2, test_for3, test_for4, test_for5, test_for6];
-        var sz = fns.len();
-        for var i = 0; i < sz; i = i + 1 {
-            fns[i]();
-        }
-    };
-
-    main();
-
-[back to top](#id_top)
-
-### [iterator](scripts/iterator.qs) ###
-
-    func test_array_iter() {
-        var arr = [10,20,30];
-        var result = [];
-        for var iter = arr.iter(); iter != null; iter = iter.next() {
-            var idx = iter.key();
-            var val = iter.value();
-            result.push(idx);
-            result.push(val);
-        };
-        println(result);
-    };
-
-    func test_hash_iter() {
-        var h = {"k1": "v1", "k2": "v2", "k3": "v3"};
-        var result = [];
-        for var iter = h.iter(); iter != null; iter = iter.next() {
-            var key = iter.key();
-            var val = iter.value();
-            result.push(key);
-            result.push(val);
-        };
-        println(result);
-    };
-
-    func main() {
-        test_array_iter();
-        test_hash_iter();
-    };
-
-    main();
-
-[back to top](#id_top)
-
-### [defer](scripts/defer.qs) ###
-
-    func test_defer(x) {
-        defer func() {
-            println(x);
-        }();
-        defer println(x * x * x);
-        println(x * 2);
-    };
-
-    func main() {
-        test_defer(2);
-    };
-
-    main();
-
-[back to top](#id_top)
-
 ### [script parameters injection](scripts/hello.qs) ###
 
     chmod +x /make.sh
     ./make.sh
-    ./Q scripts/hello.qs hello hello world
+    ./escript scripts/hello.qs hello hello world
 
 [back to top](#id_top)
 
@@ -370,104 +225,13 @@ dump AST as json:
 
     chmod +x /make.sh
     ./make.sh
-    ./Q --dump scripts/conditional.qs > scripts/conditional.json
+    ./escript --dump scripts/conditional.qs > scripts/conditional.json
 
 load & eval AST from json:  
 
     chmod +x /make.sh
     ./make.sh
-    ./Q --load scripts/conditional.json
-
-[back to top](#id_top)
-
-### [simple module management](scripts/import.qs) ###
-
-    /* scripts/import.qs */
-    import "utils"
-    import libmath "math"
-
-    func hello() {
-        println("hello");
-    };
-
-    func main() {
-        var fn = utils.hello;
-        hello();
-        fn();
-        utils.hello();
-        println(utils.EOF);
-        var r = libmath.add(1,2);
-        println(r)
-    };
-
-    main();
-
-    /* scripts/math.qs */
-    func add(x, y) {
-        return x + y;
-    };
-
-    /* scripts/utils.qs */
-    func hello() {
-        println("utils.hello");
-    };
-
-    var EOF = "EOF";
-
-[back to top](#id_top)
-
-### [simple file I/O](scripts/file.qs) ###
-
-    func test_write(url) {
-        println("test_write");
-        var f = open(url, "w+");
-        if (!f) {
-            return;
-        }
-        defer f.close()
-        var r = f.write("hello world");
-        if (!r) {
-            println("write fail")
-        }
-    };
-
-    func test_read(url) {
-        println("test_read");
-        var f = open(url, "r");
-        if (!f) {
-            return;
-        }
-        defer f.close()
-        var sz = f.size();
-        println("size: ", sz);
-        var data = f.read();
-        println(data);
-    };
-
-    func test_seek(url) {
-        println("test_seek");
-        var f = open(url, "r");
-        if (!f) {
-            return;
-        }
-        defer f.close()
-        var off = f.size() / 2;
-        println("offset: ", off);
-        f.seek(off);
-        var data = f.read();
-        println(data);
-    };
-
-    func main() {
-        var url = "tmp.txt";
-        defer remove(url);
-        
-        test_write(url);
-        test_read(url);
-        test_seek(url);
-    };
-
-    main();
+    ./escript --load scripts/conditional.json
 
 [back to top](#id_top)
 
@@ -525,7 +289,7 @@ load & eval AST from json:
 
 ### [getenv](scripts/env.qs) ###
 
-    export test_env=HAHA; ./Q scripts/env.qs
+    export test_env=HAHA; ./escript scripts/env.qs
 
 [back to top](#id_top)
 
@@ -542,21 +306,6 @@ load & eval AST from json:
     var obj1 = { "k1": null, "k2": 123 };
     var objstr = dumps(obj1);
     println(objstr);
-
-[back to top](#id_top)
-
-### [open](scripts/file.qs) ###
-
-    var f = open(url, "w+");
-    if (!f) {
-        return;
-    }
-
-[back to top](#id_top)
-
-### [remove](scripts/file.qs) ###
-
-    defer remove(url);
 
 [back to top](#id_top)
 
@@ -658,11 +407,9 @@ int     |convert to int
 
 method  |comment
 --------|-------
-set     |set value of index
 len     |length of array
 index   |get value by index
 not     |!
-iter    |get iterator
 first   |first value
 last    |last value
 tail    |remove first value and return rest
@@ -672,22 +419,17 @@ push    |append value
     [1, 2, 3, 4, 5]
     >> arr.push("hello")
     [1, 2, 3, 4, 5, hello]
-    >> arr.set(0, 100)
 
-    >> arr
-    [100, 2, 3, 4, 5, hello]
     >> arr.len()
     6
     >> arr[0]
-    100
+    1
     >> arr.not()
     false
     >> !arr
     false
-    >> arr.iter()
-    array_iter
     >> arr.first()
-    100
+    1
     >> arr.last()
     hello
     >> arr.tail()
@@ -700,55 +442,24 @@ push    |append value
     [100, 200, 3, 4, 5, hello]
 
 [back to top](#id_top)
-### [array_iter](object/arrayiter.go) ###
 
-method  |comment
---------|-------
-not     |!
-next    |move to next item
-key     |index of current item
-value   |value of current item
-
-    >> var arr = [1,2,3]
-    [1, 2, 3]
-    >> var iter = arr.iter()
-    array_iter
-    >> iter.key()
-    0
-    >> iter.value()
-    1
-    >> iter = iter.next()
-    array_iter
-    >> iter.value()
-    2
-
-[back to top](#id_top)
 ### [hash](object/hash.go) ###
 
 method  |comment
 --------|-------
-set     |set value by key
 len     |length of hash pairs
 index   |get value by key
 not     |!
-iter    |get iterator
 
     >> var h = {"k1": 1, "k2": "bbb", "k3": [1,2,3]}
     {k1: 1, k2: bbb, k3: [1, 2, 3]}
-    >> h.set("k1", 100)
 
     >> h["k1"]
-    100
+    1
     >> h.len()
     3
     >> h.not()
     false
-    >> h.iter()
-    hash_iter
-    >> h["k1"] = 1000
-
-    >> h["k1"]
-    1000
     >> h.index("k1")
     1000
     >> !h
@@ -757,31 +468,7 @@ iter    |get iterator
     3
 
 [back to top](#id_top)
-### [hash_iter](object/hashiter.go) ###
 
-method  |comment
---------|-------
-not     |!
-next    |move to next pair
-key     |key of current pair
-value   |value of current pair
-
-    >> var h = {"k1":1, "k2":2,"k3":"3"}
-    {k1: 1, k2: 2, k3: 3}
-    >> var iter = h.iter()
-    hash_iter
-    >> iter.key()
-    k1
-    >> iter.value()
-    1
-    >> iter = iter.next()
-    hash_iter
-    >> iter.key()
-    k2
-    >> iter.value()
-    2
-
-[back to top](#id_top)
 ### [builtin](object/builtin.go) ###
 
 method  |comment
@@ -841,46 +528,9 @@ not     |!
 
 [back to top](#id_top)
 
-### [file](object/file.go) ###
-
-method  |comment
---------|-------
-not     |!
-close   |close file
-seek    |sets the offset for the next Read or Write on file to offset
-size    |get file size
-read    |read file data as string
-write   |write string to file
-
-    >> var f = open("/usr/local/go/src/os/file.go")
-    <open file '/usr/local/go/src/os/file.go', mode 'r' at &{0xc000126120}>
-    >> f.size()
-    22064
-    >> f.seek(22000)
-    true
-    >> f.read()
-    se(); err1 != nil && err == nil {
-            err = err1
-        }
-        return err
-    }
-
-    >> f.close()
-    >> var f = open("/tmp/tmp.txt", "w+")
-    <open file '/tmp/tmp.txt', mode 'w+' at &{0xc000126180}>
-    >> f.write("hello world")
-    true
-    >> f.close()
-    >> var f = open("/tmp/tmp.txt", "r")
-    <open file '/tmp/tmp.txt', mode 'r' at &{0xc0001261e0}>
-    >> f.read()
-    hello world
-    >> f.close()
-    >> remove("/tmp/tmp.txt")
-
 ## License ##
 
-Q is licensed under [New BSD License](https://opensource.org/licenses/BSD-3-Clause), a very flexible license to use.
+escript is licensed under [New BSD License](https://opensource.org/licenses/BSD-3-Clause), a very flexible license to use.
 
 [back to top](#id_top)
 
@@ -893,6 +543,5 @@ Q is licensed under [New BSD License](https://opensource.org/licenses/BSD-3-Clau
 ## More ##
 
 - [Writing An Interpreter In Go](https://interpreterbook.com/)  
-- Why named Q ? - Just name it.  
 
 [back to top](#id_top)

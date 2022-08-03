@@ -39,7 +39,6 @@ const (
 
 const (
 	FnLen      = "len"
-	FnSet      = "set"
 	FnIndex    = "index"
 	FnNot      = "not"
 	FnOpposite = "opposite"

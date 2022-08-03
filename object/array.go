@@ -13,7 +13,6 @@ import (
 func NewArray(items Objects) Object {
 	obj := &Array{Items: items}
 	obj.fns = objectBuiltins{
-		FnSet:    obj.builtinSet,
 		FnLen:    obj.builtinLen,
 		FnIndex:  obj.builtinIndex,
 		FnNot:    obj.builtinNot,
@@ -192,22 +191,6 @@ func (this *Array) builtinLen(args Objects) (Object, error) {
 		return Nil, fmt.Errorf("len() takes no argument (%v given), (`%v`)", argc, this.String())
 	}
 	return NewInteger(int64(len(this.Items))), nil
-}
-
-func (this *Array) builtinSet(args Objects) (Object, error) {
-	argc := len(args)
-	if argc != 2 {
-		return Nil, fmt.Errorf("set() takes 2 arguments (%v given), (`%v`)", argc, this.String())
-	}
-
-	if nil == this.Items || len(this.Items) < 1 {
-		return Nil, function.NewError(errArrayEmpty)
-	}
-	idx, err := args[0].asInteger()
-	if nil != err {
-		return Nil, function.NewError(err)
-	}
-	return setValue(this.Items, idx, args[1])
 }
 
 func (this *Array) builtinFirst(args Objects) (Object, error) {
