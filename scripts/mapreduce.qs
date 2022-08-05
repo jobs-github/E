@@ -18,9 +18,9 @@ func sum(arr) {
     reduce(arr, 0, add);
 };
 
-var a = [1,2,3,4,5];
-var result = map(a, double);
+const a = [1,2,3,4,5];
+const result = map(a, double);
 println(result);
 
-var rc = sum([1,2,3,4,5]);
+const rc = sum([1,2,3,4,5]);
 println(rc);

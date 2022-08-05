@@ -23,7 +23,7 @@ func NewStmtParser(
 		functionDecoder: &functionStmt{s, p},
 		exprDecoder:     &exprStmt{s, p},
 		m: map[token.TokenType]stmtDecoder{
-			token.VAR: &varStmt{s, p},
+			token.CONST: &constStmt{s, p},
 		},
 	}
 }

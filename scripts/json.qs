@@ -1,12 +1,12 @@
-var s = "{\"k3\":{\"k31\":true,\"k32\":[1,2,3]},\"k2\":\"2\",\"k1\":1}"; 
-var obj = loads(s);
+const s = "{\"k3\":{\"k31\":true,\"k32\":[1,2,3]},\"k2\":\"2\",\"k1\":1}"; 
+const obj = loads(s);
 println(obj);
-var ss = dumps(obj);
+const ss = dumps(obj);
 println(ss);
 
-var obj1 = { "k1": null, "k2": 123 };
-var objstr = dumps(obj1);
+const obj1 = { "k1": null, "k2": 123 };
+const objstr = dumps(obj1);
 println(objstr);
-var obj2 = loads(objstr);
+const obj2 = loads(objstr);
 println(obj2);
 println(obj1 == obj2);

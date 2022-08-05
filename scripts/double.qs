@@ -6,8 +6,8 @@ func double(x) {
 
 /* comment */
 
-var n = 8;
-var r = double(n);
+const n = 8;
+const r = double(n);
 printf("%v\n", r);
-var s = sprintf("origin: %v, double: %v\n", n, r);
+const s = sprintf("origin: %v, double: %v\n", n, r);
 print(s);

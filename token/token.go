@@ -48,12 +48,12 @@ const (
 	FALSE
 	NULL
 	FUNC
-	VAR
+	CONST
 	//keyword_end
 )
 
 const (
-	Var   = "var"
+	Const = "const"
 	Func  = "func"
 	Null  = "null"
 	True  = "true"
@@ -103,7 +103,7 @@ var (
 		False: FALSE,
 		Null:  NULL,
 		Func:  FUNC,
-		Var:   VAR,
+		Const: CONST,
 	}
 
 	tokenTypeStrings = map[TokenType]string{
@@ -141,7 +141,7 @@ var (
 		FALSE:     "FALSE",
 		NULL:      "NULL",
 		FUNC:      "FUNC",
-		VAR:       "VAR",
+		CONST:     "CONST",
 	}
 )
 

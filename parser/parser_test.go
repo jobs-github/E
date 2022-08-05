@@ -21,28 +21,28 @@ func parseProgram(t *testing.T, p interfaces.Parser) *ast.Program {
 	return rc
 }
 
-func testVarStatements(t *testing.T, s ast.Statement, name string) bool {
-	varStmt, ok := s.(*ast.VarStmt)
+func testConstStatements(t *testing.T, s ast.Statement, name string) bool {
+	constStmt, ok := s.(*ast.ConstStmt)
 	if !ok {
 		t.Errorf("s is not *ast.VarStatement, got=%v", reflect.TypeOf(s).String())
 		return false
 	}
-	if varStmt.Name.Value != name {
-		t.Errorf("varStmt.Name.Value != %v, got=%v", name, varStmt.Name.Value)
+	if constStmt.Name.Value != name {
+		t.Errorf("constStmt.Name.Value != %v, got=%v", name, constStmt.Name.Value)
 		return false
 	}
 	return true
 }
 
-func TestVarStatements(t *testing.T) {
+func TestConstStatements(t *testing.T) {
 	cases := []struct {
 		input     string
 		wantIdent string
 		wantValue interface{}
 	}{
-		{"var x = 5;", "x", 5},
-		{"var y = true;", "y", true},
-		{"var foobar = y;", "foobar", "y"},
+		{"const x = 5;", "x", 5},
+		{"const y = true;", "y", true},
+		{"const foobar = y;", "foobar", "y"},
 	}
 	for _, tt := range cases {
 		l := lexer.New(tt.input)
@@ -56,10 +56,10 @@ func TestVarStatements(t *testing.T) {
 			t.Fatalf("number of program Statements: %v", len(program.Stmts))
 		}
 		stmt := program.Stmts[0]
-		if !testVarStatements(t, stmt, tt.wantIdent) {
+		if !testConstStatements(t, stmt, tt.wantIdent) {
 			return
 		}
-		val := stmt.(*ast.VarStmt).Value
+		val := stmt.(*ast.ConstStmt).Value
 		if !testLiteralExpression(t, val, tt.wantValue) {
 			return
 		}

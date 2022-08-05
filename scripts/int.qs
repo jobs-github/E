@@ -1,6 +1,6 @@
-var s = "123";
+const s = "123";
 println(int(s));
-var b = true;
+const b = true;
 println(int(b));
-var i = 123;
+const i = 123;
 println(int(i));

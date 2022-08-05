@@ -1,4 +1,4 @@
-var r = func (x) {
+const r = func (x) {
     x * 2;
 }(2);
 
@@ -10,5 +10,5 @@ func add(x) {
     };
 };
 
-var fn = add(1);
+const fn = add(1);
 println(fn(2));

@@ -7,7 +7,7 @@ import (
 
 const (
 	typeNodeProgram      = "program"
-	typeStmtVar          = token.Var
+	typeStmtConst        = token.Const
 	typeStmtFn           = token.Func
 	typeStmtExpr         = "expr"
 	typeStmtBlock        = "block"
@@ -29,7 +29,7 @@ const (
 	typeExprPrefix       = "prefix"
 )
 
-func NewVar() *VarStmt                 { return &VarStmt{} }
+func NewConst() *ConstStmt             { return &ConstStmt{} }
 func NewFunction() *FunctionStmt       { return &FunctionStmt{} }
 func NewExpr() *ExpressionStmt         { return &ExpressionStmt{} }
 func NewBlock() *BlockStmt             { return &BlockStmt{} }
@@ -51,7 +51,7 @@ func NewPrefix() *PrefixExpr           { return &PrefixExpr{} }
 
 var (
 	stmtFactory = map[string]func() Statement{
-		typeStmtVar:   func() Statement { return NewVar() },
+		typeStmtConst: func() Statement { return NewConst() },
 		typeStmtFn:    func() Statement { return NewFunction() },
 		typeStmtExpr:  func() Statement { return NewExpr() },
 		typeStmtBlock: func() Statement { return NewBlock() },

@@ -11,14 +11,14 @@ import (
 	"github.com/jobs-github/escript/token"
 )
 
-// varStmt : implement stmtDecoder
-type varStmt struct {
+// constStmt : implement stmtDecoder
+type constStmt struct {
 	scanner scanner.Scanner
 	p       interfaces.Parser
 }
 
-func (this *varStmt) decode(endTok token.TokenType) (ast.Statement, error) {
-	stmt := this.scanner.NewVar()
+func (this *constStmt) decode(endTok token.TokenType) (ast.Statement, error) {
+	stmt := this.scanner.NewConst()
 	if err := this.scanner.ExpectPeek(token.IDENT); nil != err {
 		return nil, function.NewError(err)
 	}

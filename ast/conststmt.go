@@ -8,22 +8,22 @@ import (
 	"github.com/jobs-github/escript/token"
 )
 
-// VarStmt : implement Statement
-type VarStmt struct {
+// ConstStmt : implement Statement
+type ConstStmt struct {
 	Name  *Identifier
 	Value Expression
 }
 
-func (this *VarStmt) Encode() interface{} {
+func (this *ConstStmt) Encode() interface{} {
 	return map[string]interface{}{
-		keyType: typeStmtVar,
+		keyType: typeStmtConst,
 		keyValue: map[string]interface{}{
 			"name":  this.Name.Encode(),
 			"value": this.Value.Encode(),
 		},
 	}
 }
-func (this *VarStmt) Decode(b []byte) error {
+func (this *ConstStmt) Decode(b []byte) error {
 	var err error
 	this.Name, this.Value, err = decodeKv(b)
 	if nil != err {
@@ -31,11 +31,11 @@ func (this *VarStmt) Decode(b []byte) error {
 	}
 	return nil
 }
-func (this *VarStmt) statementNode() {}
+func (this *ConstStmt) statementNode() {}
 
-func (this *VarStmt) String() string {
+func (this *ConstStmt) String() string {
 	var out bytes.Buffer
-	out.WriteString(token.Var)
+	out.WriteString(token.Const)
 	out.WriteString(" ")
 	out.WriteString(this.Name.String())
 	out.WriteString(" = ")
@@ -45,6 +45,6 @@ func (this *VarStmt) String() string {
 	out.WriteString(";")
 	return out.String()
 }
-func (this *VarStmt) Eval(env object.Env) (object.Object, error) {
+func (this *ConstStmt) Eval(env object.Env) (object.Object, error) {
 	return evalVar(env, this.Name, this.Value)
 }

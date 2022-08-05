@@ -14,49 +14,49 @@ func TestEvalExpr(t *testing.T) {
 		input    string
 		expected interface{}
 	}{
-		{`var s = "\"hello\""; s`, `\"hello\"`},
-		{`var a = [1,2,3]; (a[1] == 2) ? true : false`, true},
-		{`var a = [1,2,3]; var r = (a[1] == 2) ? (1 + 1) : (10 % 3); r;`, 2},
+		{`const s = "\"hello\""; s`, `\"hello\"`},
+		{`const a = [1,2,3]; (a[1] == 2) ? true : false`, true},
+		{`const a = [1,2,3]; const r = (a[1] == 2) ? (1 + 1) : (10 % 3); r;`, 2},
 		{`func f1() { true }; func f2() { true }; f1 == f2;`, false},
-		{`func f() { true }; var f1 = f; var f2 = f; f1 == f2;`, true},
-		{`var f1 = func() { true }; var f2 = func() { true }; f1 == f2;`, true},
-		{`var f1 = func() { true }; var f2 = func() { false }; f1 == f2;`, false},
-		{`var d1 = {"k1": "v1", "k2": "v2"}; var d2 = {"k1": "v1", "k2": "v2"}; d1 == d2`, true},
-		{`var d1 = {"k1": "v1", "k2": "v2"}; var d2 = {"k1": "v1", "k2": "v"}; d1 == d2`, false},
-		{`var a1 = [1,2,3]; var a2 = [1,2,3]; a1 == a2;`, true},
-		{`var a1 = [1,2,3]; var a2 = [1,2]; a1 == a2;`, false},
-		{`var arr = [1,2,3]; var f1 = arr.len; var f2 = arr.len; f1 == f2;`, true},
-		{`var f1 = str; var f2 = str; f1 == f2;`, true},
-		{`var f1 = str; var f2 = len; f1 == f2;`, false},
-		{`var s1 = "hello"; var s2 = "hello"; s1 == s2;`, true},
-		{`var s1 = "hello1"; var s2 = "hello2"; s1 == s2;`, false},
+		{`func f() { true }; const f1 = f; const f2 = f; f1 == f2;`, true},
+		{`const f1 = func() { true }; const f2 = func() { true }; f1 == f2;`, true},
+		{`const f1 = func() { true }; const f2 = func() { false }; f1 == f2;`, false},
+		{`const d1 = {"k1": "v1", "k2": "v2"}; const d2 = {"k1": "v1", "k2": "v2"}; d1 == d2`, true},
+		{`const d1 = {"k1": "v1", "k2": "v2"}; const d2 = {"k1": "v1", "k2": "v"}; d1 == d2`, false},
+		{`const a1 = [1,2,3]; const a2 = [1,2,3]; a1 == a2;`, true},
+		{`const a1 = [1,2,3]; const a2 = [1,2]; a1 == a2;`, false},
+		{`const arr = [1,2,3]; const f1 = arr.len; const f2 = arr.len; f1 == f2;`, true},
+		{`const f1 = str; const f2 = str; f1 == f2;`, true},
+		{`const f1 = str; const f2 = len; f1 == f2;`, false},
+		{`const s1 = "hello"; const s2 = "hello"; s1 == s2;`, true},
+		{`const s1 = "hello1"; const s2 = "hello2"; s1 == s2;`, false},
 
-		{`var arr = [1,2,3]; var f = arr.len; f();`, 3},
-		{`var arr = [1,2,3]; arr.len();`, 3},
+		{`const arr = [1,2,3]; const f = arr.len; f();`, 3},
+		{`const arr = [1,2,3]; arr.len();`, 3},
 
 		{`{"foo": 5}["foo"]`, 5},
-		{`var k = "foo"; {"foo": 5}[k]`, 5},
+		{`const k = "foo"; {"foo": 5}[k]`, 5},
 		{`{5: 5}[5]`, 5},
 		{`{true: 5}[true]`, 5},
 		{`{false: 5}[false]`, 5},
 
-		{`var arr = [1,2,4]; arr.first()`, 1},
-		{`var arr = [1,2,4]; arr.last()`, 4},
-		{`var arr = [1,2,4]; arr.tail()`, []int64{2, 4}},
-		{`var arr = [1,2,4]; arr.tail().tail()`, []int64{4}},
-		{`var arr = [1,2,4]; arr.push(8)`, []int64{1, 2, 4, 8}},
+		{`const arr = [1,2,4]; arr.first()`, 1},
+		{`const arr = [1,2,4]; arr.last()`, 4},
+		{`const arr = [1,2,4]; arr.tail()`, []int64{2, 4}},
+		{`const arr = [1,2,4]; arr.tail().tail()`, []int64{4}},
+		{`const arr = [1,2,4]; arr.push(8)`, []int64{1, 2, 4, 8}},
 
 		{`"123"[1]`, "2"},
-		{`var s = "123"; s[2]`, "3"},
+		{`const s = "123"; s[2]`, "3"},
 
 		{`[1,2,4][0]`, 1},
 		{`[1,2,4][1]`, 2},
 		{`[1,2,4][2]`, 4},
-		{`var i = 0; [1][i];`, 1},
+		{`const i = 0; [1][i];`, 1},
 		{`[1,2,4][1+1]`, 4},
-		{`var arr = [1,2,4]; arr[2];`, 4},
-		{`var arr = [1,2,4]; arr[0] + arr[1] + arr[2];`, 7},
-		{`var arr = [1,2,4]; var i = arr[0];`, 1},
+		{`const arr = [1,2,4]; arr[2];`, 4},
+		{`const arr = [1,2,4]; arr[0] + arr[1] + arr[2];`, 7},
+		{`const arr = [1,2,4]; const i = arr[0];`, 1},
 
 		{`len("")`, 0},
 		{`len("four")`, 4},
@@ -342,10 +342,10 @@ func TestVarStmts(t *testing.T) {
 		input    string
 		expected interface{}
 	}{
-		{"var a = 5; a;", 5},
-		{"var a = 5 * 5; a;", 25},
-		{"var a = 5; var b = a; b;", 5},
-		{"var a = 5; var b = a; var c = a + b + 5; c;", 15},
+		{"const a = 5; a;", 5},
+		{"const a = 5 * 5; a;", 25},
+		{"const a = 5; const b = a; b;", 5},
+		{"const a = 5; const b = a; const c = a + b + 5; c;", 15},
 	}
 	for _, tt := range tests {
 		evaluated, err := testEval(tt.input)
@@ -386,10 +386,10 @@ func TestFunctionCases(t *testing.T) {
 		input    string
 		expected interface{}
 	}{
-		{"var identity = func(x) { x; }; identity(5)", 5},
-		{"var double = func(x) { x * 2; }; double(5)", 10},
-		{"var add = func(x, y) { x + y; }; add(5, 5)", 10},
-		{"var add = func(x, y) { x + y; }; add(5 + 5, add(5, 5))", 20},
+		{"const identity = func(x) { x; }; identity(5)", 5},
+		{"const double = func(x) { x * 2; }; double(5)", 10},
+		{"const add = func(x, y) { x + y; }; add(5, 5)", 10},
+		{"const add = func(x, y) { x + y; }; add(5 + 5, add(5, 5))", 20},
 		{"func(x) { x; }(5)", 5},
 	}
 	for _, tt := range tests {
@@ -429,7 +429,7 @@ func TestArrayCases(t *testing.T) {
 
 func TestHash(t *testing.T) {
 	input := `
-	var k2 = "k2";
+	const k2 = "k2";
 	{
 		"k1": 10 - 9,
 		k2: 1 + 1,

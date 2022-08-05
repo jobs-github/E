@@ -28,7 +28,7 @@ type Scanner interface {
 	NewFunction() *ast.FunctionStmt
 	NewExpr() *ast.ExpressionStmt
 	NewBlock() *ast.BlockStmt
-	NewVar() *ast.VarStmt
+	NewConst() *ast.ConstStmt
 	NewBoolean() *ast.Boolean
 	NewInteger() (*ast.Integer, error)
 	NewString() *ast.String
@@ -182,8 +182,8 @@ func (this *scanner) NewBlock() *ast.BlockStmt {
 	return ast.NewBlock()
 }
 
-func (this *scanner) NewVar() *ast.VarStmt {
-	return ast.NewVar()
+func (this *scanner) NewConst() *ast.ConstStmt {
+	return ast.NewConst()
 }
 
 func (this *scanner) NewBoolean() *ast.Boolean {
