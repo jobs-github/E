@@ -13,6 +13,10 @@ type Array struct {
 	Items ExpressionSlice
 }
 
+func (this *Array) Do(v Visitor) error {
+	return v.DoArray(this)
+}
+
 func (this *Array) Encode() interface{} {
 	return map[string]interface{}{
 		keyType:  typeExprArray,

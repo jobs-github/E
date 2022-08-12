@@ -12,6 +12,10 @@ type BlockStmt struct {
 	Stmt Statement
 }
 
+func (this *BlockStmt) Do(v Visitor) error {
+	return v.DoBlock(this)
+}
+
 func (this *BlockStmt) Encode() interface{} {
 	return map[string]interface{}{
 		keyType:  typeStmtBlock,

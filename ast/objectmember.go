@@ -14,6 +14,10 @@ type ObjectMember struct {
 	Member *Identifier
 }
 
+func (this *ObjectMember) Do(v Visitor) error {
+	return v.DoObjectMember(this)
+}
+
 func (this *ObjectMember) Encode() interface{} {
 	return map[string]interface{}{
 		keyType: typeExprObjectmember,

@@ -12,6 +12,10 @@ type Program struct {
 	Stmts StatementSlice
 }
 
+func (this *Program) Do(v Visitor) error {
+	return v.DoProgram(this)
+}
+
 func (this *Program) Encode() interface{} {
 	return map[string]interface{}{
 		keyType:  typeNodeProgram,
@@ -36,5 +40,5 @@ func (this *Program) String() string {
 }
 
 func (this *Program) Eval(env object.Env) (object.Object, error) {
-	return this.Stmts.eval(env)
+	return this.Stmts.Eval(env)
 }

@@ -1,9 +1,14 @@
 package object
 
 import (
+	"github.com/jobs-github/escript/code"
 	"github.com/jobs-github/escript/function"
 	"github.com/jobs-github/escript/token"
 )
+
+type ByteEncoder interface {
+	encode(op code.Opcode, operands ...int) (int, error)
+}
 
 type Object interface {
 	String() string

@@ -14,6 +14,10 @@ type ConstStmt struct {
 	Value Expression
 }
 
+func (this *ConstStmt) Do(v Visitor) error {
+	return v.DoConst(this)
+}
+
 func (this *ConstStmt) Encode() interface{} {
 	return map[string]interface{}{
 		keyType: typeStmtConst,

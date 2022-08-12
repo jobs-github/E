@@ -14,6 +14,10 @@ type IndexExpr struct {
 	Index Expression
 }
 
+func (this *IndexExpr) Do(v Visitor) error {
+	return v.DoIndex(this)
+}
+
 func (this *IndexExpr) Encode() interface{} {
 	return map[string]interface{}{
 		keyType: typeExprIndex,

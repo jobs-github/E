@@ -8,6 +8,10 @@ import (
 // Null : implement Expression
 type Null struct{}
 
+func (this *Null) Do(v Visitor) error {
+	return v.DoNull(this)
+}
+
 func (this *Null) Encode() interface{} {
 	return map[string]interface{}{
 		keyType: typeExprNull,

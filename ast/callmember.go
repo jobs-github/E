@@ -17,6 +17,10 @@ type CallMember struct {
 	Args ExpressionSlice
 }
 
+func (this *CallMember) Do(v Visitor) error {
+	return function.NewError(errUnsupportedVisitor)
+}
+
 func (this *CallMember) Encode() interface{} {
 	return map[string]interface{}{
 		keyType: typeExprCallmember,

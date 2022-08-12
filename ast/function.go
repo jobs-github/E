@@ -16,6 +16,10 @@ type Function struct {
 	Body *BlockStmt
 }
 
+func (this *Function) Do(v Visitor) error {
+	return v.DoFn(this)
+}
+
 func (this *Function) value() map[string]interface{} {
 	m := map[string]interface{}{
 		"name": this.Name,

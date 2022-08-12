@@ -61,6 +61,10 @@ const (
 )
 
 var (
+	Add = &Token{ADD, "+"}
+)
+
+var (
 	infixTokens = map[string]TokenType{
 		"<":  LT,
 		">":  GT,

@@ -16,6 +16,10 @@ type Call struct {
 	Args ExpressionSlice
 }
 
+func (this *Call) Do(v Visitor) error {
+	return v.DoCall(this)
+}
+
 func (this *Call) Encode() interface{} {
 	return map[string]interface{}{
 		keyType: typeExprCall,

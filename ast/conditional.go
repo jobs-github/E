@@ -15,6 +15,10 @@ type ConditionalExpr struct {
 	No   Expression
 }
 
+func (this *ConditionalExpr) Do(v Visitor) error {
+	return v.DoConditional(this)
+}
+
 func (this *ConditionalExpr) Encode() interface{} {
 	return map[string]interface{}{
 		keyType: typeExprConditional,

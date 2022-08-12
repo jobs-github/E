@@ -12,6 +12,10 @@ type Boolean struct {
 	Value bool
 }
 
+func (this *Boolean) Do(v Visitor) error {
+	return v.DoBoolean(this)
+}
+
 func (this *Boolean) Encode() interface{} {
 	return map[string]interface{}{
 		keyType:  typeExprBoolean,

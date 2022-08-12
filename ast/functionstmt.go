@@ -14,6 +14,10 @@ type FunctionStmt struct {
 	Value *Function
 }
 
+func (this *FunctionStmt) Do(v Visitor) error {
+	return v.DoFunction(this)
+}
+
 func (this *FunctionStmt) Encode() interface{} {
 	return map[string]interface{}{
 		keyType: typeStmtFn,

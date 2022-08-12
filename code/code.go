@@ -1,0 +1,148 @@
+package code
+
+import (
+	"bytes"
+	"encoding/binary"
+	"errors"
+	"fmt"
+
+	"github.com/jobs-github/escript/function"
+)
+
+var (
+	errUnsupportedWidth = errors.New("unsupported width")
+)
+
+type Opcode byte
+
+const (
+	OpConst Opcode = 1
+	OpAdd   Opcode = 2
+)
+
+var definitions = map[Opcode]*Definition{
+	OpConst: {"OpConst", []int{2}},
+	OpAdd:   {"OpAdd", []int{}},
+}
+
+type Instructions []byte
+
+func (this *Instructions) String() string {
+	var out bytes.Buffer
+	sz := len(*this)
+	for i := 0; i < sz; {
+		d, err := Lookup(Opcode((*this)[i]))
+		if nil != err {
+			fmt.Fprintf(&out, "ERROR: %v\n", err)
+			continue
+		}
+		r, err := DecodeOperands(d, (*this)[i+1:])
+		if nil != err {
+			fmt.Fprintf(&out, "ERROR: %v\n", err)
+			continue
+		}
+		fmt.Fprintf(&out, "%04d %s\n", i, this.format(d, r.Value))
+		i = i + 1 + r.Pos
+	}
+	return out.String()
+}
+
+func (this *Instructions) format(d *Definition, operands []int) string {
+	sz := len(d.OperandWidths)
+	if len(operands) != sz {
+		return fmt.Sprintf("ERROR: operand len, want %v, got %v\n", sz, len(operands))
+	}
+	switch sz {
+	case 0:
+		return d.Name
+	case 1:
+		return fmt.Sprintf("%s %d", d.Name, operands[0])
+	}
+	return fmt.Sprintf("ERROR: unsupport format for %s\n", d.Name)
+}
+
+type Operands struct {
+	Value []int
+	Pos   int
+}
+
+func (this *Operands) Add(i int, v int, w int) {
+	this.Value[i] = v
+	this.Pos += w
+}
+
+func DecodeOperands(d *Definition, ins Instructions) (*Operands, error) {
+	r := &Operands{Value: make([]int, len(d.OperandWidths)), Pos: 0}
+	for i, width := range d.OperandWidths {
+		v, err := decodeOperand(width, ins[r.Pos:])
+		if nil != err {
+			return nil, function.NewError(err)
+		}
+		r.Add(i, v, width)
+	}
+	return r, nil
+}
+
+type Definition struct {
+	Name          string
+	OperandWidths []int
+}
+
+func Lookup(op Opcode) (*Definition, error) {
+	v, ok := definitions[op]
+	if !ok {
+		return nil, fmt.Errorf("undefined opcode: %v", op)
+	}
+	return v, nil
+}
+
+func Make(op Opcode, operands ...int) (Instructions, error) {
+	v, err := Lookup(op)
+	if nil != err {
+		return nil, function.NewError(err)
+	}
+
+	sz := 1
+	for _, w := range v.OperandWidths {
+		sz = sz + w
+	}
+
+	instruction := make(Instructions, sz)
+	instruction[0] = byte(op)
+
+	offset := 1
+	for i, o := range operands {
+		width := v.OperandWidths[i]
+		err := encodeOperand(o, v.OperandWidths[i], instruction[offset:])
+		if nil != err {
+			return nil, function.NewError(err)
+		}
+		offset += width
+	}
+	return instruction, nil
+}
+
+func encodeOperand(operand int, width int, b []byte) error {
+	switch width {
+	case 2:
+		binary.BigEndian.PutUint16(b, uint16(operand))
+		return nil
+	default:
+		err := fmt.Errorf("unsupported width: %v", width)
+		return function.NewError(err)
+	}
+}
+
+func DecodeUint16(b []byte) int {
+	return int(binary.BigEndian.Uint16(b))
+}
+
+func decodeOperand(width int, b []byte) (int, error) {
+	switch width {
+	case 2:
+		return DecodeUint16(b), nil
+	default:
+		err := fmt.Errorf("unsupported width: %v", width)
+		return -1, function.NewError(err)
+	}
+}

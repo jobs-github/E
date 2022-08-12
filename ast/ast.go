@@ -1,6 +1,7 @@
 package ast
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/jobs-github/escript/function"
@@ -8,14 +9,42 @@ import (
 	"github.com/jobs-github/escript/token"
 )
 
-type Nodes []Node
+var (
+	errUnsupportedVisitor = errors.New("unsupported visitor")
+)
+
+type Visitor interface {
+	DoProgram(v *Program) error
+	DoConst(v *ConstStmt) error
+	DoBlock(v *BlockStmt) error
+	DoExpr(v *ExpressionStmt) error
+	DoFunction(v *FunctionStmt) error
+	DoPrefix(v *PrefixExpr) error
+	DoInfix(v *InfixExpr) error
+	DoIdent(v *Identifier) error
+	DoConditional(v *ConditionalExpr) error
+	DoFn(v *Function) error
+	DoCall(v *Call) error
+	DoCallMember(v *CallMember) error
+	DoObjectMember(v *ObjectMember) error
+	DoIndex(v *IndexExpr) error
+	DoNull(v *Null) error
+	DoInteger(v *Integer) error
+	DoBoolean(v *Boolean) error
+	DoString(v *String) error
+	DoArray(v *Array) error
+	DoHash(v *Hash) error
+}
 
 type Node interface {
+	Do(v Visitor) error
 	Encode() interface{}
 	Decode(b []byte) error
 	String() string
 	Eval(env object.Env) (object.Object, error)
 }
+
+type Nodes []Node
 
 type Statement interface {
 	Node
@@ -69,7 +98,7 @@ func (this *StatementSlice) encode() interface{} {
 	return r
 }
 
-func (this *StatementSlice) eval(env object.Env) (object.Object, error) {
+func (this *StatementSlice) Eval(env object.Env) (object.Object, error) {
 	var result object.Object
 	for _, stmt := range *this {
 		if v, err := stmt.Eval(env); nil != err {

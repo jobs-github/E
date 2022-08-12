@@ -10,6 +10,10 @@ type ExpressionStmt struct {
 	Expr Expression
 }
 
+func (this *ExpressionStmt) Do(v Visitor) error {
+	return v.DoExpr(this)
+}
+
 func (this *ExpressionStmt) Encode() interface{} {
 	return map[string]interface{}{
 		keyType:  typeStmtExpr,

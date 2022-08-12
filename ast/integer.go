@@ -13,6 +13,10 @@ type Integer struct {
 	Value int64
 }
 
+func (this *Integer) Do(v Visitor) error {
+	return v.DoInteger(this)
+}
+
 func (this *Integer) Encode() interface{} {
 	return map[string]interface{}{
 		keyType:  typeExprInteger,

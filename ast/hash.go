@@ -14,6 +14,10 @@ type Hash struct {
 	Pairs ExpressionMap
 }
 
+func (this *Hash) Do(v Visitor) error {
+	return v.DoHash(this)
+}
+
 func (this *Hash) Encode() interface{} {
 	return map[string]interface{}{
 		keyType:  typeExprHash,

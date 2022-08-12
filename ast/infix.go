@@ -16,6 +16,10 @@ type InfixExpr struct {
 	Right Expression
 }
 
+func (this *InfixExpr) Do(v Visitor) error {
+	return v.DoInfix(this)
+}
+
 func (this *InfixExpr) Encode() interface{} {
 	return map[string]interface{}{
 		keyType: typeExprInfix,

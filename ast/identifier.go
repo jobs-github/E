@@ -14,6 +14,10 @@ type Identifier struct {
 	Value string
 }
 
+func (this *Identifier) Do(v Visitor) error {
+	return v.DoIdent(this)
+}
+
 func (this *Identifier) getType() string {
 	if fn := builtin.Get(this.Value); nil != fn {
 		return typeExprBuiltin

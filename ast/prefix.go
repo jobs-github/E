@@ -15,6 +15,10 @@ type PrefixExpr struct {
 	Right Expression
 }
 
+func (this *PrefixExpr) Do(v Visitor) error {
+	return v.DoPrefix(this)
+}
+
 func (this *PrefixExpr) Encode() interface{} {
 	return map[string]interface{}{
 		keyType: typeExprPrefix,

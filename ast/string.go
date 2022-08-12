@@ -11,6 +11,10 @@ type String struct {
 	Value string
 }
 
+func (this *String) Do(v Visitor) error {
+	return v.DoString(this)
+}
+
 func (this *String) Encode() interface{} {
 	return map[string]interface{}{
 		keyType:  typeExprString,
