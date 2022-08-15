@@ -1,15 +1,64 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
 
+	"github.com/jobs-github/escript/compiler"
 	"github.com/jobs-github/escript/eval"
+	"github.com/jobs-github/escript/lexer"
+	"github.com/jobs-github/escript/object"
+	"github.com/jobs-github/escript/parser"
+	"github.com/jobs-github/escript/vm"
 )
 
-func main() {
+func Start(in io.Reader, out io.Writer) {
+	scanner := bufio.NewScanner(in)
+
+	for {
+		fmt.Fprintf(out, ">> ")
+		scanned := scanner.Scan()
+		if !scanned {
+			return
+		}
+
+		line := scanner.Text()
+		l := lexer.New(line)
+		p, err := parser.New(l)
+		if nil != err {
+			io.WriteString(out, fmt.Sprintf("\t%v\n", err))
+			continue
+		}
+
+		program, err := p.ParseProgram()
+		if nil != err {
+			io.WriteString(out, fmt.Sprintf("\t%v\n", err))
+			continue
+		}
+
+		c := compiler.New()
+		if err := c.Compile(program); nil != err {
+			fmt.Fprintf(out, fmt.Sprintf("compile error: %v", err))
+			continue
+		}
+		machine := vm.New(c.Bytecode())
+		if err := machine.Run(); nil != err {
+			fmt.Fprintf(out, fmt.Sprintf("run vm error: %v\n", err))
+			continue
+		}
+		stackTop := machine.StackTop()
+		if !object.IsNull(stackTop) {
+			io.WriteString(out, stackTop.String())
+			io.WriteString(out, "\n")
+		}
+	}
+}
+
+func intepreterMain() {
 	argc := len(os.Args)
 	e := eval.New(false)
 	if argc == 1 {
@@ -35,4 +84,8 @@ func main() {
 			e.EvalScript(os.Args[1], os.Args[2:])
 		}
 	}
+}
+
+func main() {
+	Start(os.Stdin, os.Stdout)
 }
