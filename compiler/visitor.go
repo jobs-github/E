@@ -45,6 +45,7 @@ func (this *visitor) DoExpr(v *ast.ExpressionStmt) error {
 	if err := v.Expr.Do(this); nil != err {
 		return function.NewError(err)
 	}
+	this.c.encode(code.OpPop)
 	return nil
 }
 

@@ -69,9 +69,8 @@ func runVmTests(t *testing.T, tests []vmTestCase) {
 			vm := New(c.Bytecode())
 			if err := vm.Run(); nil != err {
 				t.Fatal(err)
-				// t.Errorf("virtualMachine.Run() error = %v, wantErr %v", err, tt.wantErr)
 			}
-			e := vm.StackTop()
+			e := vm.LastPopped()
 			testExpectedObject(t, tt.want, e)
 		})
 	}

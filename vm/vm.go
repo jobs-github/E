@@ -29,6 +29,7 @@ func New(b compiler.Bytecode) VM {
 type VM interface {
 	Run() error
 	StackTop() object.Object
+	LastPopped() object.Object
 }
 
 // virtualMachine : implement VM
@@ -52,6 +53,8 @@ func (this *virtualMachine) Run() error {
 			if nil != err {
 				return function.NewError(err)
 			}
+		case code.OpPop:
+			this.pop()
 		case code.OpAdd:
 			right := this.pop()
 			left := this.pop()
@@ -70,6 +73,10 @@ func (this *virtualMachine) StackTop() object.Object {
 		return nil
 	}
 	return this.stack[this.sp-1]
+}
+
+func (this *virtualMachine) LastPopped() object.Object {
+	return this.stack[this.sp]
 }
 
 func (this *virtualMachine) push(o object.Object) error {

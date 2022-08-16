@@ -17,11 +17,13 @@ type Opcode byte
 
 const (
 	OpConst Opcode = 1
-	OpAdd   Opcode = 2
+	OpPop   Opcode = 2
+	OpAdd   Opcode = 10
 )
 
 var definitions = map[Opcode]*Definition{
 	OpConst: {"OpConst", []int{2}},
+	OpPop:   {"OpPop", []int{}},
 	OpAdd:   {"OpAdd", []int{}},
 }
 

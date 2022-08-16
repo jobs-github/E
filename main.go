@@ -50,9 +50,9 @@ func Start(in io.Reader, out io.Writer) {
 			fmt.Fprintf(out, fmt.Sprintf("run vm error: %v\n", err))
 			continue
 		}
-		stackTop := machine.StackTop()
-		if !object.IsNull(stackTop) {
-			io.WriteString(out, stackTop.String())
+		e := machine.LastPopped()
+		if !object.IsNull(e) {
+			io.WriteString(out, e.String())
 			io.WriteString(out, "\n")
 		}
 	}

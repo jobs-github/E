@@ -125,6 +125,18 @@ func Test_IntegerArithmetic(t *testing.T) {
 				newCode(code.OpConst, 0),
 				newCode(code.OpConst, 1),
 				newCode(code.OpAdd),
+				newCode(code.OpPop),
+			},
+		},
+		{
+			"case_2",
+			"1;2;",
+			[]interface{}{1, 2},
+			[]code.Instructions{
+				newCode(code.OpConst, 0),
+				newCode(code.OpPop),
+				newCode(code.OpConst, 1),
+				newCode(code.OpPop),
 			},
 		},
 	}
