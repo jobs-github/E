@@ -64,17 +64,13 @@ func (this *visitor) DoInfix(v *ast.InfixExpr) error {
 	if err := v.Right.Do(this); nil != err {
 		return function.NewError(err)
 	}
-
-	switch v.Op.Type {
-	case token.ADD:
-		_, err := this.c.encode(code.OpAdd)
-		if nil != err {
-			return function.NewError(err)
-		}
-	default:
+	opCode, err := code.GetOpCode(v.Op.Type)
+	if nil != err {
 		return unsupportedOp(function.GetFunc(), v.Op, v.Right)
 	}
-
+	if _, err := this.c.encode(opCode); nil != err {
+		return function.NewError(err)
+	}
 	return nil
 }
 

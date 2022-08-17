@@ -62,6 +62,10 @@ const (
 
 var (
 	Add = &Token{ADD, "+"}
+	Sub = &Token{SUB, "-"}
+	Mul = &Token{MUL, "*"}
+	Div = &Token{DIV, "/"}
+	Mod = &Token{MOD, "%"}
 )
 
 var (

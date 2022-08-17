@@ -139,6 +139,50 @@ func Test_IntegerArithmetic(t *testing.T) {
 				newCode(code.OpPop),
 			},
 		},
+		{
+			"case_3",
+			"1 - 2",
+			[]interface{}{1, 2},
+			[]code.Instructions{
+				newCode(code.OpConst, 0),
+				newCode(code.OpConst, 1),
+				newCode(code.OpSub),
+				newCode(code.OpPop),
+			},
+		},
+		{
+			"case_4",
+			"1 * 2",
+			[]interface{}{1, 2},
+			[]code.Instructions{
+				newCode(code.OpConst, 0),
+				newCode(code.OpConst, 1),
+				newCode(code.OpMul),
+				newCode(code.OpPop),
+			},
+		},
+		{
+			"case_4",
+			"2 / 1",
+			[]interface{}{2, 1},
+			[]code.Instructions{
+				newCode(code.OpConst, 0),
+				newCode(code.OpConst, 1),
+				newCode(code.OpDiv),
+				newCode(code.OpPop),
+			},
+		},
+		{
+			"case_5",
+			"10 % 3",
+			[]interface{}{10, 3},
+			[]code.Instructions{
+				newCode(code.OpConst, 0),
+				newCode(code.OpConst, 1),
+				newCode(code.OpMod),
+				newCode(code.OpPop),
+			},
+		},
 	}
 	runCompilerTests(t, tests)
 }

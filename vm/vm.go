@@ -7,7 +7,6 @@ import (
 	"github.com/jobs-github/escript/compiler"
 	"github.com/jobs-github/escript/function"
 	"github.com/jobs-github/escript/object"
-	"github.com/jobs-github/escript/token"
 )
 
 const (
@@ -55,16 +54,27 @@ func (this *virtualMachine) Run() error {
 			}
 		case code.OpPop:
 			this.pop()
-		case code.OpAdd:
-			right := this.pop()
-			left := this.pop()
-			r, err := left.Calc(token.Add, right)
-			if nil != err {
+		case code.OpAdd, code.OpSub, code.OpMul, code.OpDiv, code.OpMod:
+			if err := this.execBinOp(op); nil != err {
 				return function.NewError(err)
 			}
-			this.push(r)
 		}
 	}
+	return nil
+}
+
+func (this *virtualMachine) execBinOp(op code.Opcode) error {
+	t, err := code.GetToken(op)
+	if nil != err {
+		return function.NewError(err)
+	}
+	right := this.pop()
+	left := this.pop()
+	r, err := left.Calc(t, right)
+	if nil != err {
+		return function.NewError(err)
+	}
+	this.push(r)
 	return nil
 }
 

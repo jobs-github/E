@@ -7,6 +7,7 @@ import (
 	"fmt"
 
 	"github.com/jobs-github/escript/function"
+	"github.com/jobs-github/escript/token"
 )
 
 var (
@@ -16,20 +17,86 @@ var (
 type Opcode byte
 
 const (
-	OpConst Opcode = 1
-	OpPop   Opcode = 2
-	OpAdd   Opcode = 10
+	OpUndefined Opcode = iota
+	OpConst
+	OpPop
+	OpAdd
+	OpSub
+	OpMul
+	OpDiv
+	OpMod
 )
 
-var definitions = map[Opcode]*Definition{
-	OpConst: {"OpConst", []int{2}},
-	OpPop:   {"OpPop", []int{}},
-	OpAdd:   {"OpAdd", []int{}},
+var (
+	definitions = map[Opcode]*Definition{
+		OpConst: {"OpConst", []int{2}},
+		OpPop:   {"OpPop", []int{}},
+		OpAdd:   {"OpAdd", []int{}},
+		OpSub:   {"OpSub", []int{}},
+		OpMul:   {"OpMul", []int{}},
+		OpDiv:   {"OpDiv", []int{}},
+		OpMod:   {"OpMod", []int{}},
+	}
+	codePairs = tokenCodePairs{
+		{token.Add, OpAdd},
+		{token.Sub, OpSub},
+		{token.Mul, OpMul},
+		{token.Div, OpDiv},
+		{token.Mod, OpMod},
+	}
+	codeMap = codePairs.newMap()
+)
+
+func GetToken(c Opcode) (*token.Token, error) {
+	return codeMap.token(c)
+}
+
+func GetOpCode(t token.TokenType) (Opcode, error) {
+	return codeMap.opCode(t)
+}
+
+type tokenCodePair struct {
+	t *token.Token
+	c Opcode
+}
+
+type tokenCodePairs []*tokenCodePair
+
+func (this *tokenCodePairs) newMap() *tokenCodeMap {
+	opcodes := map[token.TokenType]Opcode{}
+	tokens := map[Opcode]*token.Token{}
+	for _, v := range *this {
+		opcodes[v.t.Type] = v.c
+		tokens[v.c] = v.t
+	}
+	return &tokenCodeMap{opcodes: opcodes, tokens: tokens}
+}
+
+type tokenCodeMap struct {
+	opcodes map[token.TokenType]Opcode
+	tokens  map[Opcode]*token.Token
+}
+
+func (this *tokenCodeMap) opCode(t token.TokenType) (Opcode, error) {
+	v, ok := this.opcodes[t]
+	if !ok {
+		return OpUndefined, fmt.Errorf("no matched opcode, token: %v", token.ToString(t))
+	}
+	return v, nil
+}
+
+func (this *tokenCodeMap) token(c Opcode) (*token.Token, error) {
+	v, ok := this.tokens[c]
+	if !ok {
+		return nil, fmt.Errorf("no matched token, opcode: %v", c)
+	}
+	return v, nil
 }
 
 type Instructions []byte
 
 func (this *Instructions) String() string {
+
 	var out bytes.Buffer
 	sz := len(*this)
 	for i := 0; i < sz; {
