@@ -54,7 +54,27 @@ func (this *virtualMachine) Run() error {
 			}
 		case code.OpPop:
 			this.pop()
-		case code.OpAdd, code.OpSub, code.OpMul, code.OpDiv, code.OpMod:
+		case code.OpTrue:
+			if err := this.push(object.True); nil != err {
+				return function.NewError(err)
+			}
+		case code.OpFalse:
+			if err := this.push(object.False); nil != err {
+				return function.NewError(err)
+			}
+		case code.OpAdd,
+			code.OpSub,
+			code.OpMul,
+			code.OpDiv,
+			code.OpMod,
+			code.OpLt,
+			code.OpGt,
+			code.OpEq,
+			code.OpNeq,
+			code.OpLeq,
+			code.OpGeq,
+			code.OpAnd,
+			code.OpOr:
 			if err := this.execBinOp(op); nil != err {
 				return function.NewError(err)
 			}

@@ -40,6 +40,17 @@ func testIntegerObject(want int64, obj object.Object) error {
 	return nil
 }
 
+func testBooleanObject(want bool, obj object.Object) error {
+	result, ok := obj.(*object.Boolean)
+	if !ok {
+		return function.NewError(fmt.Errorf("object is not boolean, got=%v", obj))
+	}
+	if result.Value != want {
+		return function.NewError(fmt.Errorf("object has wrong value, got=%v, want: %v", result.Value, want))
+	}
+	return nil
+}
+
 type vmTestCase struct {
 	name  string
 	input string
@@ -50,6 +61,10 @@ func testExpectedObject(t *testing.T, want interface{}, v object.Object) {
 	switch et := want.(type) {
 	case int:
 		if err := testIntegerObject(int64(et), v); nil != err {
+			t.Errorf("testIntegerObject failed, err: %v", err)
+		}
+	case bool:
+		if err := testBooleanObject(et, v); nil != err {
 			t.Errorf("testIntegerObject failed, err: %v", err)
 		}
 	}
@@ -90,6 +105,28 @@ func TestIntegerArithmetic(t *testing.T) {
 		{"case_10", "5 * 2 + 10", 20},
 		{"case_11", "5 + 2 * 10", 25},
 		{"case_12", "5 * (2 + 10)", 60},
+	}
+	runVmTests(t, tests)
+}
+
+func TestBooleanExpr(t *testing.T) {
+	tests := []vmTestCase{
+		{"case_1", "true", true},
+		{"case_2", "false", false},
+		{"case_3", "1 < 2", true},
+		{"case_4", "1 > 2", false},
+		{"case_5", "1 == 2", false},
+		{"case_6", "1 >= 2", false},
+		{"case_7", "1 <= 2", true},
+		{"case_8", "1 != 2", true},
+		{"case_9", "true == true", true},
+		{"case_10", "true == false", false},
+		{"case_11", "true != false", true},
+		{"case_12", "true != true", false},
+		{"case_13", "(1 < 2) == true", true},
+		{"case_14", "(1 < 2) == false", false},
+		{"case_15", "(1 > 2) == true", false},
+		{"case_16", "(1 > 2) == false", true},
 	}
 	runVmTests(t, tests)
 }

@@ -20,22 +20,42 @@ const (
 	OpUndefined Opcode = iota
 	OpConst
 	OpPop
+	OpTrue
+	OpFalse
 	OpAdd
 	OpSub
 	OpMul
 	OpDiv
 	OpMod
+	OpLt
+	OpGt
+	OpEq
+	OpNeq
+	OpLeq
+	OpGeq
+	OpAnd
+	OpOr
 )
 
 var (
 	definitions = map[Opcode]*Definition{
 		OpConst: {"OpConst", []int{2}},
 		OpPop:   {"OpPop", []int{}},
+		OpTrue:  {"OpTrue", []int{}},
+		OpFalse: {"OpFalse", []int{}},
 		OpAdd:   {"OpAdd", []int{}},
 		OpSub:   {"OpSub", []int{}},
 		OpMul:   {"OpMul", []int{}},
 		OpDiv:   {"OpDiv", []int{}},
 		OpMod:   {"OpMod", []int{}},
+		OpLt:    {"OpLt", []int{}},
+		OpGt:    {"OpGt", []int{}},
+		OpEq:    {"OpEq", []int{}},
+		OpNeq:   {"OpNeq", []int{}},
+		OpLeq:   {"OpLeq", []int{}},
+		OpGeq:   {"OpGeq", []int{}},
+		OpAnd:   {"OpAnd", []int{}},
+		OpOr:    {"OpOr", []int{}},
 	}
 	codePairs = tokenCodePairs{
 		{token.Add, OpAdd},
@@ -43,6 +63,14 @@ var (
 		{token.Mul, OpMul},
 		{token.Div, OpDiv},
 		{token.Mod, OpMod},
+		{token.Lt, OpLt},
+		{token.Gt, OpGt},
+		{token.Eq, OpEq},
+		{token.Neq, OpNeq},
+		{token.Leq, OpLeq},
+		{token.Geq, OpGeq},
+		{token.And, OpAnd},
+		{token.Or, OpOr},
 	}
 	codeMap = codePairs.newMap()
 )
@@ -188,6 +216,7 @@ func Make(op Opcode, operands ...int) (Instructions, error) {
 		}
 		offset += width
 	}
+
 	return instruction, nil
 }
 

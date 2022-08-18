@@ -66,6 +66,14 @@ var (
 	Mul = &Token{MUL, "*"}
 	Div = &Token{DIV, "/"}
 	Mod = &Token{MOD, "%"}
+	Lt  = &Token{LT, "<"}
+	Gt  = &Token{GT, ">"}
+	Eq  = &Token{EQ, "=="}
+	Neq = &Token{NEQ, "!="}
+	Leq = &Token{LEQ, "<="}
+	Geq = &Token{GEQ, ">="}
+	And = &Token{AND, "&&"}
+	Or  = &Token{OR, "||"}
 )
 
 var (

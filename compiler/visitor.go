@@ -114,7 +114,12 @@ func (this *visitor) DoInteger(v *ast.Integer) error {
 }
 
 func (this *visitor) DoBoolean(v *ast.Boolean) error {
-	return function.NewError(errUnsupportedVisitor)
+	if v.Value {
+		this.c.encode(code.OpTrue)
+	} else {
+		this.c.encode(code.OpFalse)
+	}
+	return nil
 }
 
 func (this *visitor) DoString(v *ast.String) error {

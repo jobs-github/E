@@ -186,3 +186,137 @@ func Test_IntegerArithmetic(t *testing.T) {
 	}
 	runCompilerTests(t, tests)
 }
+
+func Test_BooleanExpr(t *testing.T) {
+	tests := []compilerTestCase{
+		{
+			"case_1",
+			"true",
+			[]interface{}{},
+			[]code.Instructions{
+				newCode(code.OpTrue),
+				newCode(code.OpPop),
+			},
+		},
+		{
+			"case_2",
+			"false",
+			[]interface{}{},
+			[]code.Instructions{
+				newCode(code.OpFalse),
+				newCode(code.OpPop),
+			},
+		},
+		{
+			"case_3",
+			"1 > 2",
+			[]interface{}{1, 2},
+			[]code.Instructions{
+				newCode(code.OpConst, 0),
+				newCode(code.OpConst, 1),
+				newCode(code.OpGt),
+				newCode(code.OpPop),
+			},
+		},
+		{
+			"case_4",
+			"1 < 2",
+			[]interface{}{1, 2},
+			[]code.Instructions{
+				newCode(code.OpConst, 0),
+				newCode(code.OpConst, 1),
+				newCode(code.OpLt),
+				newCode(code.OpPop),
+			},
+		},
+		{
+			"case_5",
+			"1 == 2",
+			[]interface{}{1, 2},
+			[]code.Instructions{
+				newCode(code.OpConst, 0),
+				newCode(code.OpConst, 1),
+				newCode(code.OpEq),
+				newCode(code.OpPop),
+			},
+		},
+		{
+			"case_6",
+			"1 != 2",
+			[]interface{}{1, 2},
+			[]code.Instructions{
+				newCode(code.OpConst, 0),
+				newCode(code.OpConst, 1),
+				newCode(code.OpNeq),
+				newCode(code.OpPop),
+			},
+		},
+		{
+			"case_6",
+			"1 >= 2",
+			[]interface{}{1, 2},
+			[]code.Instructions{
+				newCode(code.OpConst, 0),
+				newCode(code.OpConst, 1),
+				newCode(code.OpGeq),
+				newCode(code.OpPop),
+			},
+		},
+		{
+			"case_7",
+			"1 <= 2",
+			[]interface{}{1, 2},
+			[]code.Instructions{
+				newCode(code.OpConst, 0),
+				newCode(code.OpConst, 1),
+				newCode(code.OpLeq),
+				newCode(code.OpPop),
+			},
+		},
+		{
+			"case_8",
+			"true == false",
+			[]interface{}{},
+			[]code.Instructions{
+				newCode(code.OpTrue),
+				newCode(code.OpFalse),
+				newCode(code.OpEq),
+				newCode(code.OpPop),
+			},
+		},
+		{
+			"case_9",
+			"true != false",
+			[]interface{}{},
+			[]code.Instructions{
+				newCode(code.OpTrue),
+				newCode(code.OpFalse),
+				newCode(code.OpNeq),
+				newCode(code.OpPop),
+			},
+		},
+		{
+			"case_10",
+			"1 && 2",
+			[]interface{}{1, 2},
+			[]code.Instructions{
+				newCode(code.OpConst, 0),
+				newCode(code.OpConst, 1),
+				newCode(code.OpAnd),
+				newCode(code.OpPop),
+			},
+		},
+		{
+			"case_10",
+			"1 || 2",
+			[]interface{}{1, 2},
+			[]code.Instructions{
+				newCode(code.OpConst, 0),
+				newCode(code.OpConst, 1),
+				newCode(code.OpOr),
+				newCode(code.OpPop),
+			},
+		},
+	}
+	runCompilerTests(t, tests)
+}
