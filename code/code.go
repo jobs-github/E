@@ -22,6 +22,8 @@ const (
 	OpPop
 	OpTrue
 	OpFalse
+	OpNot
+	OpNeg
 	OpAdd
 	OpSub
 	OpMul
@@ -43,6 +45,8 @@ var (
 		OpPop:   {"OpPop", []int{}},
 		OpTrue:  {"OpTrue", []int{}},
 		OpFalse: {"OpFalse", []int{}},
+		OpNot:   {"OpNot", []int{}},
+		OpNeg:   {"OpNeg", []int{}},
 		OpAdd:   {"OpAdd", []int{}},
 		OpSub:   {"OpSub", []int{}},
 		OpMul:   {"OpMul", []int{}},
@@ -57,7 +61,11 @@ var (
 		OpAnd:   {"OpAnd", []int{}},
 		OpOr:    {"OpOr", []int{}},
 	}
-	codePairs = tokenCodePairs{
+	prefixCodePairs = tokenCodePairs{
+		{token.Not, OpNot},
+		{token.Neg, OpNeg},
+	}
+	infixCodePairs = tokenCodePairs{
 		{token.Add, OpAdd},
 		{token.Sub, OpSub},
 		{token.Mul, OpMul},
@@ -72,15 +80,20 @@ var (
 		{token.And, OpAnd},
 		{token.Or, OpOr},
 	}
-	codeMap = codePairs.newMap()
+	prefixCodeMap = prefixCodePairs.newMap()
+	infixCodeMap  = infixCodePairs.newMap()
 )
 
-func GetToken(c Opcode) (*token.Token, error) {
-	return codeMap.token(c)
+func PrefixCode(t token.TokenType) (Opcode, error) {
+	return prefixCodeMap.opCode(t)
 }
 
-func GetOpCode(t token.TokenType) (Opcode, error) {
-	return codeMap.opCode(t)
+func InfixToken(c Opcode) (*token.Token, error) {
+	return infixCodeMap.token(c)
+}
+
+func InfixCode(t token.TokenType) (Opcode, error) {
+	return infixCodeMap.opCode(t)
 }
 
 type tokenCodePair struct {

@@ -162,7 +162,7 @@ func Test_IntegerArithmetic(t *testing.T) {
 			},
 		},
 		{
-			"case_4",
+			"case_5",
 			"2 / 1",
 			[]interface{}{2, 1},
 			[]code.Instructions{
@@ -173,13 +173,23 @@ func Test_IntegerArithmetic(t *testing.T) {
 			},
 		},
 		{
-			"case_5",
+			"case_6",
 			"10 % 3",
 			[]interface{}{10, 3},
 			[]code.Instructions{
 				newCode(code.OpConst, 0),
 				newCode(code.OpConst, 1),
 				newCode(code.OpMod),
+				newCode(code.OpPop),
+			},
+		},
+		{
+			"case_7",
+			"-1",
+			[]interface{}{1},
+			[]code.Instructions{
+				newCode(code.OpConst, 0),
+				newCode(code.OpNeg),
 				newCode(code.OpPop),
 			},
 		},
@@ -307,13 +317,23 @@ func Test_BooleanExpr(t *testing.T) {
 			},
 		},
 		{
-			"case_10",
+			"case_11",
 			"1 || 2",
 			[]interface{}{1, 2},
 			[]code.Instructions{
 				newCode(code.OpConst, 0),
 				newCode(code.OpConst, 1),
 				newCode(code.OpOr),
+				newCode(code.OpPop),
+			},
+		},
+		{
+			"case_12",
+			"!true",
+			[]interface{}{},
+			[]code.Instructions{
+				newCode(code.OpTrue),
+				newCode(code.OpNot),
 				newCode(code.OpPop),
 			},
 		},

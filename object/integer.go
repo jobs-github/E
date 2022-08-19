@@ -12,9 +12,9 @@ func newInteger(v int64) *Integer {
 		Value: v,
 	}
 	obj.fns = objectBuiltins{
-		FnNot:      obj.builtinNot,
-		FnOpposite: obj.builtinOpposite,
-		FnInt:      obj.builtinInt,
+		FnNot: obj.builtinNot,
+		FnNeg: obj.builtinNeg,
+		FnInt: obj.builtinInt,
 	}
 	return obj
 }
@@ -211,10 +211,10 @@ func (this *Integer) builtinNot(args Objects) (Object, error) {
 	}
 }
 
-func (this *Integer) builtinOpposite(args Objects) (Object, error) {
+func (this *Integer) builtinNeg(args Objects) (Object, error) {
 	argc := len(args)
 	if argc != 0 {
-		return NewInteger(0), fmt.Errorf("opposite() takes no argument (%v given), (`%v`)", argc, this.String())
+		return NewInteger(0), fmt.Errorf("neg() takes no argument (%v given), (`%v`)", argc, this.String())
 	}
 	return NewInteger(-this.Value), nil
 }

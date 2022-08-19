@@ -54,7 +54,17 @@ func (this *visitor) DoFunction(v *ast.FunctionStmt) error {
 }
 
 func (this *visitor) DoPrefix(v *ast.PrefixExpr) error {
-	return function.NewError(errUnsupportedVisitor)
+	if err := v.Right.Do(this); nil != err {
+		return function.NewError(err)
+	}
+	opCode, err := code.PrefixCode(v.Op.Type)
+	if nil != err {
+		return unsupportedOp(function.GetFunc(), v.Op, v.Right)
+	}
+	if _, err := this.c.encode(opCode); nil != err {
+		return function.NewError(err)
+	}
+	return nil
 }
 
 func (this *visitor) DoInfix(v *ast.InfixExpr) error {
@@ -64,7 +74,7 @@ func (this *visitor) DoInfix(v *ast.InfixExpr) error {
 	if err := v.Right.Do(this); nil != err {
 		return function.NewError(err)
 	}
-	opCode, err := code.GetOpCode(v.Op.Type)
+	opCode, err := code.InfixCode(v.Op.Type)
 	if nil != err {
 		return unsupportedOp(function.GetFunc(), v.Op, v.Right)
 	}

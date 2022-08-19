@@ -61,6 +61,10 @@ const (
 )
 
 var (
+	// prefix
+	Not = &Token{NOT, "!"}
+	Neg = &Token{SUB, "-"}
+	// infix
 	Add = &Token{ADD, "+"}
 	Sub = &Token{SUB, "-"}
 	Mul = &Token{MUL, "*"}

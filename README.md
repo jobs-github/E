@@ -322,14 +322,14 @@ not     |!
 method  |comment
 --------|-------
 not     |!
-opposite|-
+neg|-
 int     |convert to int
 
     >> const b = true;
     true
     >> b.not()
     false
-    >> b.opposite()
+    >> b.neg()
     -1
     >> b.int()
     1
@@ -347,14 +347,14 @@ int     |convert to int
 method  |comment
 --------|-------
 not     |!
-opposite|-
+neg|-
 int     |convert to int
 
     >> const i = 123
     123
     >> i.not()
     false
-    >> i.opposite()
+    >> i.neg()
     -123
     >> i.int()
     123

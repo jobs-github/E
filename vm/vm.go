@@ -62,6 +62,14 @@ func (this *virtualMachine) Run() error {
 			if err := this.push(object.False); nil != err {
 				return function.NewError(err)
 			}
+		case code.OpNot:
+			if err := this.execPrefix(object.FnNot); nil != err {
+				return function.NewError(err)
+			}
+		case code.OpNeg:
+			if err := this.execPrefix(object.FnNeg); nil != err {
+				return function.NewError(err)
+			}
 		case code.OpAdd,
 			code.OpSub,
 			code.OpMul,
@@ -75,7 +83,7 @@ func (this *virtualMachine) Run() error {
 			code.OpGeq,
 			code.OpAnd,
 			code.OpOr:
-			if err := this.execBinOp(op); nil != err {
+			if err := this.execInfix(op); nil != err {
 				return function.NewError(err)
 			}
 		}
@@ -83,8 +91,17 @@ func (this *virtualMachine) Run() error {
 	return nil
 }
 
-func (this *virtualMachine) execBinOp(op code.Opcode) error {
-	t, err := code.GetToken(op)
+func (this *virtualMachine) execPrefix(fn string) error {
+	right := this.pop()
+	if r, err := right.CallMember(fn, object.Objects{}); nil != err {
+		return function.NewError(err)
+	} else {
+		return this.push(r)
+	}
+}
+
+func (this *virtualMachine) execInfix(op code.Opcode) error {
+	t, err := code.InfixToken(op)
 	if nil != err {
 		return function.NewError(err)
 	}

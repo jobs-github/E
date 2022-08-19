@@ -38,14 +38,14 @@ const (
 )
 
 const (
-	FnLen      = "len"
-	FnIndex    = "index"
-	FnNot      = "not"
-	FnOpposite = "opposite"
-	FnInt      = "int"
-	FnMap      = "map"
-	FnReduce   = "reduce"
-	FnFilter   = "filter"
+	FnLen    = "len"
+	FnIndex  = "index"
+	FnNot    = "not"
+	FnNeg    = "neg"
+	FnInt    = "int"
+	FnMap    = "map"
+	FnReduce = "reduce"
+	FnFilter = "filter"
 )
 
 var (

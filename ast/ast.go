@@ -115,7 +115,7 @@ func evalPrefixExpression(op *token.Token, right object.Object) (object.Object, 
 	case token.NOT:
 		return right.CallMember(object.FnNot, object.Objects{})
 	case token.SUB:
-		return right.CallMember(object.FnOpposite, object.Objects{})
+		return right.CallMember(object.FnNeg, object.Objects{})
 	default:
 		err := fmt.Errorf("unsupport op %v(%v)", op.Literal, token.ToString(op.Type))
 		return object.Nil, function.NewError(err)
