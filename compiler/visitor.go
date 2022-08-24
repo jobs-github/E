@@ -19,9 +19,28 @@ func unsupportedOp(entry string, op *token.Token, node ast.Node) error {
 	return fmt.Errorf("%v -> unsupported op %v(%v), (`%v`)", entry, op.Literal, token.ToString(op.Type), node.String())
 }
 
+func newVisitor(c Compiler, o *options) ast.Visitor {
+	return &visitor{c, o}
+}
+
+func newOptions(skipEncodePop bool) *options {
+	return &options{
+		skipEncodePop: skipEncodePop,
+	}
+}
+
+type options struct {
+	skipEncodePop bool
+}
+
 // visitor : implement ast.Visitor
 type visitor struct {
 	c Compiler
+	o *options
+}
+
+func (this *visitor) skipEncodePop() bool {
+	return nil != this.o && this.o.skipEncodePop
 }
 
 func (this *visitor) DoProgram(v *ast.Program) error {
@@ -48,8 +67,9 @@ func (this *visitor) DoExpr(v *ast.ExpressionStmt) error {
 	if err := v.Expr.Do(this); nil != err {
 		return function.NewError(err)
 	}
-	// TODO : maybe can pass parameter to decide whether to pop
-	this.c.encode(code.OpPop)
+	if !this.skipEncodePop() {
+		this.c.encode(code.OpPop)
+	}
 	return nil
 }
 
@@ -92,44 +112,38 @@ func (this *visitor) DoIdent(v *ast.Identifier) error {
 	return function.NewError(errUnsupportedVisitor)
 }
 
+// ConditionalExpr bytecode format
+// cond
+// OpJumpWhenFalse
+// Yes
+// OpJump
+// No
 func (this *visitor) DoConditional(v *ast.ConditionalExpr) error {
 	if err := v.Cond.Do(this); nil != err {
 		return function.NewError(err)
 	}
-	// back-patching
 	posJumpWhenFalse, err := this.c.encode(code.OpJumpWhenFalse, -1)
 	if nil != err {
 		return function.NewError(err)
 	}
-	if err := v.Yes.Do(this); nil != err {
+	if err := v.Yes.Do(newVisitor(this.c, newOptions(true))); nil != err {
 		return function.NewError(err)
 	}
-	if this.c.lastInstructionIsPop() {
-		this.c.removeLastInstruction()
-	}
-
-	jumpPos, err := this.c.encode(code.OpJump, -1)
+	posJump, err := this.c.encode(code.OpJump, -1)
 	if nil != err {
 		return function.NewError(err)
 	}
-
-	pos := this.c.pos()
-	if err := this.c.changeOperand(posJumpWhenFalse, pos); nil != err {
+	// back-patching
+	if err := this.c.changeOperand(posJumpWhenFalse, this.c.pos()); nil != err {
 		return function.NewError(err)
 	}
-
-	if err := v.No.Do(this); nil != err {
+	if err := v.No.Do(newVisitor(this.c, newOptions(true))); nil != err {
 		return function.NewError(err)
 	}
-	if this.c.lastInstructionIsPop() {
-		this.c.removeLastInstruction()
-	}
-
-	endPos := this.c.pos()
-	if err := this.c.changeOperand(jumpPos, endPos); nil != err {
+	// back-patching
+	if err := this.c.changeOperand(posJump, this.c.pos()); nil != err {
 		return function.NewError(err)
 	}
-
 	return nil
 }
 

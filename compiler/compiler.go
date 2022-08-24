@@ -74,8 +74,8 @@ type Compiler interface {
 	// return pos before encode
 	encode(op code.Opcode, operands ...int) (int, error)
 	pos() int
-	lastInstructionIsPop() bool
-	removeLastInstruction()
+	lastInstructionIsPop() bool // TODO
+	removeLastInstruction()     // TODO
 	changeOperand(opPos int, operand int) error
 }
 
@@ -95,7 +95,7 @@ type compilerImpl struct {
 }
 
 func (this *compilerImpl) Compile(node ast.Node) error {
-	return node.Do(&visitor{this})
+	return node.Do(newVisitor(this, nil))
 }
 
 func (this *compilerImpl) Bytecode() Bytecode {
