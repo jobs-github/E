@@ -37,29 +37,33 @@ const (
 	OpGeq
 	OpAnd
 	OpOr
+	OpJumpWhenFalse
+	OpJump
 )
 
 var (
 	definitions = map[Opcode]*Definition{
-		OpConst: {"OpConst", []int{2}},
-		OpPop:   {"OpPop", []int{}},
-		OpTrue:  {"OpTrue", []int{}},
-		OpFalse: {"OpFalse", []int{}},
-		OpNot:   {"OpNot", []int{}},
-		OpNeg:   {"OpNeg", []int{}},
-		OpAdd:   {"OpAdd", []int{}},
-		OpSub:   {"OpSub", []int{}},
-		OpMul:   {"OpMul", []int{}},
-		OpDiv:   {"OpDiv", []int{}},
-		OpMod:   {"OpMod", []int{}},
-		OpLt:    {"OpLt", []int{}},
-		OpGt:    {"OpGt", []int{}},
-		OpEq:    {"OpEq", []int{}},
-		OpNeq:   {"OpNeq", []int{}},
-		OpLeq:   {"OpLeq", []int{}},
-		OpGeq:   {"OpGeq", []int{}},
-		OpAnd:   {"OpAnd", []int{}},
-		OpOr:    {"OpOr", []int{}},
+		OpConst:         {"OpConst", []int{2}},
+		OpPop:           {"OpPop", []int{}},
+		OpTrue:          {"OpTrue", []int{}},
+		OpFalse:         {"OpFalse", []int{}},
+		OpNot:           {"OpNot", []int{}},
+		OpNeg:           {"OpNeg", []int{}},
+		OpAdd:           {"OpAdd", []int{}},
+		OpSub:           {"OpSub", []int{}},
+		OpMul:           {"OpMul", []int{}},
+		OpDiv:           {"OpDiv", []int{}},
+		OpMod:           {"OpMod", []int{}},
+		OpLt:            {"OpLt", []int{}},
+		OpGt:            {"OpGt", []int{}},
+		OpEq:            {"OpEq", []int{}},
+		OpNeq:           {"OpNeq", []int{}},
+		OpLeq:           {"OpLeq", []int{}},
+		OpGeq:           {"OpGeq", []int{}},
+		OpAnd:           {"OpAnd", []int{}},
+		OpOr:            {"OpOr", []int{}},
+		OpJumpWhenFalse: {"OpJumpWhenFalse", []int{2}},
+		OpJump:          {"OpJump", []int{2}},
 	}
 	prefixCodePairs = tokenCodePairs{
 		{token.Not, OpNot},

@@ -38,13 +38,17 @@ func (this *visitor) DoConst(v *ast.ConstStmt) error {
 }
 
 func (this *visitor) DoBlock(v *ast.BlockStmt) error {
-	return function.NewError(errUnsupportedVisitor)
+	if err := v.Stmt.Do(this); nil != err {
+		return function.NewError(err)
+	}
+	return nil
 }
 
 func (this *visitor) DoExpr(v *ast.ExpressionStmt) error {
 	if err := v.Expr.Do(this); nil != err {
 		return function.NewError(err)
 	}
+	// TODO : maybe can pass parameter to decide whether to pop
 	this.c.encode(code.OpPop)
 	return nil
 }
@@ -89,7 +93,44 @@ func (this *visitor) DoIdent(v *ast.Identifier) error {
 }
 
 func (this *visitor) DoConditional(v *ast.ConditionalExpr) error {
-	return function.NewError(errUnsupportedVisitor)
+	if err := v.Cond.Do(this); nil != err {
+		return function.NewError(err)
+	}
+	// back-patching
+	posJumpWhenFalse, err := this.c.encode(code.OpJumpWhenFalse, -1)
+	if nil != err {
+		return function.NewError(err)
+	}
+	if err := v.Yes.Do(this); nil != err {
+		return function.NewError(err)
+	}
+	if this.c.lastInstructionIsPop() {
+		this.c.removeLastInstruction()
+	}
+
+	jumpPos, err := this.c.encode(code.OpJump, -1)
+	if nil != err {
+		return function.NewError(err)
+	}
+
+	pos := this.c.pos()
+	if err := this.c.changeOperand(posJumpWhenFalse, pos); nil != err {
+		return function.NewError(err)
+	}
+
+	if err := v.No.Do(this); nil != err {
+		return function.NewError(err)
+	}
+	if this.c.lastInstructionIsPop() {
+		this.c.removeLastInstruction()
+	}
+
+	endPos := this.c.pos()
+	if err := this.c.changeOperand(jumpPos, endPos); nil != err {
+		return function.NewError(err)
+	}
+
+	return nil
 }
 
 func (this *visitor) DoFn(v *ast.Function) error {

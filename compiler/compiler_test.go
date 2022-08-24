@@ -340,3 +340,32 @@ func Test_BooleanExpr(t *testing.T) {
 	}
 	runCompilerTests(t, tests)
 }
+
+func Test_Conditionals(t *testing.T) {
+	tests := []compilerTestCase{
+		{
+			"case_1",
+			"true ? 10 : 20;3333;",
+			[]interface{}{10, 20, 3333},
+			[]code.Instructions{
+				// 0000
+				newCode(code.OpTrue),
+				// 0001
+				newCode(code.OpJumpWhenFalse, 10),
+				// 0004
+				newCode(code.OpConst, 0),
+				// 0007
+				newCode(code.OpJump, 13),
+				// 0010
+				newCode(code.OpConst, 1),
+				// 0013
+				newCode(code.OpPop),
+				// 0014
+				newCode(code.OpConst, 2),
+				// 0017
+				newCode(code.OpPop),
+			},
+		},
+	}
+	runCompilerTests(t, tests)
+}
