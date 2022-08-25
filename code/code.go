@@ -22,6 +22,7 @@ const (
 	OpPop
 	OpTrue
 	OpFalse
+	OpNull
 	OpNot
 	OpNeg
 	OpAdd
@@ -47,6 +48,7 @@ var (
 		OpPop:           {"OpPop", []int{}},
 		OpTrue:          {"OpTrue", []int{}},
 		OpFalse:         {"OpFalse", []int{}},
+		OpNull:          {"OpNull", []int{}},
 		OpNot:           {"OpNot", []int{}},
 		OpNeg:           {"OpNeg", []int{}},
 		OpAdd:           {"OpAdd", []int{}},

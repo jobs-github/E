@@ -140,3 +140,14 @@ func TestBooleanExpr(t *testing.T) {
 	}
 	runVmTests(t, tests)
 }
+
+func TestConditional(t *testing.T) {
+	tests := []vmTestCase{
+		{"case_1", "true ? 10 : 20", 10},
+		{"case_2", "false ? 10 : 20", 20},
+		{"case_3", "1 ? 10 : 20", 10},
+		{"case_4", "(1 < 2) ? 10 : 20", 10},
+		{"case_5", "(1 > 2) ? 10 : 20", 20},
+	}
+	runVmTests(t, tests)
+}

@@ -45,6 +45,18 @@ func (this *virtualMachine) Run() error {
 	for ip := 0; ip < sz; ip++ {
 		op := code.Opcode(ins[ip])
 		switch op {
+		case code.OpJump:
+			pos := code.DecodeUint16(ins[ip+1:])
+			// in a loop that increments ip with each iteration
+			// we need to set ip to the offset right before the one we want
+			ip = pos - 1
+		case code.OpJumpWhenFalse:
+			pos := code.DecodeUint16(ins[ip+1:])
+			ip = ip + 2
+			cond := this.pop()
+			if !cond.True() {
+				ip = pos - 1 // jump
+			}
 		case code.OpConst:
 			constIndex := code.DecodeUint16(ins[ip+1:])
 			ip += 2
@@ -60,6 +72,10 @@ func (this *virtualMachine) Run() error {
 			}
 		case code.OpFalse:
 			if err := this.push(object.False); nil != err {
+				return function.NewError(err)
+			}
+		case code.OpNull:
+			if err := this.push(object.Nil); nil != err {
 				return function.NewError(err)
 			}
 		case code.OpNot:
