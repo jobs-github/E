@@ -1,3 +1,3 @@
-module github.com/jobs-github/Q
+module github.com/jobs-github/escript
 
 go 1.16
