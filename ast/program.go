@@ -40,5 +40,5 @@ func (this *Program) String() string {
 }
 
 func (this *Program) Eval(env object.Env) (object.Object, error) {
-	return this.Stmts.Eval(env)
+	return this.Stmts.eval(env)
 }

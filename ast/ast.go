@@ -98,7 +98,7 @@ func (this *StatementSlice) encode() interface{} {
 	return r
 }
 
-func (this *StatementSlice) Eval(env object.Env) (object.Object, error) {
+func (this *StatementSlice) eval(env object.Env) (object.Object, error) {
 	var result object.Object
 	for _, stmt := range *this {
 		if v, err := stmt.Eval(env); nil != err {
