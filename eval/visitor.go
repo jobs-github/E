@@ -66,6 +66,7 @@ func newVisitor(env object.Env) *visitor {
 	return &visitor{e: env, r: object.Nil}
 }
 
+// visitor : implement ast.Visitor
 type visitor struct {
 	e object.Env
 	r object.Object
