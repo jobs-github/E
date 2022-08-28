@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/jobs-github/escript/function"
-	"github.com/jobs-github/escript/object"
 )
 
 // Function : implement Expression
@@ -77,52 +76,4 @@ func (this *Function) String() string {
 	out.WriteString(this.Body.String())
 
 	return out.String()
-}
-
-func (this *Function) Eval(env object.Env) (object.Object, error) {
-	return object.NewFunction(
-		this.Name,
-		function.Function{
-			String:     this.toString,
-			ArgumentOf: this.argumentOf,
-			Body:       this.body,
-		},
-		this.Args.values(),
-		this.evalBody,
-		env,
-	), nil
-}
-
-func (this *Function) evalBody(env object.Env) (object.Object, error) {
-	return this.Body.Eval(env)
-}
-
-func (this *Function) toString() string {
-	var out bytes.Buffer
-
-	args := []string{}
-	for _, p := range this.Args {
-		args = append(args, p.String())
-	}
-	if "" == this.Name {
-		out.WriteString("func ")
-	} else {
-		out.WriteString(this.Name)
-	}
-
-	out.WriteString("(")
-	out.WriteString(strings.Join(args, ", "))
-	out.WriteString(") {\n")
-	out.WriteString(this.Body.String())
-	out.WriteString("\n}")
-
-	return out.String()
-}
-
-func (this *Function) argumentOf(idx int) string {
-	return this.Args[idx].String()
-}
-
-func (this *Function) body() string {
-	return this.Body.String()
 }

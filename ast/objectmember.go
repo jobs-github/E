@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 
 	"github.com/jobs-github/escript/function"
-	"github.com/jobs-github/escript/object"
 )
 
 // ObjectMember : implement Expression
@@ -56,11 +55,4 @@ func (this *ObjectMember) String() string {
 	out.WriteString(this.Member.String())
 
 	return out.String()
-}
-func (this *ObjectMember) Eval(env object.Env) (object.Object, error) {
-	obj, err := this.Left.Eval(env)
-	if nil != err {
-		return object.Nil, function.NewError(err)
-	}
-	return obj.GetMember(this.Member.Value)
 }

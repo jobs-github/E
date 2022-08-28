@@ -5,7 +5,6 @@ import (
 	"strconv"
 
 	"github.com/jobs-github/escript/function"
-	"github.com/jobs-github/escript/object"
 )
 
 // Integer : implement Expression
@@ -36,7 +35,4 @@ func (this *Integer) expressionNode() {}
 
 func (this *Integer) String() string {
 	return fmt.Sprintf("%v", this.Value)
-}
-func (this *Integer) Eval(env object.Env) (object.Object, error) {
-	return object.NewInteger(this.Value), nil
 }

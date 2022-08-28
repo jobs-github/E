@@ -1,7 +1,6 @@
 package ast
 
 import (
-	"github.com/jobs-github/escript/object"
 	"github.com/jobs-github/escript/token"
 )
 
@@ -24,7 +23,4 @@ func (this *Null) expressionNode() {}
 
 func (this *Null) String() string {
 	return token.Null
-}
-func (this *Null) Eval(env object.Env) (object.Object, error) {
-	return object.Nil, nil
 }

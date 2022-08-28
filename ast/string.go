@@ -2,8 +2,6 @@ package ast
 
 import (
 	"encoding/json"
-
-	"github.com/jobs-github/escript/object"
 )
 
 // String : implement Expression
@@ -28,7 +26,4 @@ func (this *String) expressionNode() {}
 
 func (this *String) String() string {
 	return this.Value
-}
-func (this *String) Eval(env object.Env) (object.Object, error) {
-	return object.NewString(this.Value), nil
 }

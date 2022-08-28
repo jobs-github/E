@@ -2,11 +2,8 @@ package ast
 
 import (
 	"encoding/json"
-	"fmt"
 
 	"github.com/jobs-github/escript/builtin"
-	"github.com/jobs-github/escript/function"
-	"github.com/jobs-github/escript/object"
 )
 
 // Identifier : implement Expression
@@ -40,16 +37,6 @@ func (this *Identifier) expressionNode() {}
 func (this *Identifier) String() string {
 	return this.Value
 }
-func (this *Identifier) Eval(env object.Env) (object.Object, error) {
-	if val, ok := env.Get(this.Value); ok {
-		return val, nil
-	}
-	if fn := builtin.Get(this.Value); nil != fn {
-		return fn, nil
-	}
-	err := fmt.Errorf("`%v` not found", this.Value)
-	return object.Nil, function.NewError(err)
-}
 
 type IdentifierSlice []*Identifier
 
@@ -61,7 +48,7 @@ func (this *IdentifierSlice) encode() interface{} {
 	return arr
 }
 
-func (this *IdentifierSlice) values() []string {
+func (this *IdentifierSlice) Values() []string {
 	v := []string{}
 	for _, i := range *this {
 		v = append(v, i.Value)

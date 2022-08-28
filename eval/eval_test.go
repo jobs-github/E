@@ -218,7 +218,9 @@ func TestEvalExpr(t *testing.T) {
 		if nil != err {
 			t.Fatalf("i: %v, err: %v", i, err)
 		}
-		testEvalObject(t, evaluated, tt.expected)
+		if !testEvalObject(t, evaluated, tt.expected) {
+			t.Fatalf("i: %v", i)
+		}
 	}
 }
 
@@ -233,7 +235,7 @@ func testEval(input string) (object.Object, error) {
 		return object.Nil, err
 	}
 	env := object.NewEnv()
-	return program.Eval(env)
+	return EvalAst(program, env)
 }
 
 func testIntegerObject(t *testing.T, obj object.Object, expected int64) bool {
@@ -320,20 +322,25 @@ func testBooleanObject(t *testing.T, obj object.Object, expected bool) bool {
 	return true
 }
 
-func testEvalObject(t *testing.T, evaluated object.Object, expected interface{}) {
+func testEvalObject(t *testing.T, evaluated object.Object, expected interface{}) bool {
 	switch et := expected.(type) {
 	case bool:
-		testBooleanObject(t, evaluated, et)
-	case object.Null:
-		testNullObject(t, evaluated)
+		return testBooleanObject(t, evaluated, et)
+	case *object.Null:
+		return testNullObject(t, evaluated)
 	case int:
-		testIntegerObject(t, evaluated, int64(et))
+		return testIntegerObject(t, evaluated, int64(et))
+	case int64:
+		return testIntegerObject(t, evaluated, et)
 	case string:
-		testStringObject(t, evaluated, expected.(string))
+		return testStringObject(t, evaluated, expected.(string))
 	case []int64:
-		testIntegerSliceObject(t, evaluated, expected.([]int64))
+		return testIntegerSliceObject(t, evaluated, expected.([]int64))
 	case []string:
-		testStringSliceObject(t, evaluated, expected.([]string))
+		return testStringSliceObject(t, evaluated, expected.([]string))
+	default:
+		t.Errorf("unsupport type, %v", reflect.TypeOf(expected))
+		return false
 	}
 }
 

@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/jobs-github/escript/function"
-	"github.com/jobs-github/escript/object"
 )
 
 // Array : implement Expression
@@ -45,11 +44,4 @@ func (this *Array) String() string {
 	out.WriteString(strings.Join(items, ", "))
 	out.WriteString("]")
 	return out.String()
-}
-func (this *Array) Eval(env object.Env) (object.Object, error) {
-	items, err := this.Items.eval(env)
-	if nil != err {
-		return object.Nil, function.NewError(err)
-	}
-	return object.NewArray(items), nil
 }

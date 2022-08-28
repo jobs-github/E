@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 
 	"github.com/jobs-github/escript/function"
-	"github.com/jobs-github/escript/object"
 )
 
 // FunctionStmt : implement Statement
@@ -55,7 +54,4 @@ func (this *FunctionStmt) String() string {
 	out.WriteString(this.Value.String())
 	out.WriteString(";")
 	return out.String()
-}
-func (this *FunctionStmt) Eval(env object.Env) (object.Object, error) {
-	return evalVar(env, this.Name, this.Value)
 }

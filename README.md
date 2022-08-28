@@ -50,7 +50,7 @@ escript is a tiny, expression-based embedded language for Go.
         e := eval.New(false)
         code := `println("hello world");`
         node, _ := e.LoadAst(code)
-        e.EvalAst(node, e.NewEnv(nil, nil))
+        eval.EvalAst(node, e.NewEnv(nil, nil))
     }
 
 [back to top](#id_top)

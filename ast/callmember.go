@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/jobs-github/escript/function"
-	"github.com/jobs-github/escript/object"
 	"github.com/jobs-github/escript/token"
 )
 
@@ -18,7 +17,7 @@ type CallMember struct {
 }
 
 func (this *CallMember) Do(v Visitor) error {
-	return function.NewError(errUnsupportedVisitor)
+	return v.DoCallMember(this)
 }
 
 func (this *CallMember) Encode() interface{} {
@@ -73,16 +72,4 @@ func (this *CallMember) String() string {
 	out.WriteString(")")
 
 	return out.String()
-}
-func (this *CallMember) Eval(env object.Env) (object.Object, error) {
-	obj, err := this.Left.Eval(env)
-	if nil != err {
-		return object.Nil, function.NewError(err)
-	}
-
-	args, err := this.Args.eval(env)
-	if nil != err {
-		return object.Nil, function.NewError(err)
-	}
-	return obj.CallMember(this.Func.Value, args)
 }

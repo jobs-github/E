@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 
 	"github.com/jobs-github/escript/function"
-	"github.com/jobs-github/escript/object"
 )
 
 // IndexExpr : implement Expression
@@ -56,17 +55,4 @@ func (this *IndexExpr) String() string {
 	out.WriteString(this.Index.String())
 	out.WriteString("])")
 	return out.String()
-}
-
-// IndexExpr -> ast -> Eval() -> object -> Index
-func (this *IndexExpr) Eval(env object.Env) (object.Object, error) {
-	left, err := this.Left.Eval(env)
-	if nil != err {
-		return object.Nil, function.NewError(err)
-	}
-	idx, err := this.Index.Eval(env)
-	if nil != err {
-		return object.Nil, function.NewError(err)
-	}
-	return left.CallMember(object.FnIndex, object.Objects{idx})
 }

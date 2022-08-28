@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/jobs-github/escript/function"
-	"github.com/jobs-github/escript/object"
 )
 
 // Hash : implement Expression
@@ -44,23 +43,4 @@ func (this *Hash) String() string {
 	out.WriteString(strings.Join(items, ", "))
 	out.WriteString("}")
 	return out.String()
-}
-func (this *Hash) Eval(env object.Env) (object.Object, error) {
-	m := object.HashMap{}
-	for k, v := range this.Pairs {
-		key, err := k.Eval(env)
-		if nil != err {
-			return object.Nil, function.NewError(err)
-		}
-		h, err := key.Hash()
-		if nil != err {
-			return object.Nil, function.NewError(err)
-		}
-		val, err := v.Eval(env)
-		if nil != err {
-			return object.Nil, function.NewError(err)
-		}
-		m[*h] = &object.HashPair{Key: key, Value: val}
-	}
-	return object.NewHash(m), nil
 }
