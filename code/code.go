@@ -40,6 +40,8 @@ const (
 	OpOr
 	OpJumpWhenFalse
 	OpJump
+	OpGetGlobal
+	OpSetGlobal
 )
 
 var (
@@ -66,6 +68,8 @@ var (
 		OpOr:            {"OpOr", []int{}},
 		OpJumpWhenFalse: {"OpJumpWhenFalse", []int{2}},
 		OpJump:          {"OpJump", []int{2}},
+		OpGetGlobal:     {"OpGetGlobal", []int{2}},
+		OpSetGlobal:     {"OpSetGlobal", []int{2}},
 	}
 	prefixCodePairs = tokenCodePairs{
 		{token.Not, OpNot},
@@ -250,14 +254,14 @@ func encodeOperand(operand int, width int, b []byte) error {
 	}
 }
 
-func DecodeUint16(b []byte) int {
-	return int(binary.BigEndian.Uint16(b))
+func DecodeUint16(b []byte) uint16 {
+	return binary.BigEndian.Uint16(b)
 }
 
 func decodeOperand(width int, b []byte) (int, error) {
 	switch width {
 	case 2:
-		return DecodeUint16(b), nil
+		return int(DecodeUint16(b)), nil
 	default:
 		err := fmt.Errorf("unsupported width: %v", width)
 		return -1, function.NewError(err)

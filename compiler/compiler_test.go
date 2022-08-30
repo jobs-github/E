@@ -369,3 +369,94 @@ func Test_Conditionals(t *testing.T) {
 	}
 	runCompilerTests(t, tests)
 }
+
+func Test_GlobalConstStmts(t *testing.T) {
+	tests := []compilerTestCase{
+		{
+			"case_1",
+			`
+			const one = 1;
+			const two = 2;
+			`,
+			[]interface{}{1, 2},
+			[]code.Instructions{
+				newCode(code.OpConst, 0),
+				newCode(code.OpSetGlobal, 0),
+				newCode(code.OpConst, 1),
+				newCode(code.OpSetGlobal, 1),
+			},
+		},
+		{
+			"case_2",
+			`
+			const one = 1;
+			one;
+			`,
+			[]interface{}{1},
+			[]code.Instructions{
+				newCode(code.OpConst, 0),
+				newCode(code.OpSetGlobal, 0),
+				newCode(code.OpGetGlobal, 0),
+				newCode(code.OpPop),
+			},
+		},
+		{
+			"case_3",
+			`
+			const one = 1;
+			const two = one;
+			two;
+			`,
+			[]interface{}{1},
+			[]code.Instructions{
+				newCode(code.OpConst, 0),
+				newCode(code.OpSetGlobal, 0),
+				newCode(code.OpGetGlobal, 0),
+				newCode(code.OpSetGlobal, 1),
+				newCode(code.OpGetGlobal, 1),
+				newCode(code.OpPop),
+			},
+		},
+	}
+	runCompilerTests(t, tests)
+}
+
+func Test_Define(t *testing.T) {
+	expected := map[string]*Symbol{
+		"a": &Symbol{Name: "a", Scope: GlobalScope, Index: 0},
+		"b": &Symbol{Name: "b", Scope: GlobalScope, Index: 1},
+	}
+
+	st := NewSymbolTable()
+	a := st.define("a")
+	if err := a.equal(expected["a"]); nil != err {
+		t.Errorf("expected a=%+v, got=%+v, err: %v", expected["a"], a, err)
+	}
+
+	b := st.define("b")
+	if err := b.equal(expected["b"]); nil != err {
+		t.Errorf("expected b=%+v, got=%+v, err: %v", expected["b"], b, err)
+	}
+}
+
+func Test_ResolveGlobal(t *testing.T) {
+	expected := map[string]*Symbol{
+		"a": &Symbol{Name: "a", Scope: GlobalScope, Index: 0},
+		"b": &Symbol{Name: "b", Scope: GlobalScope, Index: 1},
+	}
+
+	st := NewSymbolTable()
+	st.define("a")
+	st.define("b")
+
+	for _, sy := range expected {
+		r, err := st.resolve(sy.Name)
+		if nil != err {
+			t.Errorf("name %v not resolvable", sy.Name)
+			continue
+		}
+		if err := r.equal(sy); nil != err {
+			t.Errorf("expected %v to resolve to %+v, got=%+v, err: %v", sy.Name, sy, r, err)
+		}
+	}
+}

@@ -10,19 +10,30 @@ import (
 )
 
 const (
-	StackSize = 2048
+	StackSize   = 2048
+	GlobalsSize = 65536
 )
 
 var (
 	errStackOverflow = errors.New("stack overflow")
 )
 
-func New(b compiler.Bytecode) VM {
+func NewGlobals() object.Objects {
+	return make(object.Objects, GlobalsSize)
+}
+
+func Make(b compiler.Bytecode, globals object.Objects) VM {
 	return &virtualMachine{
-		b:     b,
-		stack: make(object.Objects, StackSize),
-		sp:    0,
+		b:       b,
+		stack:   make(object.Objects, StackSize),
+		globals: globals,
+		sp:      0,
+		ip:      0,
 	}
+}
+
+func New(b compiler.Bytecode) VM {
+	return Make(b, NewGlobals())
 }
 
 type VM interface {
@@ -33,58 +44,97 @@ type VM interface {
 
 // virtualMachine : implement VM
 type virtualMachine struct {
-	b     compiler.Bytecode
-	stack object.Objects
-	sp    int // top stack [sp - 1]
+	b       compiler.Bytecode
+	stack   object.Objects
+	globals object.Objects
+	sp      int // top stack [sp - 1]
+	ip      int
+}
+
+func (this *virtualMachine) decodeUint16(ins code.Instructions) uint16 {
+	return code.DecodeUint16(ins[this.ip+1:])
 }
 
 func (this *virtualMachine) Run() error {
 	ins := this.b.Instructions()
 	consts := this.b.Constants()
 	sz := len(ins)
-	for ip := 0; ip < sz; ip++ {
-		op := code.Opcode(ins[ip])
+	for this.ip = 0; this.ip < sz; this.ip++ {
+		op := code.Opcode(ins[this.ip])
 		switch op {
+		case code.OpSetGlobal:
+			{
+				idx := this.decodeUint16(ins)
+				this.ip += 2
+				this.globals[idx] = this.pop() // bind
+			}
+		case code.OpGetGlobal:
+			{
+				idx := this.decodeUint16(ins)
+				this.ip += 2
+				// resolve
+				if err := this.push(this.globals[idx]); nil != err {
+					return function.NewError(err)
+				}
+			}
 		case code.OpJump:
-			pos := code.DecodeUint16(ins[ip+1:])
-			// in a loop that increments ip with each iteration
-			// we need to set ip to the offset right before the one we want
-			ip = pos - 1
+			{
+				pos := this.decodeUint16(ins)
+				// in a loop that increments ip with each iteration
+				// we need to set ip to the offset right before the one we want
+				this.ip = int(pos - 1)
+			}
 		case code.OpJumpWhenFalse:
-			pos := code.DecodeUint16(ins[ip+1:])
-			ip = ip + 2
-			cond := this.pop()
-			if !cond.True() {
-				ip = pos - 1 // jump
+			{
+				pos := this.decodeUint16(ins)
+				this.ip = this.ip + 2
+				cond := this.pop()
+				if !cond.True() {
+					this.ip = int(pos - 1) // jump
+				}
 			}
 		case code.OpConst:
-			constIndex := code.DecodeUint16(ins[ip+1:])
-			ip += 2
-			err := this.push(consts[constIndex])
-			if nil != err {
-				return function.NewError(err)
+			{
+				idx := this.decodeUint16(ins)
+				this.ip += 2
+				err := this.push(consts[idx])
+				if nil != err {
+					return function.NewError(err)
+				}
 			}
 		case code.OpPop:
-			this.pop()
+			{
+				this.pop()
+			}
 		case code.OpTrue:
-			if err := this.push(object.True); nil != err {
-				return function.NewError(err)
+			{
+				if err := this.push(object.True); nil != err {
+					return function.NewError(err)
+				}
 			}
 		case code.OpFalse:
-			if err := this.push(object.False); nil != err {
-				return function.NewError(err)
+			{
+				if err := this.push(object.False); nil != err {
+					return function.NewError(err)
+				}
 			}
 		case code.OpNull:
-			if err := this.push(object.Nil); nil != err {
-				return function.NewError(err)
+			{
+				if err := this.push(object.Nil); nil != err {
+					return function.NewError(err)
+				}
 			}
 		case code.OpNot:
-			if err := this.execPrefix(object.FnNot); nil != err {
-				return function.NewError(err)
+			{
+				if err := this.execPrefix(object.FnNot); nil != err {
+					return function.NewError(err)
+				}
 			}
 		case code.OpNeg:
-			if err := this.execPrefix(object.FnNeg); nil != err {
-				return function.NewError(err)
+			{
+				if err := this.execPrefix(object.FnNeg); nil != err {
+					return function.NewError(err)
+				}
 			}
 		case code.OpAdd,
 			code.OpSub,
@@ -99,8 +149,10 @@ func (this *virtualMachine) Run() error {
 			code.OpGeq,
 			code.OpAnd,
 			code.OpOr:
-			if err := this.execInfix(op); nil != err {
-				return function.NewError(err)
+			{
+				if err := this.execInfix(op); nil != err {
+					return function.NewError(err)
+				}
 			}
 		}
 	}

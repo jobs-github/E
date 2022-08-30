@@ -1,13 +1,5 @@
 package ast
 
-import (
-	"errors"
-)
-
-var (
-	errUnsupportedVisitor = errors.New("unsupported visitor")
-)
-
 type Visitor interface {
 	DoProgram(v *Program) error
 	DoConst(v *ConstStmt) error

@@ -7,7 +7,7 @@ import (
 	"github.com/jobs-github/escript/object"
 )
 
-func NewBytecode(i code.Instructions, c object.Objects) Bytecode {
+func newBytecode(i code.Instructions, c object.Objects) Bytecode {
 	return &bytecode{i, c}
 }
 
@@ -77,19 +77,28 @@ type Compiler interface {
 	lastInstructionIsPop() bool // TODO
 	removeLastInstruction()     // TODO
 	changeOperand(opPos int, operand int) error
+
+	define(key string) *Symbol
+	resolve(key string) (*Symbol, error)
 }
 
-func New() Compiler {
+func Make(s SymbolTable, consts object.Objects) Compiler {
 	return &compilerImpl{
-		b:           NewBytecode(code.Instructions{}, object.Objects{}),
+		b:           newBytecode(code.Instructions{}, consts),
+		st:          s,
 		lastIns:     EncodedInstruction{},
 		prevLastIns: EncodedInstruction{},
 	}
 }
 
+func New() Compiler {
+	return Make(NewSymbolTable(), object.Objects{})
+}
+
 // compilerImpl : implement Compiler
 type compilerImpl struct {
 	b           Bytecode
+	st          SymbolTable
 	lastIns     EncodedInstruction
 	prevLastIns EncodedInstruction
 }
@@ -146,4 +155,12 @@ func (this *compilerImpl) addInstruction(ins []byte) int {
 func (this *compilerImpl) setLastInstruction(op code.Opcode, pos int) {
 	this.prevLastIns = this.lastIns
 	this.lastIns = EncodedInstruction{Opcode: op, Pos: pos}
+}
+
+func (this *compilerImpl) define(key string) *Symbol {
+	return this.st.define(key)
+}
+
+func (this *compilerImpl) resolve(key string) (*Symbol, error) {
+	return this.st.resolve(key)
 }

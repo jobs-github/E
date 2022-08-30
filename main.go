@@ -19,6 +19,10 @@ import (
 func Start(in io.Reader, out io.Writer) {
 	scanner := bufio.NewScanner(in)
 
+	consts := object.Objects{}
+	globals := vm.NewGlobals()
+	st := compiler.NewSymbolTable()
+
 	for {
 		fmt.Fprintf(out, ">> ")
 		scanned := scanner.Scan()
@@ -40,12 +44,12 @@ func Start(in io.Reader, out io.Writer) {
 			continue
 		}
 
-		c := compiler.New()
+		c := compiler.Make(st, consts)
 		if err := c.Compile(program); nil != err {
 			fmt.Fprintf(out, fmt.Sprintf("compile error: %v", err))
 			continue
 		}
-		machine := vm.New(c.Bytecode())
+		machine := vm.Make(c.Bytecode(), globals)
 		if err := machine.Run(); nil != err {
 			fmt.Fprintf(out, fmt.Sprintf("run vm error: %v\n", err))
 			continue
@@ -87,5 +91,6 @@ func intepreterMain() {
 }
 
 func main() {
-	Start(os.Stdin, os.Stdout)
+	// Start(os.Stdin, os.Stdout)
+	intepreterMain()
 }

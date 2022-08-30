@@ -53,7 +53,14 @@ func (this *visitor) DoProgram(v *ast.Program) error {
 }
 
 func (this *visitor) DoConst(v *ast.ConstStmt) error {
-	return function.NewError(errUnsupportedVisitor)
+	if err := v.Value.Do(this); nil != err {
+		return function.NewError(err)
+	}
+	symbol := this.c.define(v.Name.Value)
+	if _, err := this.c.encode(code.OpSetGlobal, symbol.Index); nil != err {
+		return function.NewError(err)
+	}
+	return nil
 }
 
 func (this *visitor) DoBlock(v *ast.BlockStmt) error {
@@ -68,7 +75,9 @@ func (this *visitor) DoExpr(v *ast.ExpressionStmt) error {
 		return function.NewError(err)
 	}
 	if !this.skipEncodePop() {
-		this.c.encode(code.OpPop)
+		if _, err := this.c.encode(code.OpPop); nil != err {
+			return function.NewError(err)
+		}
 	}
 	return nil
 }
@@ -109,7 +118,14 @@ func (this *visitor) DoInfix(v *ast.InfixExpr) error {
 }
 
 func (this *visitor) DoIdent(v *ast.Identifier) error {
-	return function.NewError(errUnsupportedVisitor)
+	s, err := this.c.resolve(v.Value)
+	if nil != err {
+		return function.NewError(err)
+	}
+	if _, err := this.c.encode(code.OpGetGlobal, s.Index); nil != err {
+		return function.NewError(err)
+	}
+	return nil
 }
 
 // ConditionalExpr bytecode format
@@ -180,11 +196,12 @@ func (this *visitor) DoInteger(v *ast.Integer) error {
 
 func (this *visitor) DoBoolean(v *ast.Boolean) error {
 	if v.Value {
-		this.c.encode(code.OpTrue)
+		_, err := this.c.encode(code.OpTrue)
+		return err
 	} else {
-		this.c.encode(code.OpFalse)
+		_, err := this.c.encode(code.OpFalse)
+		return err
 	}
-	return nil
 }
 
 func (this *visitor) DoString(v *ast.String) error {

@@ -151,3 +151,12 @@ func TestConditional(t *testing.T) {
 	}
 	runVmTests(t, tests)
 }
+
+func TestGlobalConstStmt(t *testing.T) {
+	tests := []vmTestCase{
+		{"case_1", "const one = 1; one;", 1},
+		{"case_2", "const one = 1; const two = 2; one + two;", 3},
+		{"case_3", "const one = 1; const two = one + one; one + two;", 3},
+	}
+	runVmTests(t, tests)
+}
