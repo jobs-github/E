@@ -91,6 +91,11 @@ func testConstants(want []interface{}, got object.Objects) error {
 			if nil != err {
 				return function.NewError(err)
 			}
+		case string:
+			err := testStringObject(wantVal, got[i])
+			if nil != err {
+				return function.NewError(err)
+			}
 		}
 	}
 	return nil
@@ -108,6 +113,17 @@ func testIntegerObject(want int64, obj object.Object) error {
 	result, ok := obj.(*object.Integer)
 	if !ok {
 		return function.NewError(fmt.Errorf("object is not integer, got=%v", obj))
+	}
+	if result.Value != want {
+		return function.NewError(fmt.Errorf("object has wrong value, got=%v, want: %v", result.Value, want))
+	}
+	return nil
+}
+
+func testStringObject(want string, obj object.Object) error {
+	result, ok := obj.(*object.String)
+	if !ok {
+		return function.NewError(fmt.Errorf("object is not string, got=%v", obj))
 	}
 	if result.Value != want {
 		return function.NewError(fmt.Errorf("object has wrong value, got=%v, want: %v", result.Value, want))
@@ -459,4 +475,30 @@ func Test_ResolveGlobal(t *testing.T) {
 			t.Errorf("expected %v to resolve to %+v, got=%+v, err: %v", sy.Name, sy, r, err)
 		}
 	}
+}
+
+func Test_String(t *testing.T) {
+	tests := []compilerTestCase{
+		{
+			"case_1",
+			`"hello"`,
+			[]interface{}{"hello"},
+			[]code.Instructions{
+				newCode(code.OpConst, 0),
+				newCode(code.OpPop),
+			},
+		},
+		{
+			"case_2",
+			`"hello" + "world"`,
+			[]interface{}{"hello", "world"},
+			[]code.Instructions{
+				newCode(code.OpConst, 0),
+				newCode(code.OpConst, 1),
+				newCode(code.OpAdd),
+				newCode(code.OpPop),
+			},
+		},
+	}
+	runCompilerTests(t, tests)
 }

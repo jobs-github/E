@@ -51,6 +51,17 @@ func testBooleanObject(want bool, obj object.Object) error {
 	return nil
 }
 
+func testStringObject(want string, obj object.Object) error {
+	result, ok := obj.(*object.String)
+	if !ok {
+		return function.NewError(fmt.Errorf("object is not string, got=%v", obj))
+	}
+	if result.Value != want {
+		return function.NewError(fmt.Errorf("object has wrong value, got=%v, want: %v", result.Value, want))
+	}
+	return nil
+}
+
 type vmTestCase struct {
 	name  string
 	input string
@@ -65,7 +76,11 @@ func testExpectedObject(t *testing.T, want interface{}, v object.Object) {
 		}
 	case bool:
 		if err := testBooleanObject(et, v); nil != err {
-			t.Errorf("testIntegerObject failed, err: %v", err)
+			t.Errorf("testBooleanObject failed, err: %v", err)
+		}
+	case string:
+		if err := testStringObject(et, v); nil != err {
+			t.Errorf("testStringObject failed, err: %v", err)
 		}
 	}
 }
@@ -157,6 +172,14 @@ func TestGlobalConstStmt(t *testing.T) {
 		{"case_1", "const one = 1; one;", 1},
 		{"case_2", "const one = 1; const two = 2; one + two;", 3},
 		{"case_3", "const one = 1; const two = one + one; one + two;", 3},
+	}
+	runVmTests(t, tests)
+}
+
+func TestString(t *testing.T) {
+	tests := []vmTestCase{
+		{"case_1", `"hello"`, "hello"},
+		{"case_2", `"hello" + " " + "world"`, "hello world"},
 	}
 	runVmTests(t, tests)
 }

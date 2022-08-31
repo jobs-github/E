@@ -43,6 +43,22 @@ func (this *visitor) skipEncodePop() bool {
 	return nil != this.o && this.o.skipEncodePop
 }
 
+func (this *visitor) opCodeBoolean(v *ast.Boolean) code.Opcode {
+	if v.Value {
+		return code.OpTrue
+	} else {
+		return code.OpFalse
+	}
+}
+
+func (this *visitor) doConst(v object.Object) error {
+	idx := this.c.addConst(v)
+	if _, err := this.c.encode(code.OpConst, idx); nil != err {
+		return function.NewError(err)
+	}
+	return nil
+}
+
 func (this *visitor) DoProgram(v *ast.Program) error {
 	for _, s := range v.Stmts {
 		if err := s.Do(this); nil != err {
@@ -188,24 +204,18 @@ func (this *visitor) DoNull(v *ast.Null) error {
 }
 
 func (this *visitor) DoInteger(v *ast.Integer) error {
-	obj := object.NewInteger(v.Value)
-	idx := this.c.addConst(obj)
-	_, err := this.c.encode(code.OpConst, idx)
-	return err
+	return this.doConst(object.NewInteger(v.Value))
 }
 
 func (this *visitor) DoBoolean(v *ast.Boolean) error {
-	if v.Value {
-		_, err := this.c.encode(code.OpTrue)
-		return err
-	} else {
-		_, err := this.c.encode(code.OpFalse)
-		return err
+	if _, err := this.c.encode(this.opCodeBoolean(v)); nil != err {
+		return function.NewError(err)
 	}
+	return nil
 }
 
 func (this *visitor) DoString(v *ast.String) error {
-	return function.NewError(errUnsupportedVisitor)
+	return this.doConst(object.NewString(v.Value))
 }
 
 func (this *visitor) DoArray(v *ast.Array) error {
