@@ -219,7 +219,16 @@ func (this *visitor) DoString(v *ast.String) error {
 }
 
 func (this *visitor) DoArray(v *ast.Array) error {
-	return function.NewError(errUnsupportedVisitor)
+	// pattern: compile data first, op last
+	for _, e := range v.Items {
+		if err := e.Do(this); nil != err {
+			return function.NewError(err)
+		}
+	}
+	if _, err := this.c.encode(code.OpArray, len(v.Items)); nil != err {
+		return function.NewError(err)
+	}
+	return nil
 }
 
 func (this *visitor) DoHash(v *ast.Hash) error {

@@ -55,6 +55,12 @@ func (this *virtualMachine) decodeUint16(ins code.Instructions) uint16 {
 	return code.DecodeUint16(ins[this.ip+1:])
 }
 
+func (this *virtualMachine) fetchUint16(ins code.Instructions) uint16 {
+	v := this.decodeUint16(ins)
+	this.ip += 2
+	return v
+}
+
 func (this *virtualMachine) Run() error {
 	ins := this.b.Instructions()
 	consts := this.b.Constants()
@@ -64,14 +70,12 @@ func (this *virtualMachine) Run() error {
 		switch op {
 		case code.OpSetGlobal:
 			{
-				idx := this.decodeUint16(ins)
-				this.ip += 2
+				idx := this.fetchUint16(ins)
 				this.globals[idx] = this.pop() // bind
 			}
 		case code.OpGetGlobal:
 			{
-				idx := this.decodeUint16(ins)
-				this.ip += 2
+				idx := this.fetchUint16(ins)
 				// resolve
 				if err := this.push(this.globals[idx]); nil != err {
 					return function.NewError(err)
@@ -86,8 +90,7 @@ func (this *virtualMachine) Run() error {
 			}
 		case code.OpJumpWhenFalse:
 			{
-				pos := this.decodeUint16(ins)
-				this.ip = this.ip + 2
+				pos := this.fetchUint16(ins)
 				cond := this.pop()
 				if !cond.True() {
 					this.ip = int(pos - 1) // jump
@@ -95,10 +98,17 @@ func (this *virtualMachine) Run() error {
 			}
 		case code.OpConst:
 			{
-				idx := this.decodeUint16(ins)
-				this.ip += 2
+				idx := this.fetchUint16(ins)
 				err := this.push(consts[idx])
 				if nil != err {
+					return function.NewError(err)
+				}
+			}
+		case code.OpArray:
+			{
+				sz := int(this.fetchUint16(ins))
+				arr := this.doArray(sz)
+				if err := this.push(arr); nil != err {
 					return function.NewError(err)
 				}
 			}
@@ -157,6 +167,14 @@ func (this *virtualMachine) Run() error {
 		}
 	}
 	return nil
+}
+
+func (this *virtualMachine) doArray(sz int) object.Object {
+	arr := make(object.Objects, sz)
+	for i := 0; i < sz; i++ {
+		arr[sz-i-1] = this.pop()
+	}
+	return object.NewArray(arr)
 }
 
 func (this *virtualMachine) execPrefix(fn string) error {

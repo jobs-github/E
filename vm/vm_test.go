@@ -62,6 +62,22 @@ func testStringObject(want string, obj object.Object) error {
 	return nil
 }
 
+func testIntSliceObject(want []int, obj object.Object) error {
+	result, ok := obj.(*object.Array)
+	if !ok {
+		return function.NewError(fmt.Errorf("object is not Array, got=%v", obj))
+	}
+	if len(result.Items) != len(want) {
+		return function.NewError(fmt.Errorf("wrong size, got=%v, want: %v", len(result.Items), len(want)))
+	}
+	for i, wi := range want {
+		if err := testIntegerObject(int64(wi), result.Items[i]); nil != err {
+			return function.NewError(err)
+		}
+	}
+	return nil
+}
+
 type vmTestCase struct {
 	name  string
 	input string
@@ -81,6 +97,10 @@ func testExpectedObject(t *testing.T, want interface{}, v object.Object) {
 	case string:
 		if err := testStringObject(et, v); nil != err {
 			t.Errorf("testStringObject failed, err: %v", err)
+		}
+	case []int:
+		if err := testIntSliceObject(et, v); nil != err {
+			t.Errorf("testIntSliceObject failed, err: %v", err)
 		}
 	}
 }
@@ -180,6 +200,15 @@ func TestString(t *testing.T) {
 	tests := []vmTestCase{
 		{"case_1", `"hello"`, "hello"},
 		{"case_2", `"hello" + " " + "world"`, "hello world"},
+	}
+	runVmTests(t, tests)
+}
+
+func TestArray(t *testing.T) {
+	tests := []vmTestCase{
+		{"case_1", "[]", []int{}},
+		{"case_2", "[1,2,3]", []int{1, 2, 3}},
+		{"case_3", "[1 + 2, 3 * 4, 5 + 6]", []int{3, 12, 11}},
 	}
 	runVmTests(t, tests)
 }

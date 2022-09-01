@@ -19,6 +19,7 @@ type Opcode byte
 const (
 	OpUndefined Opcode = iota
 	OpConst
+	OpArray
 	OpPop
 	OpTrue
 	OpFalse
@@ -47,6 +48,7 @@ const (
 var (
 	definitions = map[Opcode]*Definition{
 		OpConst:         {"OpConst", []int{2}},
+		OpArray:         {"OpArray", []int{2}},
 		OpPop:           {"OpPop", []int{}},
 		OpTrue:          {"OpTrue", []int{}},
 		OpFalse:         {"OpFalse", []int{}},
