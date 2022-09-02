@@ -547,3 +547,50 @@ func Test_Array(t *testing.T) {
 	}
 	runCompilerTests(t, tests)
 }
+
+func Test_Hash(t *testing.T) {
+	tests := []compilerTestCase{
+		{
+			"case_1",
+			"{}",
+			[]interface{}{},
+			[]code.Instructions{
+				newCode(code.OpHash, 0),
+				newCode(code.OpPop),
+			},
+		},
+		{
+			"case_2",
+			"{1:2,3:4,5:6}",
+			[]interface{}{1, 2, 3, 4, 5, 6},
+			[]code.Instructions{
+				newCode(code.OpConst, 0),
+				newCode(code.OpConst, 1),
+				newCode(code.OpConst, 2),
+				newCode(code.OpConst, 3),
+				newCode(code.OpConst, 4),
+				newCode(code.OpConst, 5),
+				newCode(code.OpHash, 3),
+				newCode(code.OpPop),
+			},
+		},
+		{
+			"case_3",
+			"{1:2 + 3, 4: 5 * 6}",
+			[]interface{}{1, 2, 3, 4, 5, 6},
+			[]code.Instructions{
+				newCode(code.OpConst, 0),
+				newCode(code.OpConst, 1),
+				newCode(code.OpConst, 2),
+				newCode(code.OpAdd),
+				newCode(code.OpConst, 3),
+				newCode(code.OpConst, 4),
+				newCode(code.OpConst, 5),
+				newCode(code.OpMul),
+				newCode(code.OpHash, 2),
+				newCode(code.OpPop),
+			},
+		},
+	}
+	runCompilerTests(t, tests)
+}

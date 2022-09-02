@@ -232,5 +232,18 @@ func (this *visitor) DoArray(v *ast.Array) error {
 }
 
 func (this *visitor) DoHash(v *ast.Hash) error {
-	return function.NewError(errUnsupportedVisitor)
+	keys := v.Pairs.SortedKeys()
+	for _, k := range keys {
+		if err := k.Do(this); nil != err {
+			return function.NewError(err)
+		}
+		v := v.Pairs[k]
+		if err := v.Do(this); nil != err {
+			return function.NewError(err)
+		}
+	}
+	if _, err := this.c.encode(code.OpHash, len(v.Pairs)); nil != err {
+		return function.NewError(err)
+	}
+	return nil
 }

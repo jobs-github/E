@@ -12,6 +12,8 @@ import (
 	"github.com/jobs-github/escript/parser"
 )
 
+type testHashType = map[object.HashKey]int64
+
 func parse(t *testing.T, input string) *ast.Program {
 	l := lexer.New(input)
 	p, err := parser.New(l)
@@ -78,6 +80,26 @@ func testIntSliceObject(want []int, obj object.Object) error {
 	return nil
 }
 
+func testIntMapObject(want testHashType, obj object.Object) error {
+	result, ok := obj.(*object.Hash)
+	if !ok {
+		return function.NewError(fmt.Errorf("object is not Hash, got=%v", obj))
+	}
+	if len(result.Pairs) != len(want) {
+		return function.NewError(fmt.Errorf("wrong size, got=%v, want: %v", len(result.Pairs), len(want)))
+	}
+	for k, v := range want {
+		pair, ok := result.Pairs[k]
+		if !ok {
+			return function.NewError(fmt.Errorf("key missing, got=%v", k))
+		}
+		if err := testIntegerObject(v, pair.Value); nil != err {
+			return function.NewError(err)
+		}
+	}
+	return nil
+}
+
 type vmTestCase struct {
 	name  string
 	input string
@@ -101,6 +123,10 @@ func testExpectedObject(t *testing.T, want interface{}, v object.Object) {
 	case []int:
 		if err := testIntSliceObject(et, v); nil != err {
 			t.Errorf("testIntSliceObject failed, err: %v", err)
+		}
+	case testHashType:
+		if err := testIntMapObject(et, v); nil != err {
+			t.Errorf("testIntMapObject failed, err: %v", err)
 		}
 	}
 }
@@ -209,6 +235,21 @@ func TestArray(t *testing.T) {
 		{"case_1", "[]", []int{}},
 		{"case_2", "[1,2,3]", []int{1, 2, 3}},
 		{"case_3", "[1 + 2, 3 * 4, 5 + 6]", []int{3, 12, 11}},
+	}
+	runVmTests(t, tests)
+}
+
+func TestHash(t *testing.T) {
+	v1 := object.NewInteger(1)
+	h1, _ := v1.Hash()
+	v2 := object.NewInteger(2)
+	h2, _ := v2.Hash()
+	v6 := object.NewInteger(6)
+	h6, _ := v6.Hash()
+	tests := []vmTestCase{
+		{"case_1", "{}", testHashType{}},
+		{"case_2", "{1:2,2:3}", testHashType{*h1: 2, *h2: 3}},
+		{"case_3", "{1 + 1 : 2 * 2, 3 + 3 : 4 * 4}", testHashType{*h2: 4, *h6: 16}},
 	}
 	runVmTests(t, tests)
 }

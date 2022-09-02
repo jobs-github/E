@@ -1,5 +1,7 @@
 package ast
 
+import "sort"
+
 type Visitor interface {
 	DoProgram(v *Program) error
 	DoConst(v *ConstStmt) error
@@ -53,6 +55,17 @@ func (this *ExpressionSlice) encode() interface{} {
 }
 
 type ExpressionMap map[Expression]Expression
+
+func (this *ExpressionMap) SortedKeys() ExpressionSlice {
+	keys := ExpressionSlice{}
+	for k, _ := range *this {
+		keys = append(keys, k)
+	}
+	sort.Slice(keys, func(i, j int) bool {
+		return keys[i].String() < keys[j].String()
+	})
+	return keys
+}
 
 func (this *ExpressionMap) encode() interface{} {
 	r := map[string]interface{}{}

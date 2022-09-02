@@ -112,6 +112,17 @@ func (this *virtualMachine) Run() error {
 					return function.NewError(err)
 				}
 			}
+		case code.OpHash:
+			{
+				sz := int(this.fetchUint16(ins))
+				h, err := this.doHash(sz)
+				if nil != err {
+					return function.NewError(err)
+				}
+				if err := this.push(h); nil != err {
+					return function.NewError(err)
+				}
+			}
 		case code.OpPop:
 			{
 				this.pop()
@@ -136,13 +147,13 @@ func (this *virtualMachine) Run() error {
 			}
 		case code.OpNot:
 			{
-				if err := this.execPrefix(object.FnNot); nil != err {
+				if err := this.doPrefix(object.FnNot); nil != err {
 					return function.NewError(err)
 				}
 			}
 		case code.OpNeg:
 			{
-				if err := this.execPrefix(object.FnNeg); nil != err {
+				if err := this.doPrefix(object.FnNeg); nil != err {
 					return function.NewError(err)
 				}
 			}
@@ -160,13 +171,30 @@ func (this *virtualMachine) Run() error {
 			code.OpAnd,
 			code.OpOr:
 			{
-				if err := this.execInfix(op); nil != err {
+				if err := this.doInfix(op); nil != err {
 					return function.NewError(err)
 				}
 			}
 		}
 	}
 	return nil
+}
+
+func (this *virtualMachine) doHash(sz int) (object.Object, error) {
+	h := object.HashMap{}
+	for i := 0; i < sz; i++ {
+		v := this.pop()
+		k := this.pop()
+
+		pair := object.HashPair{Key: k, Value: v}
+
+		key, err := k.Hash()
+		if nil != err {
+			return nil, function.NewError(err)
+		}
+		h[*key] = &pair
+	}
+	return object.NewHash(h), nil
 }
 
 func (this *virtualMachine) doArray(sz int) object.Object {
@@ -177,7 +205,7 @@ func (this *virtualMachine) doArray(sz int) object.Object {
 	return object.NewArray(arr)
 }
 
-func (this *virtualMachine) execPrefix(fn string) error {
+func (this *virtualMachine) doPrefix(fn string) error {
 	right := this.pop()
 	if r, err := right.CallMember(fn, object.Objects{}); nil != err {
 		return function.NewError(err)
@@ -186,7 +214,7 @@ func (this *virtualMachine) execPrefix(fn string) error {
 	}
 }
 
-func (this *virtualMachine) execInfix(op code.Opcode) error {
+func (this *virtualMachine) doInfix(op code.Opcode) error {
 	t, err := code.InfixToken(op)
 	if nil != err {
 		return function.NewError(err)

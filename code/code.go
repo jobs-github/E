@@ -20,6 +20,7 @@ const (
 	OpUndefined Opcode = iota
 	OpConst
 	OpArray
+	OpHash
 	OpPop
 	OpTrue
 	OpFalse
@@ -49,6 +50,7 @@ var (
 	definitions = map[Opcode]*Definition{
 		OpConst:         {"OpConst", []int{2}},
 		OpArray:         {"OpArray", []int{2}},
+		OpHash:          {"OpHash", []int{2}},
 		OpPop:           {"OpPop", []int{}},
 		OpTrue:          {"OpTrue", []int{}},
 		OpFalse:         {"OpFalse", []int{}},
