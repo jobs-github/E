@@ -253,3 +253,14 @@ func TestHash(t *testing.T) {
 	}
 	runVmTests(t, tests)
 }
+
+func TestIndexExpr(t *testing.T) {
+	tests := []vmTestCase{
+		{"case_1", "[1,2,3][1]", 2},
+		{"case_2", "[1,2,3][0 + 2]", 3},
+		{"case_3", "[[1,1,1]][0][0]", 1},
+		{"case_4", "{1:1, 2:2}[1]", 1},
+		{"case_5", "{1:1, 2:2}[2]", 2},
+	}
+	runVmTests(t, tests)
+}

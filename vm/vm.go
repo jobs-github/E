@@ -175,6 +175,14 @@ func (this *virtualMachine) Run() error {
 					return function.NewError(err)
 				}
 			}
+		case code.OpIndex:
+			{
+				idx := this.pop()
+				left := this.pop()
+				if err := this.doIndex(left, idx); nil != err {
+					return function.NewError(err)
+				}
+			}
 		}
 	}
 	return nil
@@ -211,6 +219,15 @@ func (this *virtualMachine) doPrefix(fn string) error {
 		return function.NewError(err)
 	} else {
 		return this.push(r)
+	}
+}
+
+func (this *virtualMachine) doIndex(left object.Object, idx object.Object) error {
+	if r, err := left.CallMember(object.FnIndex, object.Objects{idx}); nil != err {
+		return function.NewError(err)
+	} else {
+		this.push(r)
+		return nil
 	}
 }
 

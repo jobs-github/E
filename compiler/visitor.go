@@ -196,7 +196,16 @@ func (this *visitor) DoObjectMember(v *ast.ObjectMember) error {
 }
 
 func (this *visitor) DoIndex(v *ast.IndexExpr) error {
-	return function.NewError(errUnsupportedVisitor)
+	if err := v.Left.Do(this); nil != err {
+		return function.NewError(err)
+	}
+	if err := v.Index.Do(this); nil != err {
+		return function.NewError(err)
+	}
+	if _, err := this.c.encode(code.OpIndex); nil != err {
+		return function.NewError(err)
+	}
+	return nil
 }
 
 func (this *visitor) DoNull(v *ast.Null) error {

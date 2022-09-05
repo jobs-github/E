@@ -21,6 +21,10 @@ const (
 	OpConst
 	OpArray
 	OpHash
+	OpJumpWhenFalse
+	OpJump
+	OpGetGlobal
+	OpSetGlobal
 	OpPop
 	OpTrue
 	OpFalse
@@ -40,10 +44,8 @@ const (
 	OpGeq
 	OpAnd
 	OpOr
-	OpJumpWhenFalse
-	OpJump
-	OpGetGlobal
-	OpSetGlobal
+
+	OpIndex
 )
 
 var (
@@ -51,6 +53,10 @@ var (
 		OpConst:         {"OpConst", []int{2}},
 		OpArray:         {"OpArray", []int{2}},
 		OpHash:          {"OpHash", []int{2}},
+		OpJumpWhenFalse: {"OpJumpWhenFalse", []int{2}},
+		OpJump:          {"OpJump", []int{2}},
+		OpGetGlobal:     {"OpGetGlobal", []int{2}},
+		OpSetGlobal:     {"OpSetGlobal", []int{2}},
 		OpPop:           {"OpPop", []int{}},
 		OpTrue:          {"OpTrue", []int{}},
 		OpFalse:         {"OpFalse", []int{}},
@@ -70,10 +76,7 @@ var (
 		OpGeq:           {"OpGeq", []int{}},
 		OpAnd:           {"OpAnd", []int{}},
 		OpOr:            {"OpOr", []int{}},
-		OpJumpWhenFalse: {"OpJumpWhenFalse", []int{2}},
-		OpJump:          {"OpJump", []int{2}},
-		OpGetGlobal:     {"OpGetGlobal", []int{2}},
-		OpSetGlobal:     {"OpSetGlobal", []int{2}},
+		OpIndex:         {"OpIndex", []int{}},
 	}
 	prefixCodePairs = tokenCodePairs{
 		{token.Not, OpNot},

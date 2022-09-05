@@ -594,3 +594,40 @@ func Test_Hash(t *testing.T) {
 	}
 	runCompilerTests(t, tests)
 }
+
+func Test_IndexExpr(t *testing.T) {
+	tests := []compilerTestCase{
+		{
+			"case_1",
+			"[1,2,3][1+1]",
+			[]interface{}{1, 2, 3, 1, 1},
+			[]code.Instructions{
+				newCode(code.OpConst, 0),
+				newCode(code.OpConst, 1),
+				newCode(code.OpConst, 2),
+				newCode(code.OpArray, 3),
+				newCode(code.OpConst, 3),
+				newCode(code.OpConst, 4),
+				newCode(code.OpAdd),
+				newCode(code.OpIndex),
+				newCode(code.OpPop),
+			},
+		},
+		{
+			"case_2",
+			"{1:2}[2-1]",
+			[]interface{}{1, 2, 2, 1},
+			[]code.Instructions{
+				newCode(code.OpConst, 0),
+				newCode(code.OpConst, 1),
+				newCode(code.OpHash, 1),
+				newCode(code.OpConst, 2),
+				newCode(code.OpConst, 3),
+				newCode(code.OpSub),
+				newCode(code.OpIndex),
+				newCode(code.OpPop),
+			},
+		},
+	}
+	runCompilerTests(t, tests)
+}
