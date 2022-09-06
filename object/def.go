@@ -18,6 +18,7 @@ const (
 	objectTypeBoolean
 	objectTypeNull
 	objectTypeFunction
+	objectTypeByteFunc
 	objectTypeArray
 	objectTypeHash
 	objectTypeObjectFunc
@@ -69,6 +70,7 @@ var (
 		objectTypeBoolean:    TypeBool,
 		objectTypeNull:       token.Null,
 		objectTypeFunction:   "function",
+		objectTypeByteFunc:   "byte_func",
 		objectTypeArray:      TypeArray,
 		objectTypeHash:       TypeHash,
 		objectTypeObjectFunc: "object_func",
@@ -89,7 +91,7 @@ func IsInteger(v Object) bool {
 }
 
 func Callable(v Object) bool {
-	return v.getType() == objectTypeFunction
+	return v.getType() == objectTypeFunction || v.getType() == objectTypeByteFunc
 }
 
 func Typeof(v Object) string {

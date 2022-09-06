@@ -1,9 +1,7 @@
 package eval
 
 import (
-	"bytes"
 	"fmt"
-	"strings"
 
 	"github.com/jobs-github/escript/ast"
 	"github.com/jobs-github/escript/builtin"
@@ -11,42 +9,6 @@ import (
 	"github.com/jobs-github/escript/object"
 	"github.com/jobs-github/escript/token"
 )
-
-func toString(v *ast.Function) func() string {
-	return func() string {
-		var out bytes.Buffer
-
-		args := []string{}
-		for _, p := range v.Args {
-			args = append(args, p.String())
-		}
-		if "" == v.Name {
-			out.WriteString("func ")
-		} else {
-			out.WriteString(v.Name)
-		}
-
-		out.WriteString("(")
-		out.WriteString(strings.Join(args, ", "))
-		out.WriteString(") {\n")
-		out.WriteString(v.Body.String())
-		out.WriteString("\n}")
-
-		return out.String()
-	}
-}
-
-func argumentOf(v *ast.Function) func(idx int) string {
-	return func(idx int) string {
-		return v.Args[idx].String()
-	}
-}
-
-func bodyString(v *ast.Function) func() string {
-	return func() string {
-		return v.Body.String()
-	}
-}
 
 func evalBody(v *ast.Function) func(env object.Env) (object.Object, error) {
 	return func(env object.Env) (object.Object, error) {
@@ -197,11 +159,6 @@ func (this *visitor) DoConditional(v *ast.ConditionalExpr) error {
 func (this *visitor) DoFn(v *ast.Function) error {
 	this.r = object.NewFunction(
 		v.Name,
-		function.Function{
-			String:     toString(v),
-			ArgumentOf: argumentOf(v),
-			Body:       bodyString(v),
-		},
 		v.Args.Values(),
 		evalBody(v),
 		this.e,

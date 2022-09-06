@@ -105,6 +105,10 @@ func (this *State) equalFunction(other *Function) error {
 	return unsupported(function.GetFunc(), this)
 }
 
+func (this *State) equalByteFunc(other *ByteFunc) error {
+	return unsupported(function.GetFunc(), this)
+}
+
 func (this *State) equalObjectFunc(other *ObjectFunc) error {
 	return unsupported(function.GetFunc(), this)
 }
@@ -138,6 +142,10 @@ func (this *State) calcBuiltin(op *token.Token, left *Builtin) (Object, error) {
 }
 
 func (this *State) calcFunction(op *token.Token, left *Function) (Object, error) {
+	return Nil, unsupportedOp(function.GetFunc(), op, this)
+}
+
+func (this *State) calcByteFunc(op *token.Token, left *ByteFunc) (Object, error) {
 	return Nil, unsupportedOp(function.GetFunc(), op, this)
 }
 

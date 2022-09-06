@@ -9,14 +9,12 @@ import (
 
 func NewFunction(
 	name string,
-	fn function.Function,
 	args []string,
 	evalBody func(env Env) (Object, error),
 	env Env,
 ) Object {
 	obj := &Function{
 		Name:     name,
-		Fn:       fn,
 		Args:     args,
 		EvalBody: evalBody,
 		Env:      env,
@@ -30,7 +28,6 @@ func NewFunction(
 // Function : implement Object
 type Function struct {
 	Name     string
-	Fn       function.Function
 	Args     []string
 	EvalBody func(env Env) (Object, error)
 	Env      Env
@@ -38,7 +35,7 @@ type Function struct {
 }
 
 func (this *Function) String() string {
-	return this.Fn.String()
+	return fmt.Sprintf("function[%p]", this)
 }
 
 func (this *Function) Hash() (*HashKey, error) {
@@ -123,17 +120,14 @@ func (this *Function) equalBuiltin(other *Builtin) error {
 }
 
 func (this *Function) equalFunction(other *Function) error {
-	if this.Name != "" {
-		if this.Name != other.Name {
-			return fmt.Errorf("function mismatch, this: %v, other: %v", this.Name, other.Name)
-		}
-	}
-	src := this.String()
-	dst := other.String()
-	if src != dst {
-		return fmt.Errorf("function mismatch, this: %v, other: %v", src, dst)
+	if this != other {
+		return fmt.Errorf("function mismatch, this: %p, other: %p", this, other)
 	}
 	return nil
+}
+
+func (this *Function) equalByteFunc(other *ByteFunc) error {
+	return fmt.Errorf("type mismatch, this: %v, other: %v", Typeof(this), Typeof(other))
 }
 
 func (this *Function) equalObjectFunc(other *ObjectFunc) error {
@@ -166,6 +160,10 @@ func (this *Function) calcBuiltin(op *token.Token, left *Builtin) (Object, error
 
 func (this *Function) calcFunction(op *token.Token, left *Function) (Object, error) {
 	return compare(function.GetFunc(), this, left, op)
+}
+
+func (this *Function) calcByteFunc(op *token.Token, left *ByteFunc) (Object, error) {
+	return notEqual(function.GetFunc(), this, op)
 }
 
 func (this *Function) calcObjectFunc(op *token.Token, left *ObjectFunc) (Object, error) {

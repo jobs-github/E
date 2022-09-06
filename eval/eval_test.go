@@ -19,7 +19,7 @@ func TestEvalExpr(t *testing.T) {
 		{`const a = [1,2,3]; const r = (a[1] == 2) ? (1 + 1) : (10 % 3); r;`, 2},
 		{`func f1() { true }; func f2() { true }; f1 == f2;`, false},
 		{`func f() { true }; const f1 = f; const f2 = f; f1 == f2;`, true},
-		{`const f1 = func() { true }; const f2 = func() { true }; f1 == f2;`, true},
+		{`const f1 = func() { true }; const f2 = func() { true }; f1 == f2;`, false},
 		{`const f1 = func() { true }; const f2 = func() { false }; f1 == f2;`, false},
 		{`const d1 = {"k1": "v1", "k2": "v2"}; const d2 = {"k1": "v1", "k2": "v2"}; d1 == d2`, true},
 		{`const d1 = {"k1": "v1", "k2": "v2"}; const d2 = {"k1": "v1", "k2": "v"}; d1 == d2`, false},
@@ -377,14 +377,17 @@ func TestFunctionObject(t *testing.T) {
 	if arguments != 1 {
 		t.Fatalf("function has wrong args, got %v", arguments)
 	}
-	argument := fn.Fn.ArgumentOf(0)
-	if argument != "x" {
-		t.Fatalf("argument of 0 not x, got `%v`", argument)
-	}
-	body := fn.Fn.Body()
-	expected := "{(x + 2)}"
-	if body != expected {
-		t.Fatalf("body not (x + 2), got `%v`", body)
+	r, err := fn.Call(object.Objects{object.NewInteger(2)})
+	if nil != err {
+		t.Fatal(err)
+	} else {
+		ir, ok := r.(*object.Integer)
+		if !ok {
+			t.Fatalf("result is not integer, got %v", reflect.TypeOf(r).String())
+		}
+		if ir.Value != 4 {
+			t.Fatalf("wrong result, got %v", ir.Value)
+		}
 	}
 }
 

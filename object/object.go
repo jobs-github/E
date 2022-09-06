@@ -34,6 +34,7 @@ type Object interface {
 	equalHash(other *Hash) error
 	equalBuiltin(other *Builtin) error
 	equalFunction(other *Function) error
+	equalByteFunc(other *ByteFunc) error
 	equalObjectFunc(other *ObjectFunc) error
 	// calc
 	calcInteger(op *token.Token, left *Integer) (Object, error)
@@ -44,6 +45,7 @@ type Object interface {
 	calcHash(op *token.Token, left *Hash) (Object, error)
 	calcBuiltin(op *token.Token, left *Builtin) (Object, error)
 	calcFunction(op *token.Token, left *Function) (Object, error)
+	calcByteFunc(op *token.Token, left *ByteFunc) (Object, error)
 	calcObjectFunc(op *token.Token, left *ObjectFunc) (Object, error)
 }
 

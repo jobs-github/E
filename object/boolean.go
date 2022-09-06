@@ -112,6 +112,10 @@ func (this *Boolean) equalFunction(other *Function) error {
 	return fmt.Errorf("type mismatch, this: %v, other: %v", Typeof(this), Typeof(other))
 }
 
+func (this *Boolean) equalByteFunc(other *ByteFunc) error {
+	return fmt.Errorf("type mismatch, this: %v, other: %v", Typeof(this), Typeof(other))
+}
+
 func (this *Boolean) equalObjectFunc(other *ObjectFunc) error {
 	return fmt.Errorf("type mismatch, this: %v, other: %v", Typeof(this), Typeof(other))
 }
@@ -175,6 +179,10 @@ func (this *Boolean) calcBuiltin(op *token.Token, left *Builtin) (Object, error)
 }
 
 func (this *Boolean) calcFunction(op *token.Token, left *Function) (Object, error) {
+	return notEqual(function.GetFunc(), this, op)
+}
+
+func (this *Boolean) calcByteFunc(op *token.Token, left *ByteFunc) (Object, error) {
 	return notEqual(function.GetFunc(), this, op)
 }
 
