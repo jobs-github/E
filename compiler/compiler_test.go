@@ -96,6 +96,11 @@ func testConstants(want []interface{}, got object.Objects) error {
 			if nil != err {
 				return function.NewError(err)
 			}
+		case []code.Instructions:
+			err := testByteFunc(wantVal, got[i])
+			if nil != err {
+				return function.NewError(err)
+			}
 		}
 	}
 	return nil
@@ -127,6 +132,16 @@ func testStringObject(want string, obj object.Object) error {
 	}
 	if result.Value != want {
 		return function.NewError(fmt.Errorf("object has wrong value, got=%v, want: %v", result.Value, want))
+	}
+	return nil
+}
+func testByteFunc(want []code.Instructions, obj object.Object) error {
+	result, ok := obj.(*object.ByteFunc)
+	if !ok {
+		return function.NewError(fmt.Errorf("object is not ByteFunc, got=%v", obj))
+	}
+	if err := testInstructions(want, result.Instructions); nil != err {
+		return function.NewError(err)
 	}
 	return nil
 }
@@ -631,3 +646,28 @@ func Test_IndexExpr(t *testing.T) {
 	}
 	runCompilerTests(t, tests)
 }
+
+/*func Test_Functions(t *testing.T) {
+	tests := []compilerTestCase{
+		{
+			"case_1",
+			"func() { 5 + 10 }",
+			[]interface{}{
+				5,
+				10,
+				[]code.Instructions{
+					newCode(code.OpConst, 0),
+					newCode(code.OpConst, 1),
+					newCode(code.OpAdd),
+					newCode(code.OpReturn),
+				},
+			},
+			[]code.Instructions{
+				newCode(code.OpConst, 2),
+				newCode(code.OpPop),
+			},
+		},
+	}
+	runCompilerTests(t, tests)
+}
+*/

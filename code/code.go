@@ -44,8 +44,9 @@ const (
 	OpGeq
 	OpAnd
 	OpOr
-
 	OpIndex
+	OpCall
+	OpReturn
 )
 
 var (
@@ -77,6 +78,8 @@ var (
 		OpAnd:           {"OpAnd", []int{}},
 		OpOr:            {"OpOr", []int{}},
 		OpIndex:         {"OpIndex", []int{}},
+		OpCall:          {"OpCall", []int{}},
+		OpReturn:        {"OpReturn", []int{}},
 	}
 	prefixCodePairs = tokenCodePairs{
 		{token.Not, OpNot},
