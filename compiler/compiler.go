@@ -11,6 +11,8 @@ type Compiler interface {
 	Compile(node ast.Node) error
 	Bytecode() Bytecode
 
+	enterScope()
+	leaveScope() Bytecode
 	addConst(obj object.Object) int
 	// return pos before encode
 	encode(op code.Opcode, operands ...int) (int, error)
@@ -24,8 +26,8 @@ type Compiler interface {
 
 func Make(s SymbolTable, consts object.Objects) Compiler {
 	return &compilerImpl{
-		b:  newBytecode(code.Instructions{}, consts),
 		st: s,
+		b:  newScopeBytecode(newBytecode(code.Instructions{}, consts)),
 	}
 }
 
@@ -35,8 +37,8 @@ func New() Compiler {
 
 // compilerImpl : implement Compiler
 type compilerImpl struct {
-	b  Bytecode
 	st SymbolTable
+	b  Bytecode
 }
 
 func (this *compilerImpl) Compile(node ast.Node) error {
@@ -45,6 +47,14 @@ func (this *compilerImpl) Compile(node ast.Node) error {
 
 func (this *compilerImpl) Bytecode() Bytecode {
 	return this.b
+}
+
+func (this *compilerImpl) enterScope() {
+	this.b.enterScope()
+}
+
+func (this *compilerImpl) leaveScope() Bytecode {
+	return this.b.leaveScope()
 }
 
 func (this *compilerImpl) addConst(obj object.Object) int {

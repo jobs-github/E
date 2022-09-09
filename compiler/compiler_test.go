@@ -647,7 +647,7 @@ func Test_IndexExpr(t *testing.T) {
 	runCompilerTests(t, tests)
 }
 
-/*func Test_Functions(t *testing.T) {
+func Test_Functions(t *testing.T) {
 	tests := []compilerTestCase{
 		{
 			"case_1",
@@ -670,4 +670,39 @@ func Test_IndexExpr(t *testing.T) {
 	}
 	runCompilerTests(t, tests)
 }
-*/
+
+func Test_Scopes(t *testing.T) {
+	c := New()
+	b := c.Bytecode()
+	if b.Scope() != 0 {
+		t.Errorf("scope wrong, got: %v, want 0", b.Scope())
+	}
+	c.encode(code.OpMul)
+	c.enterScope()
+	if b.Scope() != 1 {
+		t.Errorf("scope wrong, got: %v, want 1", b.Scope())
+	}
+	c.encode(code.OpSub)
+	sc := b.ScopeCode()
+	if len(sc.Instructions()) != 1 {
+		t.Errorf("instructions len wrong, got: %v, want 1", len(sc.Instructions()))
+	}
+	if sc.lastCode() != code.OpSub {
+		t.Errorf("lastCode wrong, got: %v, want %v", sc.lastCode(), code.OpSub)
+	}
+	c.leaveScope()
+	if b.Scope() != 0 {
+		t.Errorf("scope wrong, got: %v, want 0", b.Scope())
+	}
+	c.encode(code.OpAdd)
+	sc2 := b.ScopeCode()
+	if len(sc2.Instructions()) != 2 {
+		t.Errorf("instructions len wrong, got: %v, want 2", len(sc2.Instructions()))
+	}
+	if sc2.lastCode() != code.OpAdd {
+		t.Errorf("lastCode wrong, got: %v, want %v", sc2.lastCode(), code.OpAdd)
+	}
+	if sc2.prevLastCode() != code.OpMul {
+		t.Errorf("prevLastCode wrong, got: %v, want %v", sc2.prevLastCode(), code.OpMul)
+	}
+}

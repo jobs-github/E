@@ -99,6 +99,7 @@ func (this *visitor) DoExpr(v *ast.ExpressionStmt) error {
 }
 
 func (this *visitor) DoFunction(v *ast.FunctionStmt) error {
+	// TODO
 	return function.NewError(errUnsupportedVisitor)
 }
 
@@ -180,6 +181,7 @@ func (this *visitor) DoConditional(v *ast.ConditionalExpr) error {
 }
 
 func (this *visitor) DoFn(v *ast.Function) error {
+	// TODO
 	return function.NewError(errUnsupportedVisitor)
 }
 
