@@ -11,6 +11,14 @@ import (
 	"github.com/jobs-github/escript/token"
 )
 
+type doOption uint
+
+const (
+	optionEncodePop     doOption = 1
+	optionEncodeReturn  doOption = 2
+	optionEncodeNothing doOption = 3
+)
+
 var (
 	errUnsupportedVisitor = errors.New("unsupported visitor")
 )
@@ -23,14 +31,14 @@ func newVisitor(c Compiler, o *options) ast.Visitor {
 	return &visitor{c, o}
 }
 
-func newOptions(skipEncodePop bool) *options {
+func newOptions(optionExpr doOption) *options {
 	return &options{
-		skipEncodePop: skipEncodePop,
+		optionExpr: optionExpr,
 	}
 }
 
 type options struct {
-	skipEncodePop bool
+	optionExpr doOption
 }
 
 // visitor : implement ast.Visitor
@@ -39,8 +47,12 @@ type visitor struct {
 	o *options
 }
 
-func (this *visitor) skipEncodePop() bool {
-	return nil != this.o && this.o.skipEncodePop
+func (this *visitor) optionExpr() doOption {
+	if nil == this.o {
+		return optionEncodePop
+	} else {
+		return this.o.optionExpr
+	}
 }
 
 func (this *visitor) opCodeBoolean(v *ast.Boolean) code.Opcode {
@@ -90,8 +102,16 @@ func (this *visitor) DoExpr(v *ast.ExpressionStmt) error {
 	if err := v.Expr.Do(this); nil != err {
 		return function.NewError(err)
 	}
-	if !this.skipEncodePop() {
+	option := this.optionExpr()
+	switch option {
+	case optionEncodeNothing:
+		return nil
+	case optionEncodePop:
 		if _, err := this.c.encode(code.OpPop); nil != err {
+			return function.NewError(err)
+		}
+	case optionEncodeReturn:
+		if _, err := this.c.encode(code.OpReturn); nil != err {
 			return function.NewError(err)
 		}
 	}
@@ -159,7 +179,7 @@ func (this *visitor) DoConditional(v *ast.ConditionalExpr) error {
 	if nil != err {
 		return function.NewError(err)
 	}
-	if err := v.Yes.Do(newVisitor(this.c, newOptions(true))); nil != err {
+	if err := v.Yes.Do(newVisitor(this.c, newOptions(optionEncodeNothing))); nil != err {
 		return function.NewError(err)
 	}
 	posJump, err := this.c.encode(code.OpJump, -1)
@@ -170,7 +190,7 @@ func (this *visitor) DoConditional(v *ast.ConditionalExpr) error {
 	if err := this.c.changeOperand(posJumpWhenFalse, this.c.pos()); nil != err {
 		return function.NewError(err)
 	}
-	if err := v.No.Do(newVisitor(this.c, newOptions(true))); nil != err {
+	if err := v.No.Do(newVisitor(this.c, newOptions(optionEncodeNothing))); nil != err {
 		return function.NewError(err)
 	}
 	// back-patching
@@ -181,8 +201,17 @@ func (this *visitor) DoConditional(v *ast.ConditionalExpr) error {
 }
 
 func (this *visitor) DoFn(v *ast.Function) error {
-	// TODO
-	return function.NewError(errUnsupportedVisitor)
+	this.c.enterScope()
+	if err := v.Body.Do(newVisitor(this.c, newOptions(optionEncodeReturn))); nil != err {
+		return function.NewError(err)
+	}
+	r := this.c.leaveScope()
+	fn := object.NewByteFunc(r.Instructions())
+	idx := this.c.addConst(fn)
+	if _, err := this.c.encode(code.OpConst, idx); nil != err {
+		return function.NewError(err)
+	}
+	return nil
 }
 
 func (this *visitor) DoCall(v *ast.Call) error {

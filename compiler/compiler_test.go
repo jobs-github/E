@@ -650,11 +650,10 @@ func Test_IndexExpr(t *testing.T) {
 func Test_Functions(t *testing.T) {
 	tests := []compilerTestCase{
 		{
-			"case_1",
+			"case_2",
 			"func() { 5 + 10 }",
 			[]interface{}{
-				5,
-				10,
+				// 5, 10,
 				[]code.Instructions{
 					newCode(code.OpConst, 0),
 					newCode(code.OpConst, 1),
@@ -663,7 +662,7 @@ func Test_Functions(t *testing.T) {
 				},
 			},
 			[]code.Instructions{
-				newCode(code.OpConst, 2),
+				newCode(code.OpConst, 0),
 				newCode(code.OpPop),
 			},
 		},
