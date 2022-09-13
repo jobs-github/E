@@ -705,3 +705,41 @@ func Test_Scopes(t *testing.T) {
 		t.Errorf("prevLastCode wrong, got: %v, want %v", sc2.prevLastCode(), code.OpMul)
 	}
 }
+
+func Test_Call(t *testing.T) {
+	tests := []compilerTestCase{
+		{
+			"case_1",
+			"func() { 24 }();",
+			[]interface{}{
+				[]code.Instructions{
+					newCode(code.OpConst, 0),
+					newCode(code.OpReturn),
+				},
+			},
+			[]code.Instructions{
+				newCode(code.OpConst, 0),
+				newCode(code.OpCall),
+				newCode(code.OpPop),
+			},
+		},
+		{
+			"case_2",
+			"const fn = func() { 24 }; fn();",
+			[]interface{}{
+				[]code.Instructions{
+					newCode(code.OpConst, 0),
+					newCode(code.OpReturn),
+				},
+			},
+			[]code.Instructions{
+				newCode(code.OpConst, 0),
+				newCode(code.OpSetGlobal, 0),
+				newCode(code.OpGetGlobal, 0),
+				newCode(code.OpCall),
+				newCode(code.OpPop),
+			},
+		},
+	}
+	runCompilerTests(t, tests)
+}

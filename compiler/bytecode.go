@@ -29,7 +29,7 @@ type EncodedInstruction struct {
 type Bytecode interface {
 	Instructions() code.Instructions
 	Constants() object.Objects
-	ScopeCode() Bytecode
+	ScopeCode() Bytecode // current
 	Scope() int
 
 	enterScope()
@@ -146,15 +146,15 @@ func (this *scopeBytecode) leaveScope() Bytecode {
 }
 
 func (this *scopeBytecode) opCode(pos int) code.Opcode {
-	return this.scopes[this.scopeIndex].opCode(pos)
+	return this.ScopeCode().opCode(pos)
 }
 
 func (this *scopeBytecode) addConst(obj object.Object) int {
-	return this.scopes[this.scopeIndex].addConst(obj)
+	return this.ScopeCode().addConst(obj)
 }
 
 func (this *scopeBytecode) addInstruction(ins []byte) int {
-	return this.scopes[this.scopeIndex].addInstruction(ins)
+	return this.ScopeCode().addInstruction(ins)
 }
 
 func (this *scopeBytecode) replaceInstruction(pos int, newInstruction []byte) {
@@ -166,9 +166,9 @@ func (this *scopeBytecode) setLastInstruction(op code.Opcode, pos int) {
 }
 
 func (this *scopeBytecode) lastCode() code.Opcode {
-	return this.scopes[this.scopeIndex].lastCode()
+	return this.ScopeCode().lastCode()
 }
 
 func (this *scopeBytecode) prevLastCode() code.Opcode {
-	return this.scopes[this.scopeIndex].prevLastCode()
+	return this.ScopeCode().prevLastCode()
 }

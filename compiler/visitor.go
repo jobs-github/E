@@ -215,7 +215,14 @@ func (this *visitor) DoFn(v *ast.Function) error {
 }
 
 func (this *visitor) DoCall(v *ast.Call) error {
-	return function.NewError(errUnsupportedVisitor)
+	if err := v.Func.Do(this); nil != err {
+		return function.NewError(err)
+	}
+	// TODO: args
+	if _, err := this.c.encode(code.OpCall); nil != err {
+		return function.NewError(err)
+	}
+	return nil
 }
 
 func (this *visitor) DoCallMember(v *ast.CallMember) error {

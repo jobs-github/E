@@ -12,6 +12,7 @@ import (
 const (
 	StackSize   = 2048
 	GlobalsSize = 65536
+	MaxFrames   = 1024
 )
 
 var (
@@ -28,7 +29,7 @@ func Make(b compiler.Bytecode, globals object.Objects) VM {
 		stack:   make(object.Objects, StackSize),
 		globals: globals,
 		sp:      0,
-		ip:      0,
+		frames:  NewCallFrame(b, MaxFrames),
 	}
 }
 
@@ -48,34 +49,37 @@ type virtualMachine struct {
 	stack   object.Objects
 	globals object.Objects
 	sp      int // top stack [sp - 1]
-	ip      int
+	frames  CallFrame
 }
 
-func (this *virtualMachine) decodeUint16(ins code.Instructions) uint16 {
-	return code.DecodeUint16(ins[this.ip+1:])
+func (this *virtualMachine) decodeUint16(ip int, ins code.Instructions) uint16 {
+	return code.DecodeUint16(ins[ip+1:])
 }
 
-func (this *virtualMachine) fetchUint16(ins code.Instructions) uint16 {
-	v := this.decodeUint16(ins)
-	this.ip += 2
+func (this *virtualMachine) fetchUint16(ip int, ins code.Instructions) uint16 {
+	v := this.decodeUint16(ip, ins)
+	this.frames.incrby(2)
 	return v
 }
 
 func (this *virtualMachine) Run() error {
-	ins := this.b.Instructions()
+	var ip int
+	var ins code.Instructions
 	consts := this.b.Constants()
-	sz := len(ins)
-	for this.ip = 0; this.ip < sz; this.ip++ {
-		op := code.Opcode(ins[this.ip])
+	for !this.frames.eof() {
+		this.frames.incr()
+		ip = this.frames.ip()
+		ins = this.frames.Instructions()
+		op := code.Opcode(ins[ip])
 		switch op {
 		case code.OpSetGlobal:
 			{
-				idx := this.fetchUint16(ins)
+				idx := this.fetchUint16(ip, ins)
 				this.globals[idx] = this.pop() // bind
 			}
 		case code.OpGetGlobal:
 			{
-				idx := this.fetchUint16(ins)
+				idx := this.fetchUint16(ip, ins)
 				// resolve
 				if err := this.push(this.globals[idx]); nil != err {
 					return function.NewError(err)
@@ -83,22 +87,22 @@ func (this *virtualMachine) Run() error {
 			}
 		case code.OpJump:
 			{
-				pos := this.decodeUint16(ins)
+				pos := this.decodeUint16(ip, ins)
 				// in a loop that increments ip with each iteration
 				// we need to set ip to the offset right before the one we want
-				this.ip = int(pos - 1)
+				this.frames.jmp(int(pos - 1))
 			}
 		case code.OpJumpWhenFalse:
 			{
-				pos := this.fetchUint16(ins)
+				pos := this.fetchUint16(ip, ins)
 				cond := this.pop()
 				if !cond.True() {
-					this.ip = int(pos - 1) // jump
+					this.frames.jmp(int(pos - 1))
 				}
 			}
 		case code.OpConst:
 			{
-				idx := this.fetchUint16(ins)
+				idx := this.fetchUint16(ip, ins)
 				err := this.push(consts[idx])
 				if nil != err {
 					return function.NewError(err)
@@ -106,7 +110,7 @@ func (this *virtualMachine) Run() error {
 			}
 		case code.OpArray:
 			{
-				sz := int(this.fetchUint16(ins))
+				sz := int(this.fetchUint16(ip, ins))
 				arr := this.doArray(sz)
 				if err := this.push(arr); nil != err {
 					return function.NewError(err)
@@ -114,7 +118,7 @@ func (this *virtualMachine) Run() error {
 			}
 		case code.OpHash:
 			{
-				sz := int(this.fetchUint16(ins))
+				sz := int(this.fetchUint16(ip, ins))
 				h, err := this.doHash(sz)
 				if nil != err {
 					return function.NewError(err)
