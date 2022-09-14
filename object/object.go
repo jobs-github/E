@@ -22,6 +22,7 @@ type Object interface {
 	GetMember(name string) (Object, error)
 	True() bool
 	AsState() (*State, error)
+	AsByteFunc() (*ByteFunc, error)
 
 	getType() ObjectType
 	asInteger() (int64, error)

@@ -206,7 +206,7 @@ func (this *visitor) DoFn(v *ast.Function) error {
 		return function.NewError(err)
 	}
 	r := this.c.leaveScope()
-	fn := object.NewByteFunc(r.Instructions())
+	fn := object.NewByteFunc(r.Instructions(), r.Constants())
 	idx := this.c.addConst(fn)
 	if _, err := this.c.encode(code.OpConst, idx); nil != err {
 		return function.NewError(err)

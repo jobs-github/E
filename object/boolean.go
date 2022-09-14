@@ -65,6 +65,10 @@ func (this *Boolean) AsState() (*State, error) {
 	return nil, unsupported(function.GetFunc(), this)
 }
 
+func (this *Boolean) AsByteFunc() (*ByteFunc, error) {
+	return nil, unsupported(function.GetFunc(), this)
+}
+
 func (this *Boolean) getType() ObjectType {
 	return objectTypeBoolean
 }

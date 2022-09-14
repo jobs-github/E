@@ -8,22 +8,23 @@ import (
 	"github.com/jobs-github/escript/token"
 )
 
-func NewByteFn(ins code.Instructions) *ByteFunc {
-	obj := &ByteFunc{Instructions: ins}
+func NewByteFn(ins code.Instructions, c Objects) *ByteFunc {
+	obj := &ByteFunc{Ins: ins, Consts: c}
 	obj.fns = objectBuiltins{
 		FnNot: obj.builtinNot,
 	}
 	return obj
 }
 
-func NewByteFunc(ins code.Instructions) Object {
-	return NewByteFn(ins)
+func NewByteFunc(ins code.Instructions, c Objects) Object {
+	return NewByteFn(ins, c)
 }
 
 // ByteFunc : implement Object
 type ByteFunc struct {
-	Instructions code.Instructions
-	fns          objectBuiltins
+	Ins    code.Instructions
+	Consts Objects
+	fns    objectBuiltins
 }
 
 func (this *ByteFunc) String() string {
@@ -61,6 +62,10 @@ func (this *ByteFunc) True() bool {
 
 func (this *ByteFunc) AsState() (*State, error) {
 	return nil, unsupported(function.GetFunc(), this)
+}
+
+func (this *ByteFunc) AsByteFunc() (*ByteFunc, error) {
+	return this, nil
 }
 
 func (this *ByteFunc) getType() ObjectType {

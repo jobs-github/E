@@ -140,7 +140,7 @@ func testByteFunc(want []code.Instructions, obj object.Object) error {
 	if !ok {
 		return function.NewError(fmt.Errorf("object is not ByteFunc, got=%v", obj))
 	}
-	if err := testInstructions(want, result.Instructions); nil != err {
+	if err := testInstructions(want, result.Ins); nil != err {
 		return function.NewError(err)
 	}
 	return nil

@@ -123,6 +123,10 @@ func (this *Hash) AsState() (*State, error) {
 	return nil, unsupported(function.GetFunc(), this)
 }
 
+func (this *Hash) AsByteFunc() (*ByteFunc, error) {
+	return nil, unsupported(function.GetFunc(), this)
+}
+
 func (this *Hash) getType() ObjectType {
 	return objectTypeHash
 }

@@ -65,11 +65,12 @@ func (this *virtualMachine) fetchUint16(ip int, ins code.Instructions) uint16 {
 func (this *virtualMachine) Run() error {
 	var ip int
 	var ins code.Instructions
-	consts := this.b.Constants()
+
 	for !this.frames.eof() {
 		this.frames.incr()
 		ip = this.frames.ip()
 		ins = this.frames.Instructions()
+		consts := this.frames.Constants()
 		op := code.Opcode(ins[ip])
 		switch op {
 		case code.OpSetGlobal:
@@ -187,6 +188,24 @@ func (this *virtualMachine) Run() error {
 					return function.NewError(err)
 				}
 			}
+		case code.OpCall:
+			{
+				fn, err := this.top().AsByteFunc()
+				if nil != err {
+					return function.NewError(err)
+				}
+				frame := NewFrame(fn)
+				this.frames.push(frame)
+			}
+		case code.OpReturn:
+			{
+				returnValue := this.pop()
+				this.frames.pop()
+				this.pop()
+				if err := this.push(returnValue); nil != err {
+					return function.NewError(err)
+				}
+			}
 		}
 	}
 	return nil
@@ -273,7 +292,11 @@ func (this *virtualMachine) push(o object.Object) error {
 }
 
 func (this *virtualMachine) pop() object.Object {
-	o := this.stack[this.sp-1]
+	top := this.top()
 	this.sp--
-	return o
+	return top
+}
+
+func (this *virtualMachine) top() object.Object {
+	return this.stack[this.sp-1]
 }

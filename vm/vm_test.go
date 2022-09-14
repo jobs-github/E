@@ -264,3 +264,17 @@ func TestIndexExpr(t *testing.T) {
 	}
 	runVmTests(t, tests)
 }
+
+func TestCall(t *testing.T) {
+	tests := []vmTestCase{
+		{
+			"case_1",
+			`
+			const fn = func() { 5 + 10 };
+			fn();
+			`,
+			15,
+		},
+	}
+	runVmTests(t, tests)
+}

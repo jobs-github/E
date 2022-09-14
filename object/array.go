@@ -88,6 +88,10 @@ func (this *Array) AsState() (*State, error) {
 	return nil, unsupported(function.GetFunc(), this)
 }
 
+func (this *Array) AsByteFunc() (*ByteFunc, error) {
+	return nil, unsupported(function.GetFunc(), this)
+}
+
 func (this *Array) getType() ObjectType {
 	return objectTypeArray
 }

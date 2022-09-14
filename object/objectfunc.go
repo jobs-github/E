@@ -63,6 +63,10 @@ func (this *ObjectFunc) AsState() (*State, error) {
 	return nil, unsupported(function.GetFunc(), this)
 }
 
+func (this *ObjectFunc) AsByteFunc() (*ByteFunc, error) {
+	return nil, unsupported(function.GetFunc(), this)
+}
+
 func (this *ObjectFunc) getType() ObjectType {
 	return objectTypeObjectFunc
 }
