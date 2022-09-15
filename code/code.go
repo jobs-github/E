@@ -25,6 +25,8 @@ const (
 	OpJump
 	OpGetGlobal
 	OpSetGlobal
+	OpGetLocal
+	OpSetLocal
 	OpPop
 	OpTrue
 	OpFalse
@@ -58,6 +60,8 @@ var (
 		OpJump:          {"OpJump", []int{2}},
 		OpGetGlobal:     {"OpGetGlobal", []int{2}},
 		OpSetGlobal:     {"OpSetGlobal", []int{2}},
+		OpGetLocal:      {"OpGetLocal", []int{1}},
+		OpSetLocal:      {"OpSetLocal", []int{1}},
 		OpPop:           {"OpPop", []int{}},
 		OpTrue:          {"OpTrue", []int{}},
 		OpFalse:         {"OpFalse", []int{}},
@@ -258,6 +262,9 @@ func encodeOperand(operand int, width int, b []byte) error {
 	case 2:
 		binary.BigEndian.PutUint16(b, uint16(operand))
 		return nil
+	case 1:
+		b[0] = byte(operand)
+		return nil
 	default:
 		err := fmt.Errorf("unsupported width: %v", width)
 		return function.NewError(err)
@@ -268,10 +275,16 @@ func DecodeUint16(b []byte) uint16 {
 	return binary.BigEndian.Uint16(b)
 }
 
+func DecodeUint8(b []byte) uint8 {
+	return uint8(b[0])
+}
+
 func decodeOperand(width int, b []byte) (int, error) {
 	switch width {
 	case 2:
 		return int(DecodeUint16(b)), nil
+	case 1:
+		return int(DecodeUint8(b)), nil
 	default:
 		err := fmt.Errorf("unsupported width: %v", width)
 		return -1, function.NewError(err)

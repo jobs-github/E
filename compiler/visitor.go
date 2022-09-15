@@ -55,6 +55,22 @@ func (this *visitor) optionExpr() doOption {
 	}
 }
 
+func (this *visitor) opCodeSymbolSet(s *Symbol) code.Opcode {
+	if s.Scope == ScopeGlobal {
+		return code.OpSetGlobal
+	} else {
+		return code.OpSetLocal
+	}
+}
+
+func (this *visitor) opCodeSymbolGet(s *Symbol) code.Opcode {
+	if s.Scope == ScopeGlobal {
+		return code.OpGetGlobal
+	} else {
+		return code.OpGetLocal
+	}
+}
+
 func (this *visitor) opCodeBoolean(v *ast.Boolean) code.Opcode {
 	if v.Value {
 		return code.OpTrue
@@ -85,7 +101,7 @@ func (this *visitor) DoConst(v *ast.ConstStmt) error {
 		return function.NewError(err)
 	}
 	symbol := this.c.define(v.Name.Value)
-	if _, err := this.c.encode(code.OpSetGlobal, symbol.Index); nil != err {
+	if _, err := this.c.encode(this.opCodeSymbolSet(symbol), symbol.Index); nil != err {
 		return function.NewError(err)
 	}
 	return nil
@@ -159,7 +175,7 @@ func (this *visitor) DoIdent(v *ast.Identifier) error {
 	if nil != err {
 		return function.NewError(err)
 	}
-	if _, err := this.c.encode(code.OpGetGlobal, s.Index); nil != err {
+	if _, err := this.c.encode(this.opCodeSymbolGet(s), s.Index); nil != err {
 		return function.NewError(err)
 	}
 	return nil

@@ -5,7 +5,8 @@ import "fmt"
 type SymbolScope uint
 
 const (
-	GlobalScope SymbolScope = iota
+	ScopeGlobal SymbolScope = iota
+	ScopeLocal
 )
 
 type Symbol struct {
@@ -35,35 +36,56 @@ func newSymbol(name string, scope SymbolScope, index int) *Symbol {
 	}
 }
 
-func NewSymbolTable() SymbolTable {
+func NewSymbolTable(parent SymbolTable) SymbolTable {
 	return &symbolTable{
-		m:   map[string]*Symbol{},
-		cnt: 0,
+		parent: parent,
+		m:      map[string]*Symbol{},
+		index:  0,
 	}
 }
 
 type SymbolTable interface {
+	newEnclosed() SymbolTable
+	outer() SymbolTable
 	define(key string) *Symbol
 	resolve(key string) (*Symbol, error)
 }
 
 // symbolTable : implement SymbolTable
 type symbolTable struct {
-	m   map[string]*Symbol
-	cnt int
+	parent SymbolTable
+	m      map[string]*Symbol
+	index  int
+}
+
+func (this *symbolTable) newEnclosed() SymbolTable {
+	return NewSymbolTable(this)
+}
+
+func (this *symbolTable) outer() SymbolTable {
+	return this.parent
 }
 
 func (this *symbolTable) define(key string) *Symbol {
-	s := newSymbol(key, GlobalScope, this.cnt)
+	s := newSymbol(key, ScopeGlobal, this.index)
+	if nil == this.parent {
+		s.Scope = ScopeGlobal
+	} else {
+		s.Scope = ScopeLocal
+	}
 	this.m[key] = s
-	this.cnt++
+	this.index++
 	return s
 }
 
 func (this *symbolTable) resolve(key string) (*Symbol, error) {
 	v, ok := this.m[key]
 	if !ok {
-		return nil, fmt.Errorf("symbol `%v` missing", key)
+		if this.parent != nil {
+			return this.parent.resolve(key)
+		} else {
+			return nil, fmt.Errorf("symbol `%v` missing", key)
+		}
 	}
 	return v, nil
 }

@@ -21,7 +21,7 @@ func Start(in io.Reader, out io.Writer) {
 
 	consts := object.Objects{}
 	globals := vm.NewGlobals()
-	st := compiler.NewSymbolTable()
+	st := compiler.NewSymbolTable(nil)
 
 	for {
 		fmt.Fprintf(out, ">> ")

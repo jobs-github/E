@@ -454,29 +454,53 @@ func Test_GlobalConstStmts(t *testing.T) {
 
 func Test_Define(t *testing.T) {
 	expected := map[string]*Symbol{
-		"a": &Symbol{Name: "a", Scope: GlobalScope, Index: 0},
-		"b": &Symbol{Name: "b", Scope: GlobalScope, Index: 1},
+		"a": &Symbol{Name: "a", Scope: ScopeGlobal, Index: 0},
+		"b": &Symbol{Name: "b", Scope: ScopeGlobal, Index: 1},
+		"c": &Symbol{Name: "c", Scope: ScopeLocal, Index: 0},
+		"d": &Symbol{Name: "d", Scope: ScopeLocal, Index: 1},
+		"e": &Symbol{Name: "e", Scope: ScopeLocal, Index: 0},
+		"f": &Symbol{Name: "f", Scope: ScopeLocal, Index: 1},
 	}
 
-	st := NewSymbolTable()
-	a := st.define("a")
+	g := NewSymbolTable(nil)
+	a := g.define("a")
 	if err := a.equal(expected["a"]); nil != err {
 		t.Errorf("expected a=%+v, got=%+v, err: %v", expected["a"], a, err)
 	}
 
-	b := st.define("b")
+	b := g.define("b")
 	if err := b.equal(expected["b"]); nil != err {
 		t.Errorf("expected b=%+v, got=%+v, err: %v", expected["b"], b, err)
+	}
+	l := g.newEnclosed()
+	c := l.define("c")
+	if err := c.equal(expected["c"]); nil != err {
+		t.Errorf("expected a=%+v, got=%+v, err: %v", expected["c"], c, err)
+	}
+
+	d := l.define("d")
+	if err := d.equal(expected["d"]); nil != err {
+		t.Errorf("expected b=%+v, got=%+v, err: %v", expected["d"], d, err)
+	}
+	ll := l.newEnclosed()
+	e := ll.define("e")
+	if err := e.equal(expected["e"]); nil != err {
+		t.Errorf("expected a=%+v, got=%+v, err: %v", expected["e"], e, err)
+	}
+
+	f := ll.define("f")
+	if err := f.equal(expected["f"]); nil != err {
+		t.Errorf("expected b=%+v, got=%+v, err: %v", expected["f"], f, err)
 	}
 }
 
 func Test_ResolveGlobal(t *testing.T) {
 	expected := map[string]*Symbol{
-		"a": &Symbol{Name: "a", Scope: GlobalScope, Index: 0},
-		"b": &Symbol{Name: "b", Scope: GlobalScope, Index: 1},
+		"a": &Symbol{Name: "a", Scope: ScopeGlobal, Index: 0},
+		"b": &Symbol{Name: "b", Scope: ScopeGlobal, Index: 1},
 	}
 
-	st := NewSymbolTable()
+	st := NewSymbolTable(nil)
 	st.define("a")
 	st.define("b")
 
@@ -689,6 +713,7 @@ func Test_Scopes(t *testing.T) {
 	if sc.lastCode() != code.OpSub {
 		t.Errorf("lastCode wrong, got: %v, want %v", sc.lastCode(), code.OpSub)
 	}
+
 	c.leaveScope()
 	if b.Scope() != 0 {
 		t.Errorf("scope wrong, got: %v, want 0", b.Scope())
@@ -742,4 +767,81 @@ func Test_Call(t *testing.T) {
 		},
 	}
 	runCompilerTests(t, tests)
+}
+
+func Test_ResolveLocal(t *testing.T) {
+	g := NewSymbolTable(nil)
+	g.define("a")
+	g.define("b")
+
+	l := g.newEnclosed()
+	l.define("c")
+	l.define("d")
+
+	wanted := []*Symbol{
+		&Symbol{Name: "a", Scope: ScopeGlobal, Index: 0},
+		&Symbol{Name: "b", Scope: ScopeGlobal, Index: 1},
+		&Symbol{Name: "c", Scope: ScopeLocal, Index: 0},
+		&Symbol{Name: "d", Scope: ScopeLocal, Index: 1},
+	}
+
+	for _, s := range wanted {
+		r, err := l.resolve(s.Name)
+		if nil != err {
+			t.Fatal(err)
+		}
+		if err := r.equal(s); nil != err {
+			t.Fatalf("want %s to resolve to %+v, got %+v, err: %v", s.Name, s, r, err)
+		}
+	}
+}
+
+func Test_ResolveNestedLocal(t *testing.T) {
+	g := NewSymbolTable(nil)
+	g.define("a")
+	g.define("b")
+
+	l := g.newEnclosed()
+	l.define("c")
+	l.define("d")
+
+	ll := l.newEnclosed()
+	ll.define("e")
+	ll.define("f")
+
+	tests := []struct {
+		table SymbolTable
+		want  []*Symbol
+	}{
+		{
+			l,
+			[]*Symbol{
+				&Symbol{Name: "a", Scope: ScopeGlobal, Index: 0},
+				&Symbol{Name: "b", Scope: ScopeGlobal, Index: 1},
+				&Symbol{Name: "c", Scope: ScopeLocal, Index: 0},
+				&Symbol{Name: "d", Scope: ScopeLocal, Index: 1},
+			},
+		},
+		{
+			ll,
+			[]*Symbol{
+				&Symbol{Name: "a", Scope: ScopeGlobal, Index: 0},
+				&Symbol{Name: "b", Scope: ScopeGlobal, Index: 1},
+				&Symbol{Name: "e", Scope: ScopeLocal, Index: 0},
+				&Symbol{Name: "f", Scope: ScopeLocal, Index: 1},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		for _, s := range tt.want {
+			r, err := tt.table.resolve(s.Name)
+			if nil != err {
+				t.Fatal(err)
+			}
+			if err := r.equal(s); nil != err {
+				t.Fatalf("want %s to resolve to %+v, got %+v, err: %v", s.Name, s, r, err)
+			}
+		}
+	}
 }

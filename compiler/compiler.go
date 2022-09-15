@@ -32,7 +32,7 @@ func Make(s SymbolTable, consts object.Objects) Compiler {
 }
 
 func New() Compiler {
-	return Make(NewSymbolTable(), object.Objects{})
+	return Make(NewSymbolTable(nil), object.Objects{})
 }
 
 // compilerImpl : implement Compiler
@@ -51,9 +51,11 @@ func (this *compilerImpl) Bytecode() Bytecode {
 
 func (this *compilerImpl) enterScope() {
 	this.b.enterScope()
+	this.st = this.st.newEnclosed()
 }
 
 func (this *compilerImpl) leaveScope() Bytecode {
+	this.st = this.st.outer()
 	return this.b.leaveScope()
 }
 
