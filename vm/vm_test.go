@@ -275,6 +275,34 @@ func TestCall(t *testing.T) {
 			`,
 			15,
 		},
+		{
+			"case_2",
+			`
+			const f1 = func() { 1 };
+			const f2 = func() { 2 };
+			f1() + f2();
+			`,
+			3,
+		},
+		{
+			"case_3",
+			`
+			const a = func() { 1 };
+			const b = func() { a() + 1 };
+			const c = func() { b() + 1 };
+			c();
+			`,
+			3,
+		},
+		{
+			"case_4",
+			`
+			const f1 = func() { 1 };
+			const f2 = func() { f1 };
+			f2()();
+			`,
+			1,
+		},
 	}
 	runVmTests(t, tests)
 }
