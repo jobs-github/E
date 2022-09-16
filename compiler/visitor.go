@@ -221,11 +221,17 @@ func (this *visitor) DoConditional(v *ast.ConditionalExpr) error {
 
 func (this *visitor) DoFn(v *ast.Function) error {
 	this.c.enterScope()
+
+	for _, a := range v.Args {
+		this.c.define(a.Value)
+	}
+
 	if err := v.Body.Do(newVisitor(this.c, newOptions(optionEncodeReturn))); nil != err {
 		return function.NewError(err)
 	}
+	symbols := this.c.symbols()
 	r := this.c.leaveScope()
-	fn := object.NewByteFunc(r.Instructions(), r.Constants())
+	fn := object.NewByteFunc(r.Instructions(), r.Constants(), symbols)
 	idx := this.c.addConst(fn)
 	if _, err := this.c.encode(code.OpConst, idx); nil != err {
 		return function.NewError(err)
@@ -237,8 +243,12 @@ func (this *visitor) DoCall(v *ast.Call) error {
 	if err := v.Func.Do(this); nil != err {
 		return function.NewError(err)
 	}
-	// TODO: args
-	if _, err := this.c.encode(code.OpCall); nil != err {
+	for _, a := range v.Args {
+		if err := a.Do(this); nil != err {
+			return function.NewError(err)
+		}
+	}
+	if _, err := this.c.encode(code.OpCall, len(v.Args)); nil != err {
 		return function.NewError(err)
 	}
 	return nil

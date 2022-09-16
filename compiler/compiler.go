@@ -22,6 +22,7 @@ type Compiler interface {
 
 	define(key string) *Symbol
 	resolve(key string) (*Symbol, error)
+	symbols() int
 }
 
 func Make(s SymbolTable, consts object.Objects) Compiler {
@@ -97,4 +98,8 @@ func (this *compilerImpl) define(key string) *Symbol {
 
 func (this *compilerImpl) resolve(key string) (*Symbol, error) {
 	return this.st.resolve(key)
+}
+
+func (this *compilerImpl) symbols() int {
+	return this.st.size()
 }

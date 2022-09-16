@@ -27,6 +27,8 @@ const (
 	OpSetGlobal
 	OpGetLocal
 	OpSetLocal
+	OpCall
+	OpReturn
 	OpPop
 	OpTrue
 	OpFalse
@@ -47,8 +49,6 @@ const (
 	OpAnd
 	OpOr
 	OpIndex
-	OpCall
-	OpReturn
 )
 
 var (
@@ -62,6 +62,8 @@ var (
 		OpSetGlobal:     {"OpSetGlobal", []int{2}},
 		OpGetLocal:      {"OpGetLocal", []int{1}},
 		OpSetLocal:      {"OpSetLocal", []int{1}},
+		OpCall:          {"OpCall", []int{1}},
+		OpReturn:        {"OpReturn", []int{}},
 		OpPop:           {"OpPop", []int{}},
 		OpTrue:          {"OpTrue", []int{}},
 		OpFalse:         {"OpFalse", []int{}},
@@ -82,8 +84,6 @@ var (
 		OpAnd:           {"OpAnd", []int{}},
 		OpOr:            {"OpOr", []int{}},
 		OpIndex:         {"OpIndex", []int{}},
-		OpCall:          {"OpCall", []int{}},
-		OpReturn:        {"OpReturn", []int{}},
 	}
 	prefixCodePairs = tokenCodePairs{
 		{token.Not, OpNot},

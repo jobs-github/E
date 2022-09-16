@@ -2,6 +2,7 @@ package vm
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/jobs-github/escript/code"
 	"github.com/jobs-github/escript/compiler"
@@ -56,9 +57,19 @@ func (this *virtualMachine) decodeUint16(ip int, ins code.Instructions) uint16 {
 	return code.DecodeUint16(ins[ip+1:])
 }
 
+func (this *virtualMachine) decodeUint8(ip int, ins code.Instructions) uint8 {
+	return code.DecodeUint8(ins[ip+1:])
+}
+
 func (this *virtualMachine) fetchUint16(ip int, ins code.Instructions) uint16 {
 	v := this.decodeUint16(ip, ins)
 	this.frames.incrby(2)
+	return v
+}
+
+func (this *virtualMachine) fetchUint8(ip int, ins code.Instructions) uint8 {
+	v := this.decodeUint8(ip, ins)
+	this.frames.incr()
 	return v
 }
 
@@ -83,6 +94,47 @@ func (this *virtualMachine) Run() error {
 				idx := this.fetchUint16(ip, ins)
 				// resolve
 				if err := this.push(this.globals[idx]); nil != err {
+					return function.NewError(err)
+				}
+			}
+		case code.OpSetLocal: // pop the stack and fill the hole
+			{
+				localIndex := this.fetchUint8(ip, ins)
+				idx := this.frames.basePointer() + int(localIndex)
+				this.stack[idx] = this.pop()
+			}
+		case code.OpGetLocal:
+			{
+				localIndex := this.fetchUint8(ip, ins)
+				idx := this.frames.basePointer() + int(localIndex)
+				if err := this.push(this.stack[idx]); nil != err {
+					return function.NewError(err)
+				}
+			}
+		case code.OpCall:
+			{
+				args := this.fetchUint8(ip, ins)
+				fn, err := this.stack[this.sp-1-int(args)].AsByteFunc()
+				if nil != err {
+					return function.NewError(err)
+				}
+				if args != uint8(fn.Locals) {
+					err := fmt.Errorf("wrong number of arguments: want=%v, got=%v", fn.Locals, args)
+					return function.NewError(err)
+				}
+				frame := NewFrame(fn, this.sp-int(args))
+				// set env
+				this.frames.push(frame)
+				this.sp = frame.bp + fn.Locals // reserverd for local bindings
+			}
+		case code.OpReturn:
+			{
+				returnValue := this.pop()
+				// recover env
+				frame := this.frames.pop()
+				this.sp = frame.bp - 1 // frame.bp point to the just-executed function on the stack
+
+				if err := this.push(returnValue); nil != err {
 					return function.NewError(err)
 				}
 			}
@@ -185,24 +237,6 @@ func (this *virtualMachine) Run() error {
 				idx := this.pop()
 				left := this.pop()
 				if err := this.doIndex(left, idx); nil != err {
-					return function.NewError(err)
-				}
-			}
-		case code.OpCall:
-			{
-				fn, err := this.top().AsByteFunc()
-				if nil != err {
-					return function.NewError(err)
-				}
-				frame := NewFrame(fn)
-				this.frames.push(frame)
-			}
-		case code.OpReturn:
-			{
-				returnValue := this.pop()
-				this.frames.pop()
-				this.pop()
-				if err := this.push(returnValue); nil != err {
 					return function.NewError(err)
 				}
 			}

@@ -8,16 +8,16 @@ import (
 	"github.com/jobs-github/escript/token"
 )
 
-func NewByteFn(ins code.Instructions, c Objects) *ByteFunc {
-	obj := &ByteFunc{Ins: ins, Consts: c}
+func NewByteFn(ins code.Instructions, c Objects, locals int) *ByteFunc {
+	obj := &ByteFunc{Ins: ins, Consts: c, Locals: locals}
 	obj.fns = objectBuiltins{
 		FnNot: obj.builtinNot,
 	}
 	return obj
 }
 
-func NewByteFunc(ins code.Instructions, c Objects) Object {
-	return NewByteFn(ins, c)
+func NewByteFunc(ins code.Instructions, c Objects, locals int) Object {
+	return NewByteFn(ins, c, locals)
 }
 
 // ByteFunc : implement Object

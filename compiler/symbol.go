@@ -40,12 +40,13 @@ func NewSymbolTable(parent SymbolTable) SymbolTable {
 	return &symbolTable{
 		parent: parent,
 		m:      map[string]*Symbol{},
-		index:  0,
+		sz:     0,
 	}
 }
 
 type SymbolTable interface {
 	newEnclosed() SymbolTable
+	size() int
 	outer() SymbolTable
 	define(key string) *Symbol
 	resolve(key string) (*Symbol, error)
@@ -55,11 +56,15 @@ type SymbolTable interface {
 type symbolTable struct {
 	parent SymbolTable
 	m      map[string]*Symbol
-	index  int
+	sz     int
 }
 
 func (this *symbolTable) newEnclosed() SymbolTable {
 	return NewSymbolTable(this)
+}
+
+func (this *symbolTable) size() int {
+	return this.sz
 }
 
 func (this *symbolTable) outer() SymbolTable {
@@ -67,14 +72,14 @@ func (this *symbolTable) outer() SymbolTable {
 }
 
 func (this *symbolTable) define(key string) *Symbol {
-	s := newSymbol(key, ScopeGlobal, this.index)
+	s := newSymbol(key, ScopeGlobal, this.sz)
 	if nil == this.parent {
 		s.Scope = ScopeGlobal
 	} else {
 		s.Scope = ScopeLocal
 	}
 	this.m[key] = s
-	this.index++
+	this.sz++
 	return s
 }
 

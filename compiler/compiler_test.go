@@ -744,7 +744,7 @@ func Test_Call(t *testing.T) {
 			},
 			[]code.Instructions{
 				newCode(code.OpConst, 0),
-				newCode(code.OpCall),
+				newCode(code.OpCall, 0),
 				newCode(code.OpPop),
 			},
 		},
@@ -761,7 +761,7 @@ func Test_Call(t *testing.T) {
 				newCode(code.OpConst, 0),
 				newCode(code.OpSetGlobal, 0),
 				newCode(code.OpGetGlobal, 0),
-				newCode(code.OpCall),
+				newCode(code.OpCall, 0),
 				newCode(code.OpPop),
 			},
 		},
