@@ -24,6 +24,7 @@ func NewByteFunc(ins code.Instructions, c Objects) Object {
 type ByteFunc struct {
 	Ins    code.Instructions
 	Consts Objects
+	Locals int
 	fns    objectBuiltins
 }
 

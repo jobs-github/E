@@ -303,6 +303,14 @@ func TestCall(t *testing.T) {
 			`,
 			1,
 		},
+		{
+			"case_5",
+			`
+			func add() { 5 + 10 };
+			add();
+			`,
+			15,
+		},
 	}
 	runVmTests(t, tests)
 }

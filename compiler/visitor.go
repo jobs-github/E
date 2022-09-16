@@ -87,6 +87,17 @@ func (this *visitor) doConst(v object.Object) error {
 	return nil
 }
 
+func (this *visitor) doBind(name *ast.Identifier, value ast.Expression) error {
+	if err := value.Do(this); nil != err {
+		return function.NewError(err)
+	}
+	symbol := this.c.define(name.Value)
+	if _, err := this.c.encode(this.opCodeSymbolSet(symbol), symbol.Index); nil != err {
+		return function.NewError(err)
+	}
+	return nil
+}
+
 func (this *visitor) DoProgram(v *ast.Program) error {
 	for _, s := range v.Stmts {
 		if err := s.Do(this); nil != err {
@@ -97,14 +108,7 @@ func (this *visitor) DoProgram(v *ast.Program) error {
 }
 
 func (this *visitor) DoConst(v *ast.ConstStmt) error {
-	if err := v.Value.Do(this); nil != err {
-		return function.NewError(err)
-	}
-	symbol := this.c.define(v.Name.Value)
-	if _, err := this.c.encode(this.opCodeSymbolSet(symbol), symbol.Index); nil != err {
-		return function.NewError(err)
-	}
-	return nil
+	return this.doBind(v.Name, v.Value)
 }
 
 func (this *visitor) DoBlock(v *ast.BlockStmt) error {
@@ -135,8 +139,7 @@ func (this *visitor) DoExpr(v *ast.ExpressionStmt) error {
 }
 
 func (this *visitor) DoFunction(v *ast.FunctionStmt) error {
-	// TODO
-	return function.NewError(errUnsupportedVisitor)
+	return this.doBind(v.Name, v.Value)
 }
 
 func (this *visitor) DoPrefix(v *ast.PrefixExpr) error {
