@@ -231,7 +231,7 @@ func (this *visitor) DoFn(v *ast.Function) error {
 	}
 	symbols := this.c.symbols()
 	r := this.c.leaveScope()
-	fn := object.NewByteFunc(r.Instructions(), r.Constants(), symbols)
+	fn := object.NewByteFunc(r.Instructions(), symbols)
 	idx := this.c.addConst(fn)
 	if _, err := this.c.encode(code.OpConst, idx); nil != err {
 		return function.NewError(err)

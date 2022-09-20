@@ -8,7 +8,7 @@ import (
 
 func NewCallFrame(b compiler.Bytecode, frameSize int) CallFrame {
 	// TODO
-	fn := object.NewByteFn(b.Instructions(), b.Constants(), 0)
+	fn := object.NewByteFn(b.Instructions(), 0)
 	mainFrame := NewFrame(fn, 0)
 	frames := make([]*Frame, frameSize)
 	frames[0] = mainFrame
@@ -34,7 +34,6 @@ type Frame struct {
 
 type CallFrame interface {
 	Instructions() code.Instructions
-	Constants() object.Objects
 	ip() int
 	basePointer() int
 	eof() bool
@@ -54,10 +53,6 @@ type callFrame struct {
 
 func (this *callFrame) Instructions() code.Instructions {
 	return this.current().fn.Ins
-}
-
-func (this *callFrame) Constants() object.Objects {
-	return this.current().fn.Consts
 }
 
 func (this *callFrame) ip() int {

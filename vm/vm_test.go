@@ -142,7 +142,7 @@ func runVmTests(t *testing.T, tests []vmTestCase) {
 			if nil != err {
 				t.Fatal(err)
 			}
-			vm := New(c.Bytecode())
+			vm := New(c.Bytecode(), c.Constants())
 			if err := vm.Run(); nil != err {
 				t.Fatal(err)
 			}

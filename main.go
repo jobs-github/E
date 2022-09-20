@@ -49,7 +49,7 @@ func Start(in io.Reader, out io.Writer) {
 			fmt.Fprintf(out, fmt.Sprintf("compile error: %v", err))
 			continue
 		}
-		machine := vm.Make(c.Bytecode(), globals)
+		machine := vm.Make(c.Bytecode(), c.Constants(), globals)
 		if err := machine.Run(); nil != err {
 			fmt.Fprintf(out, fmt.Sprintf("run vm error: %v\n", err))
 			continue

@@ -2,7 +2,6 @@ package compiler
 
 import (
 	"github.com/jobs-github/escript/code"
-	"github.com/jobs-github/escript/object"
 )
 
 func newScopeBytecode(mainScope Bytecode) Bytecode {
@@ -12,12 +11,11 @@ func newScopeBytecode(mainScope Bytecode) Bytecode {
 	}
 }
 
-func newBytecode(i code.Instructions, c object.Objects) Bytecode {
+func newBytecode(i code.Instructions) Bytecode {
 	return &bytecode{
 		instructions: i,
 		lastIns:      EncodedInstruction{},
 		prevLastIns:  EncodedInstruction{},
-		constants:    c,
 	}
 }
 
@@ -28,14 +26,12 @@ type EncodedInstruction struct {
 
 type Bytecode interface {
 	Instructions() code.Instructions
-	Constants() object.Objects
 	ScopeCode() Bytecode // current
 	Scope() int
 
 	enterScope()
 	leaveScope() Bytecode
 	opCode(pos int) code.Opcode
-	addConst(obj object.Object) int
 	addInstruction(ins []byte) int
 	replaceInstruction(pos int, newInstruction []byte)
 	setLastInstruction(op code.Opcode, pos int)
@@ -48,14 +44,10 @@ type bytecode struct {
 	instructions code.Instructions
 	lastIns      EncodedInstruction
 	prevLastIns  EncodedInstruction
-	constants    object.Objects
 }
 
 func (this *bytecode) Instructions() code.Instructions {
 	return this.instructions
-}
-func (this *bytecode) Constants() object.Objects {
-	return this.constants
 }
 
 func (this *bytecode) ScopeCode() Bytecode  { return nil }
@@ -65,11 +57,6 @@ func (this *bytecode) leaveScope() Bytecode { return nil }
 
 func (this *bytecode) opCode(pos int) code.Opcode {
 	return code.Opcode(this.instructions[pos])
-}
-
-func (this *bytecode) addConst(obj object.Object) int {
-	this.constants = append(this.constants, obj)
-	return len(this.constants) - 1
 }
 
 func (this *bytecode) addInstruction(ins []byte) int {
@@ -120,10 +107,6 @@ func (this *scopeBytecode) Instructions() code.Instructions {
 	return this.scopes[this.scopeIndex].Instructions()
 }
 
-func (this *scopeBytecode) Constants() object.Objects {
-	return this.scopes[this.scopeIndex].Constants()
-}
-
 func (this *scopeBytecode) ScopeCode() Bytecode {
 	return this.scopes[this.scopeIndex]
 }
@@ -133,7 +116,7 @@ func (this *scopeBytecode) Scope() int {
 }
 
 func (this *scopeBytecode) enterScope() {
-	b := newBytecode(code.Instructions{}, object.Objects{})
+	b := newBytecode(code.Instructions{})
 	this.scopes = append(this.scopes, b)
 	this.scopeIndex++
 }
@@ -147,10 +130,6 @@ func (this *scopeBytecode) leaveScope() Bytecode {
 
 func (this *scopeBytecode) opCode(pos int) code.Opcode {
 	return this.ScopeCode().opCode(pos)
-}
-
-func (this *scopeBytecode) addConst(obj object.Object) int {
-	return this.ScopeCode().addConst(obj)
 }
 
 func (this *scopeBytecode) addInstruction(ins []byte) int {

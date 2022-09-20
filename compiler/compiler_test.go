@@ -59,7 +59,7 @@ func runCompilerTests(t *testing.T, tests []compilerTestCase) {
 			if nil != err {
 				t.Fatal(err)
 			}
-			err = testConstants(tt.wantConstants, b.Constants())
+			err = testConstants(tt.wantConstants, cpl.Constants())
 			if nil != err {
 				t.Fatal(err)
 			}
@@ -677,7 +677,8 @@ func Test_Functions(t *testing.T) {
 			"case_2",
 			"func() { 5 + 10 }",
 			[]interface{}{
-				// 5, 10,
+				5,
+				10,
 				[]code.Instructions{
 					newCode(code.OpConst, 0),
 					newCode(code.OpConst, 1),
@@ -686,7 +687,7 @@ func Test_Functions(t *testing.T) {
 				},
 			},
 			[]code.Instructions{
-				newCode(code.OpConst, 0),
+				newCode(code.OpConst, 2),
 				newCode(code.OpPop),
 			},
 		},
@@ -737,13 +738,14 @@ func Test_Call(t *testing.T) {
 			"case_1",
 			"func() { 24 }();",
 			[]interface{}{
+				24,
 				[]code.Instructions{
 					newCode(code.OpConst, 0),
 					newCode(code.OpReturn),
 				},
 			},
 			[]code.Instructions{
-				newCode(code.OpConst, 0),
+				newCode(code.OpConst, 1),
 				newCode(code.OpCall, 0),
 				newCode(code.OpPop),
 			},
@@ -752,13 +754,14 @@ func Test_Call(t *testing.T) {
 			"case_2",
 			"const fn = func() { 24 }; fn();",
 			[]interface{}{
+				24,
 				[]code.Instructions{
 					newCode(code.OpConst, 0),
 					newCode(code.OpReturn),
 				},
 			},
 			[]code.Instructions{
-				newCode(code.OpConst, 0),
+				newCode(code.OpConst, 1),
 				newCode(code.OpSetGlobal, 0),
 				newCode(code.OpGetGlobal, 0),
 				newCode(code.OpCall, 0),

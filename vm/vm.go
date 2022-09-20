@@ -24,18 +24,19 @@ func NewGlobals() object.Objects {
 	return make(object.Objects, GlobalsSize)
 }
 
-func Make(b compiler.Bytecode, globals object.Objects) VM {
+func Make(b compiler.Bytecode, c object.Objects, globals object.Objects) VM {
 	return &virtualMachine{
-		b:       b,
-		stack:   make(object.Objects, StackSize),
-		globals: globals,
-		sp:      0,
-		frames:  NewCallFrame(b, MaxFrames),
+		b:         b,
+		constants: c,
+		stack:     make(object.Objects, StackSize),
+		globals:   globals,
+		sp:        0,
+		frames:    NewCallFrame(b, MaxFrames),
 	}
 }
 
-func New(b compiler.Bytecode) VM {
-	return Make(b, NewGlobals())
+func New(b compiler.Bytecode, c object.Objects) VM {
+	return Make(b, c, NewGlobals())
 }
 
 type VM interface {
@@ -46,11 +47,12 @@ type VM interface {
 
 // virtualMachine : implement VM
 type virtualMachine struct {
-	b       compiler.Bytecode
-	stack   object.Objects
-	globals object.Objects
-	sp      int // top stack [sp - 1]
-	frames  CallFrame
+	b         compiler.Bytecode
+	constants object.Objects
+	stack     object.Objects
+	globals   object.Objects
+	sp        int // top stack [sp - 1]
+	frames    CallFrame
 }
 
 func (this *virtualMachine) decodeUint16(ip int, ins code.Instructions) uint16 {
@@ -81,7 +83,6 @@ func (this *virtualMachine) Run() error {
 		this.frames.incr()
 		ip = this.frames.ip()
 		ins = this.frames.Instructions()
-		consts := this.frames.Constants()
 		op := code.Opcode(ins[ip])
 		switch op {
 		case code.OpSetGlobal:
@@ -156,7 +157,7 @@ func (this *virtualMachine) Run() error {
 		case code.OpConst:
 			{
 				idx := this.fetchUint16(ip, ins)
-				err := this.push(consts[idx])
+				err := this.push(this.constants[idx])
 				if nil != err {
 					return function.NewError(err)
 				}
