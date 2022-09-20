@@ -14,20 +14,20 @@ func newScopeBytecode(mainScope Bytecode) Bytecode {
 func newBytecode(i code.Instructions) Bytecode {
 	return &bytecode{
 		instructions: i,
-		lastIns:      EncodedInstruction{},
-		prevLastIns:  EncodedInstruction{},
+		lastIns:      encodedInstruction{},
+		prevLastIns:  encodedInstruction{},
 	}
 }
 
-type EncodedInstruction struct {
-	Opcode code.Opcode
-	Pos    int
+type encodedInstruction struct {
+	op  code.Opcode
+	pos int
 }
 
 type Bytecode interface {
 	Instructions() code.Instructions
-	ScopeCode() Bytecode // current
-	Scope() int
+	scopeCode() Bytecode // current
+	scope() int
 
 	enterScope()
 	leaveScope() Bytecode
@@ -42,16 +42,16 @@ type Bytecode interface {
 // bytecode : implement Bytecode
 type bytecode struct {
 	instructions code.Instructions
-	lastIns      EncodedInstruction
-	prevLastIns  EncodedInstruction
+	lastIns      encodedInstruction
+	prevLastIns  encodedInstruction
 }
 
 func (this *bytecode) Instructions() code.Instructions {
 	return this.instructions
 }
 
-func (this *bytecode) ScopeCode() Bytecode  { return nil }
-func (this *bytecode) Scope() int           { return -1 }
+func (this *bytecode) scopeCode() Bytecode  { return nil }
+func (this *bytecode) scope() int           { return -1 }
 func (this *bytecode) enterScope()          {}
 func (this *bytecode) leaveScope() Bytecode { return nil }
 
@@ -86,15 +86,15 @@ func (this *bytecode) replaceInstruction(pos int, newInstruction []byte) {
 
 func (this *bytecode) setLastInstruction(op code.Opcode, pos int) {
 	this.prevLastIns = this.lastIns
-	this.lastIns = EncodedInstruction{Opcode: op, Pos: pos}
+	this.lastIns = encodedInstruction{op: op, pos: pos}
 }
 
 func (this *bytecode) lastCode() code.Opcode {
-	return this.lastIns.Opcode
+	return this.lastIns.op
 }
 
 func (this *bytecode) prevLastCode() code.Opcode {
-	return this.prevLastIns.Opcode
+	return this.prevLastIns.op
 }
 
 // scopeBytecode : implement Bytecode
@@ -107,11 +107,11 @@ func (this *scopeBytecode) Instructions() code.Instructions {
 	return this.scopes[this.scopeIndex].Instructions()
 }
 
-func (this *scopeBytecode) ScopeCode() Bytecode {
+func (this *scopeBytecode) scopeCode() Bytecode {
 	return this.scopes[this.scopeIndex]
 }
 
-func (this *scopeBytecode) Scope() int {
+func (this *scopeBytecode) scope() int {
 	return this.scopeIndex
 }
 
@@ -122,18 +122,18 @@ func (this *scopeBytecode) enterScope() {
 }
 
 func (this *scopeBytecode) leaveScope() Bytecode {
-	top := this.ScopeCode()
+	top := this.scopeCode()
 	this.scopes = this.scopes[:len(this.scopes)-1]
 	this.scopeIndex--
 	return top
 }
 
 func (this *scopeBytecode) opCode(pos int) code.Opcode {
-	return this.ScopeCode().opCode(pos)
+	return this.scopeCode().opCode(pos)
 }
 
 func (this *scopeBytecode) addInstruction(ins []byte) int {
-	return this.ScopeCode().addInstruction(ins)
+	return this.scopeCode().addInstruction(ins)
 }
 
 func (this *scopeBytecode) replaceInstruction(pos int, newInstruction []byte) {
@@ -145,9 +145,9 @@ func (this *scopeBytecode) setLastInstruction(op code.Opcode, pos int) {
 }
 
 func (this *scopeBytecode) lastCode() code.Opcode {
-	return this.ScopeCode().lastCode()
+	return this.scopeCode().lastCode()
 }
 
 func (this *scopeBytecode) prevLastCode() code.Opcode {
-	return this.ScopeCode().prevLastCode()
+	return this.scopeCode().prevLastCode()
 }

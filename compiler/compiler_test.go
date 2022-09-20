@@ -698,16 +698,16 @@ func Test_Functions(t *testing.T) {
 func Test_Scopes(t *testing.T) {
 	c := New()
 	b := c.Bytecode()
-	if b.Scope() != 0 {
-		t.Errorf("scope wrong, got: %v, want 0", b.Scope())
+	if b.scope() != 0 {
+		t.Errorf("scope wrong, got: %v, want 0", b.scope())
 	}
 	c.encode(code.OpMul)
 	c.enterScope()
-	if b.Scope() != 1 {
-		t.Errorf("scope wrong, got: %v, want 1", b.Scope())
+	if b.scope() != 1 {
+		t.Errorf("scope wrong, got: %v, want 1", b.scope())
 	}
 	c.encode(code.OpSub)
-	sc := b.ScopeCode()
+	sc := b.scopeCode()
 	if len(sc.Instructions()) != 1 {
 		t.Errorf("instructions len wrong, got: %v, want 1", len(sc.Instructions()))
 	}
@@ -716,11 +716,11 @@ func Test_Scopes(t *testing.T) {
 	}
 
 	c.leaveScope()
-	if b.Scope() != 0 {
-		t.Errorf("scope wrong, got: %v, want 0", b.Scope())
+	if b.scope() != 0 {
+		t.Errorf("scope wrong, got: %v, want 0", b.scope())
 	}
 	c.encode(code.OpAdd)
-	sc2 := b.ScopeCode()
+	sc2 := b.scopeCode()
 	if len(sc2.Instructions()) != 2 {
 		t.Errorf("instructions len wrong, got: %v, want 2", len(sc2.Instructions()))
 	}
