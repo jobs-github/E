@@ -33,7 +33,7 @@ type Frame struct {
 }
 
 type CallFrame interface {
-	Instructions() code.Instructions
+	instructions() code.Instructions
 	ip() int
 	basePointer() int
 	eof() bool
@@ -51,7 +51,7 @@ type callFrame struct {
 	frameIndex int
 }
 
-func (this *callFrame) Instructions() code.Instructions {
+func (this *callFrame) instructions() code.Instructions {
 	return this.current().fn.Ins
 }
 
@@ -64,7 +64,7 @@ func (this *callFrame) basePointer() int {
 }
 
 func (this *callFrame) eof() bool {
-	return this.ip() >= len(this.Instructions())-1
+	return this.ip() >= len(this.instructions())-1
 }
 
 func (this *callFrame) jmp(ip int) {

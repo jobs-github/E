@@ -82,7 +82,7 @@ func (this *virtualMachine) Run() error {
 	for !this.frames.eof() {
 		this.frames.incr()
 		ip = this.frames.ip()
-		ins = this.frames.Instructions()
+		ins = this.frames.instructions()
 		op := code.Opcode(ins[ip])
 		switch op {
 		case code.OpSetGlobal:
