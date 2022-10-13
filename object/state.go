@@ -65,6 +65,10 @@ func (this *State) AsByteFunc() (*ByteFunc, error) {
 	return nil, unsupported(function.GetFunc(), this)
 }
 
+func (this *State) AsClosure() (*Closure, error) {
+	return nil, unsupported(function.GetFunc(), this)
+}
+
 func (this *State) getType() ObjectType {
 	return objectTypeState
 }
@@ -113,6 +117,10 @@ func (this *State) equalByteFunc(other *ByteFunc) error {
 	return unsupported(function.GetFunc(), this)
 }
 
+func (this *State) equalClosure(other *Closure) error {
+	return fmt.Errorf("type mismatch, this: %v, other: %v", Typeof(this), Typeof(other))
+}
+
 func (this *State) equalObjectFunc(other *ObjectFunc) error {
 	return unsupported(function.GetFunc(), this)
 }
@@ -151,6 +159,10 @@ func (this *State) calcFunction(op *token.Token, left *Function) (Object, error)
 
 func (this *State) calcByteFunc(op *token.Token, left *ByteFunc) (Object, error) {
 	return Nil, unsupportedOp(function.GetFunc(), op, this)
+}
+
+func (this *State) calcClosure(op *token.Token, left *Closure) (Object, error) {
+	return notEqual(function.GetFunc(), this, op)
 }
 
 func (this *State) calcObjectFunc(op *token.Token, left *ObjectFunc) (Object, error) {

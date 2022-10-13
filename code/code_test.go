@@ -21,6 +21,7 @@ func TestMake(t *testing.T) {
 	}{
 		{"case_1", OpConst, []int{65534}, Instructions{byte(OpConst), 255, 254}},
 		{"case_2", OpAdd, []int{}, Instructions{byte(OpAdd)}},
+		{"case_3", OpClosure, []int{65534, 255}, Instructions{byte(OpClosure), 255, 254, 255}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -47,10 +48,12 @@ func TestInstructionsString(t *testing.T) {
 		newCode(OpAdd),
 		newCode(OpConst, 2),
 		newCode(OpConst, 65535),
+		newCode(OpClosure, 65535, 255),
 	}
 	want := `0000 OpAdd
 0001 OpConst 2
 0004 OpConst 65535
+0007 OpClosure 65535 255
 `
 	concatted := Instructions{}
 	for _, i := range ins {
@@ -70,6 +73,7 @@ func TestReadOperands(t *testing.T) {
 		readBytes int
 	}{
 		{"case_1", OpConst, []int{65535}, 2},
+		{"case_2", OpClosure, []int{65535, 255}, 3},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

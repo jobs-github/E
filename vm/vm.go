@@ -85,6 +85,16 @@ func (this *virtualMachine) Run() error {
 		ins = this.frames.instructions()
 		op := code.Opcode(ins[ip])
 		switch op {
+		case code.OpClosure:
+			{
+				idx := this.fetchUint16(ip, ins)
+				_ = this.fetchUint8(ip+2, ins)
+				fn, err := this.constants[idx].AsByteFunc()
+				if nil != err {
+					return function.NewError(err)
+				}
+				this.push(object.NewClosure(fn))
+			}
 		case code.OpSetGlobal:
 			{
 				idx := this.fetchUint16(ip, ins)
@@ -115,18 +125,22 @@ func (this *virtualMachine) Run() error {
 		case code.OpCall:
 			{
 				args := this.fetchUint8(ip, ins)
-				fn, err := this.stack[this.sp-1-int(args)].AsByteFunc()
-				if nil != err {
-					return function.NewError(err)
+				obj := this.stack[this.sp-1-int(args)]
+				if object.IsBuiltin(obj) {
+					// TODO
+				} else if object.IsObjectFunc(obj) {
+					// TODO
+				} else if object.IsClosure(obj) {
+					fn, _ := obj.AsClosure()
+					if args != uint8(fn.Fn.Locals) {
+						err := fmt.Errorf("wrong number of arguments: want=%v, got=%v", fn.Fn.Locals, args)
+						return function.NewError(err)
+					}
+					frame := NewFrame(fn, this.sp-int(args))
+					// set env
+					this.frames.push(frame)
+					this.sp = frame.bp + fn.Fn.Locals // reserverd for local bindings
 				}
-				if args != uint8(fn.Locals) {
-					err := fmt.Errorf("wrong number of arguments: want=%v, got=%v", fn.Locals, args)
-					return function.NewError(err)
-				}
-				frame := NewFrame(fn, this.sp-int(args))
-				// set env
-				this.frames.push(frame)
-				this.sp = frame.bp + fn.Locals // reserverd for local bindings
 			}
 		case code.OpReturn:
 			{

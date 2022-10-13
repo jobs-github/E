@@ -18,6 +18,7 @@ type Opcode byte
 
 const (
 	OpUndefined Opcode = iota
+	OpClosure
 	OpConst
 	OpArray
 	OpHash
@@ -53,6 +54,7 @@ const (
 
 var (
 	definitions = map[Opcode]*Definition{
+		OpClosure:       {"OpClosure", []int{2, 1}},
 		OpConst:         {"OpConst", []int{2}},
 		OpArray:         {"OpArray", []int{2}},
 		OpHash:          {"OpHash", []int{2}},
@@ -191,6 +193,8 @@ func (this *Instructions) format(d *Definition, operands []int) string {
 		return d.Name
 	case 1:
 		return fmt.Sprintf("%s %d", d.Name, operands[0])
+	case 2:
+		return fmt.Sprintf("%s %d %d", d.Name, operands[0], operands[1])
 	}
 	return fmt.Sprintf("ERROR: unsupport format for %s\n", d.Name)
 }

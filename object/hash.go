@@ -127,6 +127,10 @@ func (this *Hash) AsByteFunc() (*ByteFunc, error) {
 	return nil, unsupported(function.GetFunc(), this)
 }
 
+func (this *Hash) AsClosure() (*Closure, error) {
+	return nil, unsupported(function.GetFunc(), this)
+}
+
 func (this *Hash) getType() ObjectType {
 	return objectTypeHash
 }
@@ -189,6 +193,10 @@ func (this *Hash) equalByteFunc(other *ByteFunc) error {
 	return fmt.Errorf("type mismatch, this: %v, other: %v", Typeof(this), Typeof(other))
 }
 
+func (this *Hash) equalClosure(other *Closure) error {
+	return fmt.Errorf("type mismatch, this: %v, other: %v", Typeof(this), Typeof(other))
+}
+
 func (this *Hash) equalObjectFunc(other *ObjectFunc) error {
 	return fmt.Errorf("type mismatch, this: %v, other: %v", Typeof(this), Typeof(other))
 }
@@ -226,6 +234,10 @@ func (this *Hash) calcFunction(op *token.Token, left *Function) (Object, error) 
 }
 
 func (this *Hash) calcByteFunc(op *token.Token, left *ByteFunc) (Object, error) {
+	return notEqual(function.GetFunc(), this, op)
+}
+
+func (this *Hash) calcClosure(op *token.Token, left *Closure) (Object, error) {
 	return notEqual(function.GetFunc(), this, op)
 }
 

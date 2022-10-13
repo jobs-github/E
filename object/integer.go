@@ -72,6 +72,10 @@ func (this *Integer) AsByteFunc() (*ByteFunc, error) {
 	return nil, unsupported(function.GetFunc(), this)
 }
 
+func (this *Integer) AsClosure() (*Closure, error) {
+	return nil, unsupported(function.GetFunc(), this)
+}
+
 func (this *Integer) getType() ObjectType {
 	return objectTypeInteger
 }
@@ -120,6 +124,10 @@ func (this *Integer) equalFunction(other *Function) error {
 }
 
 func (this *Integer) equalByteFunc(other *ByteFunc) error {
+	return fmt.Errorf("type mismatch, this: %v, other: %v", Typeof(this), Typeof(other))
+}
+
+func (this *Integer) equalClosure(other *Closure) error {
 	return fmt.Errorf("type mismatch, this: %v, other: %v", Typeof(this), Typeof(other))
 }
 
@@ -189,6 +197,10 @@ func (this *Integer) calcFunction(op *token.Token, left *Function) (Object, erro
 }
 
 func (this *Integer) calcByteFunc(op *token.Token, left *ByteFunc) (Object, error) {
+	return notEqual(function.GetFunc(), this, op)
+}
+
+func (this *Integer) calcClosure(op *token.Token, left *Closure) (Object, error) {
 	return notEqual(function.GetFunc(), this, op)
 }
 

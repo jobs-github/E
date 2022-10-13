@@ -23,6 +23,7 @@ type Object interface {
 	True() bool
 	AsState() (*State, error)
 	AsByteFunc() (*ByteFunc, error)
+	AsClosure() (*Closure, error)
 
 	getType() ObjectType
 	asInteger() (int64, error)
@@ -36,6 +37,7 @@ type Object interface {
 	equalBuiltin(other *Builtin) error
 	equalFunction(other *Function) error
 	equalByteFunc(other *ByteFunc) error
+	equalClosure(other *Closure) error
 	equalObjectFunc(other *ObjectFunc) error
 	// calc
 	calcInteger(op *token.Token, left *Integer) (Object, error)
@@ -47,6 +49,7 @@ type Object interface {
 	calcBuiltin(op *token.Token, left *Builtin) (Object, error)
 	calcFunction(op *token.Token, left *Function) (Object, error)
 	calcByteFunc(op *token.Token, left *ByteFunc) (Object, error)
+	calcClosure(op *token.Token, left *Closure) (Object, error)
 	calcObjectFunc(op *token.Token, left *ObjectFunc) (Object, error)
 }
 

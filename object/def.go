@@ -19,6 +19,7 @@ const (
 	objectTypeNull
 	objectTypeFunction
 	objectTypeByteFunc
+	objectTypeClosure
 	objectTypeArray
 	objectTypeHash
 	objectTypeObjectFunc
@@ -71,6 +72,7 @@ var (
 		objectTypeNull:       token.Null,
 		objectTypeFunction:   "function",
 		objectTypeByteFunc:   "byte_func",
+		objectTypeClosure:    "closure",
 		objectTypeArray:      TypeArray,
 		objectTypeHash:       TypeHash,
 		objectTypeObjectFunc: "object_func",
@@ -90,8 +92,25 @@ func IsInteger(v Object) bool {
 	return v.getType() == objectTypeInteger
 }
 
+func IsBuiltin(v Object) bool {
+	return v.getType() == objectTypeBuiltin
+}
+
+func IsObjectFunc(v Object) bool {
+	return v.getType() == objectTypeObjectFunc
+}
+
+func IsClosure(v Object) bool {
+	return v.getType() == objectTypeClosure
+}
+
 func Callable(v Object) bool {
-	return v.getType() == objectTypeFunction || v.getType() == objectTypeByteFunc
+	t := v.getType()
+	return t == objectTypeFunction ||
+		t == objectTypeObjectFunc ||
+		t == objectTypeByteFunc ||
+		t == objectTypeClosure ||
+		t == objectTypeBuiltin
 }
 
 func Typeof(v Object) string {
