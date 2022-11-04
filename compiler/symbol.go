@@ -7,6 +7,7 @@ type SymbolScope uint
 const (
 	ScopeGlobal SymbolScope = iota
 	ScopeLocal
+	ScopeFree
 )
 
 type Symbol struct {
@@ -36,11 +37,14 @@ func newSymbol(name string, scope SymbolScope, index int) *Symbol {
 	}
 }
 
+type Symbols []*Symbol
+
 func NewSymbolTable(parent SymbolTable) SymbolTable {
 	return &symbolTable{
-		parent: parent,
-		m:      map[string]*Symbol{},
-		sz:     0,
+		parent:      parent,
+		m:           map[string]*Symbol{},
+		sz:          0,
+		freeSymbols: Symbols{},
 	}
 }
 
@@ -50,13 +54,16 @@ type SymbolTable interface {
 	outer() SymbolTable
 	define(key string) *Symbol
 	resolve(key string) (*Symbol, error)
+	free() Symbols
+	defineFree(s *Symbol) *Symbol
 }
 
 // symbolTable : implement SymbolTable
 type symbolTable struct {
-	parent SymbolTable
-	m      map[string]*Symbol
-	sz     int
+	parent      SymbolTable
+	m           map[string]*Symbol
+	sz          int
+	freeSymbols Symbols
 }
 
 func (this *symbolTable) newEnclosed() SymbolTable {
@@ -93,4 +100,16 @@ func (this *symbolTable) resolve(key string) (*Symbol, error) {
 		}
 	}
 	return v, nil
+}
+
+func (this *symbolTable) free() Symbols {
+	return this.freeSymbols
+}
+
+func (this *symbolTable) defineFree(s *Symbol) *Symbol {
+	idx := len(this.freeSymbols)
+	this.freeSymbols = append(this.freeSymbols, s)
+	symbol := newSymbol(s.Name, ScopeFree, idx)
+	this.m[s.Name] = symbol
+	return symbol
 }
