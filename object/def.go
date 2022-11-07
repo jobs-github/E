@@ -244,14 +244,14 @@ func keyofHash(m HashMap, key Object) (Object, error) {
 	return v.Value, nil
 }
 
-func notEqual(entry string, obj Object, op *token.Token) (Object, error) {
+func notEqual(op *token.Token) (Object, error) {
 	switch op.Type {
 	case token.EQ:
 		return ToBoolean(false), nil
 	case token.NEQ:
 		return ToBoolean(true), nil
 	default:
-		return Nil, unsupportedOp(function.GetFunc(), op, obj)
+		return Nil, errInvalidOperation
 	}
 }
 

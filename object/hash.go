@@ -60,6 +60,7 @@ func NewHash(pairs HashMap) Object {
 
 // Hash : implement Object
 type Hash struct {
+	defaultObject
 	Pairs HashMap
 	fns   objectBuiltins
 }
@@ -103,10 +104,6 @@ func (this *Hash) Calc(op *token.Token, right Object) (Object, error) {
 	return right.calcHash(op, this)
 }
 
-func (this *Hash) Call(args Objects) (Object, error) {
-	return Nil, unsupported(function.GetFunc(), this)
-}
-
 func (this *Hash) CallMember(name string, args Objects) (Object, error) {
 	return callMember(this, this.fns, name, args)
 }
@@ -115,52 +112,12 @@ func (this *Hash) GetMember(name string) (Object, error) {
 	return getMember(this, this.fns, name)
 }
 
-func (this *Hash) True() bool {
-	return false
-}
-
-func (this *Hash) AsState() (*State, error) {
-	return nil, unsupported(function.GetFunc(), this)
-}
-
-func (this *Hash) AsByteFunc() (*ByteFunc, error) {
-	return nil, unsupported(function.GetFunc(), this)
-}
-
-func (this *Hash) AsClosure() (*Closure, error) {
-	return nil, unsupported(function.GetFunc(), this)
-}
-
 func (this *Hash) getType() ObjectType {
 	return objectTypeHash
 }
 
-func (this *Hash) asInteger() (int64, error) {
-	return 0, unsupported(function.GetFunc(), this)
-}
-
 func (this *Hash) equal(other Object) error {
 	return other.equalHash(this)
-}
-
-func (this *Hash) equalInteger(other *Integer) error {
-	return fmt.Errorf("type mismatch, this: %v, other: %v", Typeof(this), Typeof(other))
-}
-
-func (this *Hash) equalString(other *String) error {
-	return fmt.Errorf("type mismatch, this: %v, other: %v", Typeof(this), Typeof(other))
-}
-
-func (this *Hash) equalBoolean(other *Boolean) error {
-	return fmt.Errorf("type mismatch, this: %v, other: %v", Typeof(this), Typeof(other))
-}
-
-func (this *Hash) equalNull(other *Null) error {
-	return fmt.Errorf("type mismatch, this: %v, other: %v", Typeof(this), Typeof(other))
-}
-
-func (this *Hash) equalArray(other *Array) error {
-	return fmt.Errorf("type mismatch, this: %v, other: %v", Typeof(this), Typeof(other))
 }
 
 func (this *Hash) equalHash(other *Hash) error {
@@ -181,68 +138,8 @@ func (this *Hash) equalHash(other *Hash) error {
 	return nil
 }
 
-func (this *Hash) equalBuiltin(other *Builtin) error {
-	return fmt.Errorf("type mismatch, this: %v, other: %v", Typeof(this), Typeof(other))
-}
-
-func (this *Hash) equalFunction(other *Function) error {
-	return fmt.Errorf("type mismatch, this: %v, other: %v", Typeof(this), Typeof(other))
-}
-
-func (this *Hash) equalByteFunc(other *ByteFunc) error {
-	return fmt.Errorf("type mismatch, this: %v, other: %v", Typeof(this), Typeof(other))
-}
-
-func (this *Hash) equalClosure(other *Closure) error {
-	return fmt.Errorf("type mismatch, this: %v, other: %v", Typeof(this), Typeof(other))
-}
-
-func (this *Hash) equalObjectFunc(other *ObjectFunc) error {
-	return fmt.Errorf("type mismatch, this: %v, other: %v", Typeof(this), Typeof(other))
-}
-
-func (this *Hash) calcInteger(op *token.Token, left *Integer) (Object, error) {
-	return notEqual(function.GetFunc(), this, op)
-}
-
-func (this *Hash) calcString(op *token.Token, left *String) (Object, error) {
-	return notEqual(function.GetFunc(), this, op)
-}
-
-func (this *Hash) calcBoolean(op *token.Token, left *Boolean) (Object, error) {
-	return notEqual(function.GetFunc(), this, op)
-}
-
-func (this *Hash) calcNull(op *token.Token, left *Null) (Object, error) {
-	return notEqual(function.GetFunc(), this, op)
-}
-
-func (this *Hash) calcArray(op *token.Token, left *Array) (Object, error) {
-	return notEqual(function.GetFunc(), this, op)
-}
-
 func (this *Hash) calcHash(op *token.Token, left *Hash) (Object, error) {
 	return compare(function.GetFunc(), this, left, op)
-}
-
-func (this *Hash) calcBuiltin(op *token.Token, left *Builtin) (Object, error) {
-	return notEqual(function.GetFunc(), this, op)
-}
-
-func (this *Hash) calcFunction(op *token.Token, left *Function) (Object, error) {
-	return notEqual(function.GetFunc(), this, op)
-}
-
-func (this *Hash) calcByteFunc(op *token.Token, left *ByteFunc) (Object, error) {
-	return notEqual(function.GetFunc(), this, op)
-}
-
-func (this *Hash) calcClosure(op *token.Token, left *Closure) (Object, error) {
-	return notEqual(function.GetFunc(), this, op)
-}
-
-func (this *Hash) calcObjectFunc(op *token.Token, left *ObjectFunc) (Object, error) {
-	return notEqual(function.GetFunc(), this, op)
 }
 
 // builtin

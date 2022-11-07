@@ -17,15 +17,12 @@ func newNull() *Null {
 
 // Null : implement Object
 type Null struct {
+	defaultObject
 	fns objectBuiltins
 }
 
 func (this *Null) String() string {
 	return toString(objectTypeNull)
-}
-
-func (this *Null) Hash() (*HashKey, error) {
-	return nil, unsupported(function.GetFunc(), this)
 }
 
 func (this *Null) Dump() (interface{}, error) {
@@ -36,10 +33,6 @@ func (this *Null) Calc(op *token.Token, right Object) (Object, error) {
 	return right.calcNull(op, this)
 }
 
-func (this *Null) Call(args Objects) (Object, error) {
-	return Nil, unsupported(function.GetFunc(), this)
-}
-
 func (this *Null) CallMember(name string, args Objects) (Object, error) {
 	return callMember(this, this.fns, name, args)
 }
@@ -48,76 +41,20 @@ func (this *Null) GetMember(name string) (Object, error) {
 	return getMember(this, this.fns, name)
 }
 
-func (this *Null) True() bool {
-	return false
-}
-
-func (this *Null) AsState() (*State, error) {
-	return nil, unsupported(function.GetFunc(), this)
-}
-
-func (this *Null) AsByteFunc() (*ByteFunc, error) {
-	return nil, unsupported(function.GetFunc(), this)
-}
-
-func (this *Null) AsClosure() (*Closure, error) {
-	return nil, unsupported(function.GetFunc(), this)
-}
-
 func (this *Null) getType() ObjectType {
 	return objectTypeNull
-}
-
-func (this *Null) asInteger() (int64, error) {
-	return 0, unsupported(function.GetFunc(), this)
 }
 
 func (this *Null) equal(other Object) error {
 	return other.equalNull(this)
 }
 
-func (this *Null) equalInteger(other *Integer) error {
-	return fmt.Errorf("type mismatch, this: %v, other: %v", Typeof(this), Typeof(other))
-}
-
 func (this *Null) equalString(other *String) error {
-	return fmt.Errorf("type mismatch, this: %v, other: %v", Typeof(this), Typeof(other))
-}
-
-func (this *Null) equalBoolean(other *Boolean) error {
 	return fmt.Errorf("type mismatch, this: %v, other: %v", Typeof(this), Typeof(other))
 }
 
 func (this *Null) equalNull(other *Null) error {
 	return nil
-}
-
-func (this *Null) equalArray(other *Array) error {
-	return fmt.Errorf("type mismatch, this: %v, other: %v", Typeof(this), Typeof(other))
-}
-
-func (this *Null) equalHash(other *Hash) error {
-	return fmt.Errorf("type mismatch, this: %v, other: %v", Typeof(this), Typeof(other))
-}
-
-func (this *Null) equalBuiltin(other *Builtin) error {
-	return fmt.Errorf("type mismatch, this: %v, other: %v", Typeof(this), Typeof(other))
-}
-
-func (this *Null) equalFunction(other *Function) error {
-	return fmt.Errorf("type mismatch, this: %v, other: %v", Typeof(this), Typeof(other))
-}
-
-func (this *Null) equalByteFunc(other *ByteFunc) error {
-	return fmt.Errorf("type mismatch, this: %v, other: %v", Typeof(this), Typeof(other))
-}
-
-func (this *Null) equalClosure(other *Closure) error {
-	return fmt.Errorf("type mismatch, this: %v, other: %v", Typeof(this), Typeof(other))
-}
-
-func (this *Null) equalObjectFunc(other *ObjectFunc) error {
-	return fmt.Errorf("type mismatch, this: %v, other: %v", Typeof(this), Typeof(other))
 }
 
 func (this *Null) andInteger(left *Integer) Object {
@@ -171,10 +108,6 @@ func (this *Null) calcInteger(op *token.Token, left *Integer) (Object, error) {
 	}
 }
 
-func (this *Null) calcString(op *token.Token, left *String) (Object, error) {
-	return notEqual(function.GetFunc(), this, op)
-}
-
 func (this *Null) calcBoolean(op *token.Token, left *Boolean) (Object, error) {
 	switch op.Type {
 	case token.AND:
@@ -207,34 +140,6 @@ func (this *Null) calcNull(op *token.Token, left *Null) (Object, error) {
 	default:
 		return Nil, unsupportedOp(function.GetFunc(), op, this)
 	}
-}
-
-func (this *Null) calcArray(op *token.Token, left *Array) (Object, error) {
-	return notEqual(function.GetFunc(), this, op)
-}
-
-func (this *Null) calcHash(op *token.Token, left *Hash) (Object, error) {
-	return notEqual(function.GetFunc(), this, op)
-}
-
-func (this *Null) calcBuiltin(op *token.Token, left *Builtin) (Object, error) {
-	return notEqual(function.GetFunc(), this, op)
-}
-
-func (this *Null) calcFunction(op *token.Token, left *Function) (Object, error) {
-	return notEqual(function.GetFunc(), this, op)
-}
-
-func (this *Null) calcByteFunc(op *token.Token, left *ByteFunc) (Object, error) {
-	return notEqual(function.GetFunc(), this, op)
-}
-
-func (this *Null) calcClosure(op *token.Token, left *Closure) (Object, error) {
-	return notEqual(function.GetFunc(), this, op)
-}
-
-func (this *Null) calcObjectFunc(op *token.Token, left *ObjectFunc) (Object, error) {
-	return notEqual(function.GetFunc(), this, op)
 }
 
 // builtin
