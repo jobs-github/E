@@ -26,6 +26,12 @@ func (this *BuiltinSlice) newMap() map[string]object.Object {
 	return m
 }
 
+func (this *BuiltinSlice) traverse(cb func(i int, name string)) {
+	for i, v := range *this {
+		cb(i, v.name)
+	}
+}
+
 var (
 	builtinslice = BuiltinSlice{
 		newBuiltin(object.FnLen, builtinLen),
@@ -55,4 +61,12 @@ func Get(key string) object.Object {
 	} else {
 		return nil
 	}
+}
+
+func GetFn(idx int) object.Object {
+	return builtinslice[idx].fn
+}
+
+func Traverse(cb func(i int, name string)) {
+	builtinslice.traverse(cb)
 }

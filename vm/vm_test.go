@@ -322,3 +322,19 @@ func TestCall(t *testing.T) {
 	}
 	runVmTests(t, tests)
 }
+
+func TestBuiltinFunctions(t *testing.T) {
+	tests := []vmTestCase{
+		{
+			"case_1",
+			`type(123);`,
+			"integer",
+		},
+		{
+			"case_2",
+			`str(123);`,
+			"123",
+		},
+	}
+	runVmTests(t, tests)
+}

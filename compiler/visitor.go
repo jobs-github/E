@@ -63,9 +63,12 @@ func (this *visitor) opCodeSymbolSet(s *Symbol) code.Opcode {
 	}
 }
 
+// loadSymbol
 func (this *visitor) opCodeSymbolGet(s *Symbol) code.Opcode {
 	if s.Scope == ScopeGlobal {
 		return code.OpGetGlobal
+	} else if s.Scope == ScopeBuiltin {
+		return code.OpGetBuiltin
 	} else {
 		return code.OpGetLocal
 	}

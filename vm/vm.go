@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/jobs-github/escript/builtin"
 	"github.com/jobs-github/escript/code"
 	"github.com/jobs-github/escript/compiler"
 	"github.com/jobs-github/escript/function"
@@ -85,15 +86,25 @@ func (this *virtualMachine) Run() error {
 		ins = this.frames.instructions()
 		op := code.Opcode(ins[ip])
 		switch op {
+		case code.OpGetBuiltin:
+			{
+				idx := this.fetchUint8(ip, ins)
+				builtinFn := builtin.GetFn(int(idx))
+				if err := this.push(builtinFn); nil != err {
+					return err
+				}
+			}
 		case code.OpClosure:
 			{
 				idx := this.fetchUint16(ip, ins)
 				_ = this.fetchUint8(ip+2, ins)
 				fn, err := this.constants[idx].AsByteFunc()
 				if nil != err {
-					return function.NewError(err)
+					return err
 				}
-				this.push(object.NewClosure(fn))
+				if err := this.push(object.NewClosure(fn)); nil != err {
+					return err
+				}
 			}
 		case code.OpSetGlobal:
 			{
@@ -105,7 +116,7 @@ func (this *virtualMachine) Run() error {
 				idx := this.fetchUint16(ip, ins)
 				// resolve
 				if err := this.push(this.globals[idx]); nil != err {
-					return function.NewError(err)
+					return err
 				}
 			}
 		case code.OpSetLocal: // pop the stack and fill the hole
@@ -119,7 +130,7 @@ func (this *virtualMachine) Run() error {
 				localIndex := this.fetchUint8(ip, ins)
 				idx := this.frames.basePointer() + int(localIndex)
 				if err := this.push(this.stack[idx]); nil != err {
-					return function.NewError(err)
+					return err
 				}
 			}
 		case code.OpCall:
@@ -127,14 +138,22 @@ func (this *virtualMachine) Run() error {
 				args := this.fetchUint8(ip, ins)
 				obj := this.stack[this.sp-1-int(args)]
 				if object.IsBuiltin(obj) {
-					// TODO
+					arguments := this.stack[this.sp-int(args) : this.sp]
+					r, err := obj.Call(arguments)
+					if nil != err {
+						return err
+					}
+					this.sp = this.sp - int(args) - 1
+					if err := this.push(r); nil != err {
+						return err
+					}
 				} else if object.IsObjectFunc(obj) {
 					// TODO
 				} else if object.IsClosure(obj) {
 					fn, _ := obj.AsClosure()
 					if args != uint8(fn.Fn.Locals) {
 						err := fmt.Errorf("wrong number of arguments: want=%v, got=%v", fn.Fn.Locals, args)
-						return function.NewError(err)
+						return err
 					}
 					frame := NewFrame(fn, this.sp-int(args))
 					// set env
@@ -150,7 +169,7 @@ func (this *virtualMachine) Run() error {
 				this.sp = frame.bp - 1 // frame.bp point to the just-executed function on the stack
 
 				if err := this.push(returnValue); nil != err {
-					return function.NewError(err)
+					return err
 				}
 			}
 		case code.OpJump:
@@ -173,7 +192,7 @@ func (this *virtualMachine) Run() error {
 				idx := this.fetchUint16(ip, ins)
 				err := this.push(this.constants[idx])
 				if nil != err {
-					return function.NewError(err)
+					return err
 				}
 			}
 		case code.OpArray:
@@ -181,7 +200,7 @@ func (this *virtualMachine) Run() error {
 				sz := int(this.fetchUint16(ip, ins))
 				arr := this.doArray(sz)
 				if err := this.push(arr); nil != err {
-					return function.NewError(err)
+					return err
 				}
 			}
 		case code.OpHash:
@@ -189,10 +208,10 @@ func (this *virtualMachine) Run() error {
 				sz := int(this.fetchUint16(ip, ins))
 				h, err := this.doHash(sz)
 				if nil != err {
-					return function.NewError(err)
+					return err
 				}
 				if err := this.push(h); nil != err {
-					return function.NewError(err)
+					return err
 				}
 			}
 		case code.OpPop:
@@ -202,31 +221,31 @@ func (this *virtualMachine) Run() error {
 		case code.OpTrue:
 			{
 				if err := this.push(object.True); nil != err {
-					return function.NewError(err)
+					return err
 				}
 			}
 		case code.OpFalse:
 			{
 				if err := this.push(object.False); nil != err {
-					return function.NewError(err)
+					return err
 				}
 			}
 		case code.OpNull:
 			{
 				if err := this.push(object.Nil); nil != err {
-					return function.NewError(err)
+					return err
 				}
 			}
 		case code.OpNot:
 			{
 				if err := this.doPrefix(object.FnNot); nil != err {
-					return function.NewError(err)
+					return err
 				}
 			}
 		case code.OpNeg:
 			{
 				if err := this.doPrefix(object.FnNeg); nil != err {
-					return function.NewError(err)
+					return err
 				}
 			}
 		case code.OpAdd,
@@ -244,7 +263,7 @@ func (this *virtualMachine) Run() error {
 			code.OpOr:
 			{
 				if err := this.doInfix(op); nil != err {
-					return function.NewError(err)
+					return err
 				}
 			}
 		case code.OpIndex:
@@ -252,7 +271,7 @@ func (this *virtualMachine) Run() error {
 				idx := this.pop()
 				left := this.pop()
 				if err := this.doIndex(left, idx); nil != err {
-					return function.NewError(err)
+					return err
 				}
 			}
 		}
@@ -270,7 +289,7 @@ func (this *virtualMachine) doHash(sz int) (object.Object, error) {
 
 		key, err := k.Hash()
 		if nil != err {
-			return nil, function.NewError(err)
+			return nil, err
 		}
 		h[*key] = &pair
 	}
@@ -288,7 +307,7 @@ func (this *virtualMachine) doArray(sz int) object.Object {
 func (this *virtualMachine) doPrefix(fn string) error {
 	right := this.pop()
 	if r, err := right.CallMember(fn, object.Objects{}); nil != err {
-		return function.NewError(err)
+		return err
 	} else {
 		return this.push(r)
 	}
@@ -296,7 +315,7 @@ func (this *virtualMachine) doPrefix(fn string) error {
 
 func (this *virtualMachine) doIndex(left object.Object, idx object.Object) error {
 	if r, err := left.CallMember(object.FnIndex, object.Objects{idx}); nil != err {
-		return function.NewError(err)
+		return err
 	} else {
 		this.push(r)
 		return nil
@@ -306,13 +325,13 @@ func (this *virtualMachine) doIndex(left object.Object, idx object.Object) error
 func (this *virtualMachine) doInfix(op code.Opcode) error {
 	t, err := code.InfixToken(op)
 	if nil != err {
-		return function.NewError(err)
+		return err
 	}
 	right := this.pop()
 	left := this.pop()
 	r, err := left.Calc(t, right)
 	if nil != err {
-		return function.NewError(err)
+		return err
 	}
 	this.push(r)
 	return nil

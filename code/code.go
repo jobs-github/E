@@ -26,6 +26,7 @@ const (
 	OpJump
 	OpGetGlobal
 	OpSetGlobal
+	OpGetBuiltin
 	OpGetLocal
 	OpSetLocal
 	OpCall
@@ -63,6 +64,7 @@ var (
 		OpJump:          {"OpJump", []int{2}},
 		OpGetGlobal:     {"OpGetGlobal", []int{2}},
 		OpSetGlobal:     {"OpSetGlobal", []int{2}},
+		OpGetBuiltin:    {"OpGetBuiltin", []int{1}},
 		OpGetLocal:      {"OpGetLocal", []int{1}},
 		OpSetLocal:      {"OpSetLocal", []int{1}},
 		OpCall:          {"OpCall", []int{1}},
