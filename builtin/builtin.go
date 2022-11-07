@@ -13,7 +13,6 @@ var builtins = map[string]object.Object{
 	"println":    object.NewBuiltin(builtinPrintln, "println"),
 	"printf":     object.NewBuiltin(builtinPrintf, "printf"),
 	"sprintf":    object.NewBuiltin(builtinSprintf, "sprintf"),
-	"getenv":     object.NewBuiltin(builtinGetenv, "getenv"),
 	"loads":      object.NewBuiltin(builtinLoads, "loads"),
 	"dumps":      object.NewBuiltin(builtinDumps, "dumps"),
 	"for":        object.NewBuiltin(builtinFor, "for"),
