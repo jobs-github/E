@@ -19,10 +19,10 @@ func NewArray(items Objects) Object {
 		FnMap:    obj.builtinMap,
 		FnReduce: obj.builtinReduce,
 		FnFilter: obj.builtinFilter,
-		"first":  obj.builtinFirst,
-		"last":   obj.builtinLast,
-		"tail":   obj.builtinTail,
-		"push":   obj.builtinPush,
+		FnFirst:  obj.builtinFirst,
+		FnLast:   obj.builtinLast,
+		FnTail:   obj.builtinTail,
+		FnPush:   obj.builtinPush,
 	}
 	return obj
 }

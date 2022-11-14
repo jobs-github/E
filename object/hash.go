@@ -53,7 +53,7 @@ func NewHash(pairs HashMap) Object {
 		FnMap:    obj.builtinMap,
 		FnReduce: obj.builtinReduce,
 		FnFilter: obj.builtinFilter,
-		"keys":   obj.builtinKeys,
+		FnKeys:   obj.builtinKeys,
 	}
 	return obj
 }

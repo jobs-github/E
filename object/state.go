@@ -10,7 +10,7 @@ func NewState(quit bool, v Object) *State {
 		Value: v,
 	}
 	obj.fns = objectBuiltins{
-		"value": obj.builtinValue,
+		FnValue: obj.builtinValue,
 	}
 	return obj
 }

@@ -48,6 +48,12 @@ const (
 	FnMap    = "map"
 	FnReduce = "reduce"
 	FnFilter = "filter"
+	FnFirst  = "first"
+	FnLast   = "last"
+	FnTail   = "tail"
+	FnPush   = "push"
+	FnKeys   = "keys"
+	FnValue  = "value"
 )
 
 var (
