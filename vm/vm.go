@@ -89,7 +89,7 @@ func (this *virtualMachine) Run() error {
 		case code.OpGetBuiltin:
 			{
 				idx := this.fetchUint8(ip, ins)
-				builtinFn := builtin.GetFn(int(idx))
+				builtinFn := builtin.Resolve(int(idx))
 				if err := this.push(builtinFn); nil != err {
 					return err
 				}

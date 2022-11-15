@@ -4,21 +4,21 @@ import (
 	"github.com/jobs-github/escript/object"
 )
 
-type Builtin struct {
+type symbol struct {
 	name string
 	fn   object.Object
 }
 
-func newBuiltin(name string, fn object.BuiltinFunction) *Builtin {
-	return &Builtin{
+func newSymbol(name string, fn object.BuiltinFunction) *symbol {
+	return &symbol{
 		name: name,
 		fn:   object.NewBuiltin(fn, name),
 	}
 }
 
-type BuiltinSlice []*Builtin
+type symbolTable []*symbol
 
-func (this *BuiltinSlice) newMap() map[string]object.Object {
+func (this *symbolTable) newMap() map[string]object.Object {
 	m := map[string]object.Object{}
 	for _, v := range *this {
 		m[v.name] = v.fn
@@ -26,28 +26,28 @@ func (this *BuiltinSlice) newMap() map[string]object.Object {
 	return m
 }
 
-func (this *BuiltinSlice) traverse(cb func(i int, name string)) {
+func (this *symbolTable) traverse(cb func(i int, name string)) {
 	for i, v := range *this {
 		cb(i, v.name)
 	}
 }
 
 var (
-	builtinslice = BuiltinSlice{
-		newBuiltin(object.FnLen, builtinLen),
-		newBuiltin("type", builtinType),
-		newBuiltin("str", builtinStr),
-		newBuiltin("int", builtinInt),
-		newBuiltin("print", builtinPrint),
-		newBuiltin("println", builtinPrintln),
-		newBuiltin("printf", builtinPrintf),
-		newBuiltin("sprintf", builtinSprintf),
-		newBuiltin("loads", builtinLoads),
-		newBuiltin("dumps", builtinDumps),
-		newBuiltin("for", builtinFor),
-		newBuiltin("state", builtinState),
+	builtinSymbolTable = symbolTable{
+		newSymbol(object.FnLen, builtinLen),
+		newSymbol("type", builtinType),
+		newSymbol("str", builtinStr),
+		newSymbol("int", builtinInt),
+		newSymbol("print", builtinPrint),
+		newSymbol("println", builtinPrintln),
+		newSymbol("printf", builtinPrintf),
+		newSymbol("sprintf", builtinSprintf),
+		newSymbol("loads", builtinLoads),
+		newSymbol("dumps", builtinDumps),
+		newSymbol("for", builtinFor),
+		newSymbol("state", builtinState),
 	}
-	builtins = builtinslice.newMap()
+	builtins = builtinSymbolTable.newMap()
 )
 
 func IsBuiltin(key string) bool {
@@ -63,10 +63,10 @@ func Get(key string) object.Object {
 	}
 }
 
-func GetFn(idx int) object.Object {
-	return builtinslice[idx].fn
+func Resolve(idx int) object.Object {
+	return builtinSymbolTable[idx].fn
 }
 
 func Traverse(cb func(i int, name string)) {
-	builtinslice.traverse(cb)
+	builtinSymbolTable.traverse(cb)
 }
