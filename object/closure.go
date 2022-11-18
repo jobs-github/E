@@ -20,7 +20,6 @@ type Closure struct {
 	defaultObject
 	Fn   *ByteFunc
 	Free Objects
-	fns  objectBuiltins
 }
 
 func (this *Closure) String() string {

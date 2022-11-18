@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/jobs-github/escript/builtin"
+	"github.com/jobs-github/escript/object"
 )
 
 type SymbolScope uint
@@ -12,6 +13,7 @@ const (
 	ScopeGlobal SymbolScope = iota
 	ScopeLocal
 	ScopeBuiltin
+	ScopeObjectFn
 	ScopeFree
 )
 
@@ -54,6 +56,9 @@ func NewSymbolTable(parent SymbolTable) SymbolTable {
 	builtin.Traverse(func(i int, name string) {
 		s.defineBuiltin(i, name)
 	})
+	object.Traverse(func(i int, name string) {
+		s.defineObjectFn(i, name)
+	})
 	return s
 }
 
@@ -63,6 +68,7 @@ type SymbolTable interface {
 	outer() SymbolTable
 	define(key string) *Symbol
 	defineBuiltin(index int, name string) *Symbol
+	defineObjectFn(index int, name string) *Symbol
 	resolve(key string) (*Symbol, error)
 	free() Symbols
 	defineFree(s *Symbol) *Symbol
@@ -102,6 +108,12 @@ func (this *symbolTable) define(key string) *Symbol {
 
 func (this *symbolTable) defineBuiltin(index int, name string) *Symbol {
 	s := newSymbol(name, ScopeBuiltin, index)
+	this.m[name] = s
+	return s
+}
+
+func (this *symbolTable) defineObjectFn(index int, name string) *Symbol {
+	s := newSymbol(name, ScopeObjectFn, index)
 	this.m[name] = s
 	return s
 }

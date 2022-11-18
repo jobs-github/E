@@ -27,7 +27,6 @@ func NewInteger(v int64) Object {
 type Integer struct {
 	defaultObject
 	Value int64
-	fns   objectBuiltins
 }
 
 func (this *Integer) String() string {

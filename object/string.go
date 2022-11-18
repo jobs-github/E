@@ -25,7 +25,6 @@ func NewString(v string) Object {
 type String struct {
 	defaultObject
 	Value string
-	fns   objectBuiltins
 }
 
 func (this *String) String() string {

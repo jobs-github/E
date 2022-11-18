@@ -33,7 +33,9 @@ var (
 	errTypeIsNotInt      = errors.New("type is not Integer")
 )
 
-type defaultObject struct{}
+type defaultObject struct {
+	fns objectBuiltins
+}
 
 func (this *defaultObject) Hash() (*HashKey, error) {
 	return nil, errNotSupportHash

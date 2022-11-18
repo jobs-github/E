@@ -25,7 +25,6 @@ type ObjectFunc struct {
 	Obj  Object
 	Name string
 	Fn   objectFn
-	fns  objectBuiltins
 }
 
 func (this *ObjectFunc) String() string {

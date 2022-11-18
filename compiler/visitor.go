@@ -47,6 +47,10 @@ type visitor struct {
 	o *options
 }
 
+func (this *visitor) enclosed(op doOption) ast.Visitor {
+	return newVisitor(this.c, newOptions(op))
+}
+
 func (this *visitor) optionExpr() doOption {
 	if nil == this.o {
 		return optionEncodePop
@@ -69,6 +73,8 @@ func (this *visitor) opCodeSymbolGet(s *Symbol) code.Opcode {
 		return code.OpGetGlobal
 	} else if s.Scope == ScopeBuiltin {
 		return code.OpGetBuiltin
+	} else if s.Scope == ScopeObjectFn {
+		return code.OpGetObjectFn
 	} else {
 		return code.OpGetLocal
 	}
@@ -201,7 +207,7 @@ func (this *visitor) DoConditional(v *ast.ConditionalExpr) error {
 	if nil != err {
 		return function.NewError(err)
 	}
-	if err := v.Yes.Do(newVisitor(this.c, newOptions(optionEncodeNothing))); nil != err {
+	if err := v.Yes.Do(this.enclosed(optionEncodeNothing)); nil != err {
 		return function.NewError(err)
 	}
 	posJump, err := this.c.encode(code.OpJump, -1)
@@ -212,7 +218,7 @@ func (this *visitor) DoConditional(v *ast.ConditionalExpr) error {
 	if err := this.c.changeOperand(posJumpWhenFalse, this.c.pos()); nil != err {
 		return function.NewError(err)
 	}
-	if err := v.No.Do(newVisitor(this.c, newOptions(optionEncodeNothing))); nil != err {
+	if err := v.No.Do(this.enclosed(optionEncodeNothing)); nil != err {
 		return function.NewError(err)
 	}
 	// back-patching
@@ -229,7 +235,7 @@ func (this *visitor) DoFn(v *ast.Function) error {
 		this.c.define(a.Value)
 	}
 
-	if err := v.Body.Do(newVisitor(this.c, newOptions(optionEncodeReturn))); nil != err {
+	if err := v.Body.Do(this.enclosed(optionEncodeReturn)); nil != err {
 		return function.NewError(err)
 	}
 	symbols := this.c.symbols()
@@ -242,27 +248,40 @@ func (this *visitor) DoFn(v *ast.Function) error {
 	return nil
 }
 
-func (this *visitor) DoCall(v *ast.Call) error {
-	if err := v.Func.Do(this); nil != err {
+func (this *visitor) doCall(fn ast.Expression, args ast.ExpressionSlice) error {
+	if err := fn.Do(this); nil != err {
 		return function.NewError(err)
 	}
-	for _, a := range v.Args {
+	for _, a := range args {
 		if err := a.Do(this); nil != err {
 			return function.NewError(err)
 		}
 	}
-	if _, err := this.c.encode(code.OpCall, len(v.Args)); nil != err {
+	if _, err := this.c.encode(code.OpCall, len(args)); nil != err {
 		return function.NewError(err)
 	}
 	return nil
 }
 
+func (this *visitor) DoCall(v *ast.Call) error {
+	return this.doCall(v.Func, v.Args)
+}
+
 func (this *visitor) DoCallMember(v *ast.CallMember) error {
-	return function.NewError(errUnsupportedVisitor)
+	if err := v.Left.Do(this.enclosed(optionEncodeNothing)); nil != err {
+		return function.NewError(err)
+	}
+	return this.doCall(v.Func, v.Args)
 }
 
 func (this *visitor) DoObjectMember(v *ast.ObjectMember) error {
-	return function.NewError(errUnsupportedVisitor)
+	if err := v.Left.Do(this.enclosed(optionEncodeNothing)); nil != err {
+		return function.NewError(err)
+	}
+	if err := v.Member.Do(this); nil != err {
+		return function.NewError(err)
+	}
+	return nil
 }
 
 func (this *visitor) DoIndex(v *ast.IndexExpr) error {

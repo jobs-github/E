@@ -86,15 +86,30 @@ func (this *virtualMachine) Run() error {
 		ins = this.frames.instructions()
 		op := code.Opcode(ins[ip])
 		switch op {
-		case code.OpGetBuiltin:
+		case code.OpGetBuiltin: // pair with OpCall
 			{
 				idx := this.fetchUint8(ip, ins)
 				builtinFn := builtin.Resolve(int(idx))
+				// object.Builtin
 				if err := this.push(builtinFn); nil != err {
 					return err
 				}
 			}
-		case code.OpClosure:
+		case code.OpGetObjectFn: // pair with OpCall
+			{
+				idx := this.fetchUint8(ip, ins)
+				obj := this.pop()
+				fn := object.Resolve(int(idx))
+				r, err := obj.GetMember(fn)
+				if nil != err {
+					return err
+				}
+				// object.ObjectFunc
+				if err := this.push(r); nil != err {
+					return err
+				}
+			}
+		case code.OpClosure: // pair with OpCall
 			{
 				idx := this.fetchUint16(ip, ins)
 				_ = this.fetchUint8(ip+2, ins)
@@ -137,7 +152,7 @@ func (this *virtualMachine) Run() error {
 			{
 				args := this.fetchUint8(ip, ins)
 				obj := this.stack[this.sp-1-int(args)]
-				if object.IsBuiltin(obj) {
+				if object.IsBuiltin(obj) || object.IsObjectFunc(obj) {
 					arguments := this.stack[this.sp-int(args) : this.sp]
 					r, err := obj.Call(arguments)
 					if nil != err {
@@ -147,8 +162,6 @@ func (this *virtualMachine) Run() error {
 					if err := this.push(r); nil != err {
 						return err
 					}
-				} else if object.IsObjectFunc(obj) {
-					// TODO
 				} else if object.IsClosure(obj) {
 					fn, _ := obj.AsClosure()
 					if args != uint8(fn.Fn.Locals) {

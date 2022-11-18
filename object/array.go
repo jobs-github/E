@@ -31,7 +31,6 @@ func NewArray(items Objects) Object {
 type Array struct {
 	defaultObject
 	Items Objects
-	fns   objectBuiltins
 }
 
 func (this *Array) String() string {

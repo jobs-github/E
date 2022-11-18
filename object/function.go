@@ -32,7 +32,6 @@ type Function struct {
 	Args     []string
 	EvalBody func(env Env) (Object, error)
 	Env      Env
-	fns      objectBuiltins
 }
 
 func (this *Function) String() string {

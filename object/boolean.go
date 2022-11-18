@@ -27,7 +27,6 @@ func NewBoolean(v bool) Object {
 type Boolean struct {
 	defaultObject
 	Value bool
-	fns   objectBuiltins
 }
 
 func (this *Boolean) String() string {

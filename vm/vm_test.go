@@ -338,3 +338,24 @@ func TestBuiltinFunctions(t *testing.T) {
 	}
 	runVmTests(t, tests)
 }
+
+func TestCallMember(t *testing.T) {
+	tests := []vmTestCase{
+		{
+			"case_1",
+			`const s = "123"; const fn = s.len; fn();`,
+			3,
+		},
+		{
+			"case_2",
+			`const arr = [1,2,3]; const fn = arr.first; fn();`,
+			1,
+		},
+		{
+			"case_3",
+			`const m = {"k1": "v1", "k2": "v2"}; const fn = m.keys; const r = fn(); str(r);`,
+			`[k1, k2]`,
+		},
+	}
+	runVmTests(t, tests)
+}

@@ -62,7 +62,6 @@ func NewHash(pairs HashMap) Object {
 type Hash struct {
 	defaultObject
 	Pairs HashMap
-	fns   objectBuiltins
 }
 
 func (this *Hash) String() string {

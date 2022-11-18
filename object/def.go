@@ -11,6 +11,8 @@ import (
 
 type ObjectType uint8
 
+type ObjectTypes []ObjectType
+
 const (
 	objectTypeBuiltin ObjectType = iota
 	objectTypeInteger
@@ -27,7 +29,7 @@ const (
 )
 
 const (
-	EnvArgs = "ENV_ARGS"
+	EnvArgs = "ENV_ARGS" // TODO: remove
 )
 
 const (

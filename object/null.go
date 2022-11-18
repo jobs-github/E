@@ -18,7 +18,6 @@ func newNull() *Null {
 // Null : implement Object
 type Null struct {
 	defaultObject
-	fns objectBuiltins
 }
 
 func (this *Null) String() string {

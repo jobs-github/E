@@ -20,7 +20,6 @@ type State struct {
 	defaultObject
 	Quit  bool
 	Value Object
-	fns   objectBuiltins
 }
 
 func (this *State) String() string {

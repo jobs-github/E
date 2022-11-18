@@ -23,7 +23,6 @@ type Builtin struct {
 	defaultObject
 	Fn   BuiltinFunction
 	Name string
-	fns  objectBuiltins
 }
 
 func (this *Builtin) String() string {

@@ -25,7 +25,6 @@ type ByteFunc struct {
 	defaultObject
 	Ins    code.Instructions
 	Locals int
-	fns    objectBuiltins
 }
 
 func (this *ByteFunc) String() string {
