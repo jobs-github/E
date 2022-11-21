@@ -15,6 +15,27 @@ func NewClosure(fn *ByteFunc) *Closure {
 	return obj
 }
 
+// In summary
+// Detect references to free variables while compiling a function,
+// get the referenced values on to the stack,
+// merge the values and the compiled function into a closure and
+// leave it on the stack where it can then be called
+//
+// The environment in tree-walking interpreter is scattered among the globals store and different regions of the stack,
+// all of which can be wiped out with a return from a function.
+//
+// Give compiled functions the ability to hold bindings that are only created
+// at run time and their instructions must already reference said bindings.
+//
+// The compiler needs to detect references to free variables and emit instructions that will load them on to the stack.
+// The VM must not only resolve references to free variables correctly, but also store them on compiled functions.
+//
+// While compiling the function’s body, inspect each resolved symbol to find out whether it’s a reference to a free variable.
+// After the function’s body is compiled and left its scope, SymbolTable should tell us how many free variables
+// were referenced and in which scope they were originally defined.
+//
+// At run time, transfer these free variables to the compiled function.
+
 // Closure : implement Object
 type Closure struct {
 	defaultObject
