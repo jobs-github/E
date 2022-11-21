@@ -1,7 +1,6 @@
 package compiler
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/jobs-github/escript/ast"
@@ -17,10 +16,6 @@ const (
 	optionEncodePop     doOption = 1
 	optionEncodeReturn  doOption = 2
 	optionEncodeNothing doOption = 3
-)
-
-var (
-	errUnsupportedVisitor = errors.New("unsupported visitor")
 )
 
 func unsupportedOp(entry string, op *token.Token, node ast.Node) error {
@@ -298,7 +293,7 @@ func (this *visitor) DoIndex(v *ast.IndexExpr) error {
 }
 
 func (this *visitor) DoNull(v *ast.Null) error {
-	return function.NewError(errUnsupportedVisitor)
+	return this.doConst(object.Nil)
 }
 
 func (this *visitor) DoInteger(v *ast.Integer) error {
