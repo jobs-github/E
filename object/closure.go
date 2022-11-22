@@ -40,7 +40,7 @@ func NewClosure(fn *ByteFunc) *Closure {
 type Closure struct {
 	defaultObject
 	Fn   *ByteFunc
-	Free Objects
+	Free Objects // env
 }
 
 func (this *Closure) String() string {

@@ -112,6 +112,7 @@ func (this *virtualMachine) Run() error {
 		case code.OpClosure: // pair with OpCall
 			{
 				idx := this.fetchUint16(ip, ins)
+				// TODO: free vars
 				_ = this.fetchUint8(ip+2, ins)
 				fn, err := this.constants[idx].AsByteFunc()
 				if nil != err {
