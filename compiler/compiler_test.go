@@ -849,7 +849,6 @@ func Test_ResolveNestedLocal(t *testing.T) {
 	}
 }
 
-/*
 func Test_ResolveFree(t *testing.T) {
 	g := NewSymbolTable(nil)
 	g.define("a")
@@ -884,13 +883,13 @@ func Test_ResolveFree(t *testing.T) {
 				&Symbol{Name: "a", Scope: ScopeGlobal, Index: 0},
 				&Symbol{Name: "b", Scope: ScopeGlobal, Index: 1},
 				&Symbol{Name: "c", Scope: ScopeFree, Index: 0},
-				&Symbol{Name: "d", Scope: ScopeFree, Index: 0},
+				&Symbol{Name: "d", Scope: ScopeFree, Index: 1},
 				&Symbol{Name: "e", Scope: ScopeLocal, Index: 0},
 				&Symbol{Name: "f", Scope: ScopeLocal, Index: 1},
 			},
 			[]*Symbol{
 				&Symbol{Name: "c", Scope: ScopeLocal, Index: 0},
-				&Symbol{Name: "d", Scope: ScopeLocal, Index: 0},
+				&Symbol{Name: "d", Scope: ScopeLocal, Index: 1},
 			},
 		},
 	}
@@ -905,7 +904,7 @@ func Test_ResolveFree(t *testing.T) {
 				t.Fatalf("want %s to resolve to %+v, got %+v, err: %v", s.Name, s, r, err)
 			}
 		}
-		frees := tt.table.free()
+		frees := tt.table.freeSymbols()
 		if len(frees) != len(tt.wantFree) {
 			t.Fatalf("wrong number free symbols, want %v, got %+v", len(tt.wantFree), len(frees))
 		}
@@ -918,12 +917,11 @@ func Test_ResolveFree(t *testing.T) {
 	}
 }
 
-
 func Test_Closures(t *testing.T) {
 	tests := []compilerTestCase{
 		{
 			"case_1",
-			"func(a) { func(b) { a + b; } };",
+			"func(a) { func(b) { a + b } };",
 			[]interface{}{
 				[]code.Instructions{
 					newCode(code.OpGetFree, 0),
@@ -944,7 +942,7 @@ func Test_Closures(t *testing.T) {
 		},
 		{
 			"case_2",
-			"func(a) { func(b) { func(c) { a + b + c; } } };",
+			"func(a) { func(b) { func(c) { a + b + c } } };",
 			[]interface{}{
 				[]code.Instructions{
 					newCode(code.OpGetFree, 0),
@@ -974,4 +972,3 @@ func Test_Closures(t *testing.T) {
 	}
 	runCompilerTests(t, tests)
 }
-*/

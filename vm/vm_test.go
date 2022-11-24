@@ -359,3 +359,14 @@ func TestCallMember(t *testing.T) {
 	}
 	runVmTests(t, tests)
 }
+
+func TestClosures(t *testing.T) {
+	tests := []vmTestCase{
+		{
+			"case_1",
+			`const newFunc = func(a) { func() { a } }; const fn = newFunc(99); fn();`,
+			99,
+		},
+	}
+	runVmTests(t, tests)
+}

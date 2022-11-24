@@ -7,9 +7,8 @@ import (
 )
 
 func NewCallFrame(b compiler.Bytecode, frameSize int) CallFrame {
-	// TODO
 	fn := object.NewByteFn(b.Instructions(), 0)
-	mainFrame := NewFrame(object.NewClosure(fn), 0)
+	mainFrame := NewFrame(object.NewClosure(fn, nil), 0)
 	frames := make([]*Frame, frameSize)
 	frames[0] = mainFrame
 	return &callFrame{

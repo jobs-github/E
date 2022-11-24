@@ -19,6 +19,7 @@ const (
 
 var (
 	errStackOverflow = errors.New("stack overflow")
+	errNotCallable   = errors.New("not callable")
 )
 
 func NewGlobals() object.Objects {
@@ -109,16 +110,31 @@ func (this *virtualMachine) Run() error {
 					return err
 				}
 			}
+		case code.OpGetFree:
+			{
+				idx := this.fetchUint8(ip, ins)
+				fn := this.frames.current().fn
+				if err := this.push(fn.Free[idx]); nil != err {
+					return err
+				}
+			}
 		case code.OpClosure: // pair with OpCall
 			{
+				// exec after a lot OpGetFree, refer to visitor.DoFn
 				idx := this.fetchUint16(ip, ins)
-				// TODO: free vars
-				_ = this.fetchUint8(ip+2, ins)
+				frees := int(this.fetchUint8(ip+2, ins))
 				fn, err := this.constants[idx].AsByteFunc()
 				if nil != err {
 					return err
 				}
-				if err := this.push(object.NewClosure(fn)); nil != err {
+				// fetch free symbol from stack top
+				freeSymbols := make(object.Objects, frees)
+				for i := 0; i < frees; i++ {
+					freeSymbols[i] = this.stack[this.sp-frees+i]
+				}
+				// clean up the stack
+				this.sp = this.sp - frees
+				if err := this.push(object.NewClosure(fn, freeSymbols)); nil != err {
 					return err
 				}
 			}
@@ -153,26 +169,8 @@ func (this *virtualMachine) Run() error {
 			{
 				args := this.fetchUint8(ip, ins)
 				obj := this.stack[this.sp-1-int(args)]
-				if object.IsBuiltin(obj) || object.IsObjectFunc(obj) {
-					arguments := this.stack[this.sp-int(args) : this.sp]
-					r, err := obj.Call(arguments)
-					if nil != err {
-						return err
-					}
-					this.sp = this.sp - int(args) - 1
-					if err := this.push(r); nil != err {
-						return err
-					}
-				} else if object.IsClosure(obj) {
-					fn, _ := obj.AsClosure()
-					if args != uint8(fn.Fn.Locals) {
-						err := fmt.Errorf("wrong number of arguments: want=%v, got=%v", fn.Fn.Locals, args)
-						return err
-					}
-					frame := NewFrame(fn, this.sp-int(args))
-					// set env
-					this.frames.push(frame)
-					this.sp = frame.bp + fn.Fn.Locals // reserverd for local bindings
+				if err := this.doCall(obj, args); nil != err {
+					return err
 				}
 			}
 		case code.OpReturn:
@@ -291,6 +289,36 @@ func (this *virtualMachine) Run() error {
 		}
 	}
 	return nil
+}
+
+func (this *virtualMachine) doCall(obj object.Object, args uint8) error {
+	if object.IsBuiltin(obj) || object.IsObjectFunc(obj) {
+		arguments := this.stack[this.sp-int(args) : this.sp]
+		r, err := obj.Call(arguments)
+		if nil != err {
+			return err
+		}
+		this.sp = this.sp - int(args) - 1
+		if err := this.push(r); nil != err {
+			return err
+		}
+		return nil
+	}
+
+	if object.IsClosure(obj) {
+		fn, _ := obj.AsClosure()
+		if args != uint8(fn.Fn.Locals) {
+			err := fmt.Errorf("wrong number of arguments: want=%v, got=%v", fn.Fn.Locals, args)
+			return err
+		}
+		frame := NewFrame(fn, this.sp-int(args))
+		// set env
+		this.frames.push(frame)
+		this.sp = frame.bp + fn.Fn.Locals // reserverd for local bindings
+		return nil
+	}
+
+	return errNotCallable
 }
 
 func (this *virtualMachine) doHash(sz int) (object.Object, error) {

@@ -7,8 +7,8 @@ import (
 	"github.com/jobs-github/escript/token"
 )
 
-func NewClosure(fn *ByteFunc) *Closure {
-	obj := &Closure{Fn: fn}
+func NewClosure(fn *ByteFunc, frees Objects) *Closure {
+	obj := &Closure{Fn: fn, Free: frees}
 	obj.fns = objectBuiltins{
 		FnNot: obj.builtinNot,
 	}

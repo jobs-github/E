@@ -70,6 +70,8 @@ func (this *visitor) opCodeSymbolGet(s *Symbol) code.Opcode {
 		return code.OpGetBuiltin
 	} else if s.Scope == ScopeObjectFn {
 		return code.OpGetObjectFn
+	} else if s.Scope == ScopeFree {
+		return code.OpGetFree
 	} else {
 		return code.OpGetLocal
 	}
@@ -100,6 +102,14 @@ func (this *visitor) doBind(name *ast.Identifier, value ast.Expression) error {
 		return function.NewError(err)
 	}
 	return nil
+}
+
+func (this *visitor) doLoadSymbol(s *Symbol) error {
+	if _, err := this.c.encode(this.opCodeSymbolGet(s), s.Index); nil != err {
+		return function.NewError(err)
+	} else {
+		return nil
+	}
 }
 
 func (this *visitor) DoProgram(v *ast.Program) error {
@@ -182,7 +192,7 @@ func (this *visitor) DoIdent(v *ast.Identifier) error {
 	if nil != err {
 		return function.NewError(err)
 	}
-	if _, err := this.c.encode(this.opCodeSymbolGet(s), s.Index); nil != err {
+	if err := this.doLoadSymbol(s); nil != err {
 		return function.NewError(err)
 	}
 	return nil
@@ -233,12 +243,24 @@ func (this *visitor) DoFn(v *ast.Function) error {
 	if err := v.Body.Do(this.enclosed(optionEncodeReturn)); nil != err {
 		return function.NewError(err)
 	}
+
+	// after compiled a function’s body, capture the FreeSymbols before leave scope
+	freeSymbols := this.c.freeSymbols()
 	symbols := this.c.symbols()
 	r := this.c.leaveScope()
+
+	// vm will put the free variables on to the stack
+	// waiting to be merged with an ByteFunc into an Closure.
+	for _, s := range freeSymbols {
+		if err := this.doLoadSymbol(s); nil != err {
+			return function.NewError(err)
+		}
+	}
+
 	fn := object.NewByteFunc(r.Instructions(), symbols)
 	idx := this.c.addConst(fn)
 	// not OpConst here
-	if _, err := this.c.encode(code.OpClosure, idx); nil != err {
+	if _, err := this.c.encode(code.OpClosure, idx, len(freeSymbols)); nil != err {
 		return function.NewError(err)
 	}
 	return nil

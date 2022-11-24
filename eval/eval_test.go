@@ -401,6 +401,7 @@ func TestFunctionCases(t *testing.T) {
 		{"const add = func(x, y) { x + y; }; add(5, 5)", 10},
 		{"const add = func(x, y) { x + y; }; add(5 + 5, add(5, 5))", 20},
 		{"func(x) { x; }(5)", 5},
+		{"func(x) { func(y) { x + y } }(5)(5)", 10},
 	}
 	for _, tt := range tests {
 		evaluated, err := testEval(tt.input)

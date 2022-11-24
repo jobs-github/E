@@ -48,10 +48,10 @@ type Symbols []*Symbol
 
 func NewSymbolTable(parent SymbolTable) SymbolTable {
 	s := &symbolTable{
-		parent:      parent,
-		m:           map[string]*Symbol{},
-		sz:          0,
-		freeSymbols: Symbols{},
+		parent: parent,
+		m:      map[string]*Symbol{},
+		sz:     0,
+		frees:  Symbols{},
 	}
 	builtin.Traverse(func(i int, name string) {
 		s.defineBuiltin(i, name)
@@ -70,16 +70,16 @@ type SymbolTable interface {
 	defineBuiltin(index int, name string) *Symbol
 	defineObjectFn(index int, name string) *Symbol
 	resolve(key string) (*Symbol, error)
-	free() Symbols
-	defineFree(s *Symbol) *Symbol
+	freeSymbols() Symbols
+	defineFree(orginal *Symbol) *Symbol
 }
 
 // symbolTable : implement SymbolTable
 type symbolTable struct {
-	parent      SymbolTable
-	m           map[string]*Symbol
-	sz          int
-	freeSymbols Symbols
+	parent SymbolTable
+	m      map[string]*Symbol
+	sz     int
+	frees  Symbols
 }
 
 func (this *symbolTable) newEnclosed() SymbolTable {
@@ -119,25 +119,35 @@ func (this *symbolTable) defineObjectFn(index int, name string) *Symbol {
 }
 
 func (this *symbolTable) resolve(key string) (*Symbol, error) {
-	v, ok := this.m[key]
-	if !ok {
-		if this.parent != nil {
-			return this.parent.resolve(key)
-		} else {
-			return nil, fmt.Errorf("symbol `%v` missing", key)
-		}
+	if v, ok := this.m[key]; ok {
+		return v, nil
 	}
-	return v, nil
+	// not resolved, search parent
+	if this.parent == nil {
+		return nil, fmt.Errorf("symbol `%v` missing", key)
+	}
+	pv, err := this.parent.resolve(key)
+	if nil != err {
+		return nil, err
+	}
+	// pv is LOCAL BINDING in parent, but free binding here
+	if pv.Scope == ScopeGlobal || pv.Scope == ScopeBuiltin {
+		return pv, nil
+	}
+
+	// not resolved in self scope, but resolved in parent scope
+	// not a global binding, or a built-in function
+	// it’s a free variable
+	return this.defineFree(pv), nil
 }
 
-func (this *symbolTable) free() Symbols {
-	return this.freeSymbols
+func (this *symbolTable) freeSymbols() Symbols {
+	return this.frees
 }
 
-func (this *symbolTable) defineFree(s *Symbol) *Symbol {
-	idx := len(this.freeSymbols)
-	this.freeSymbols = append(this.freeSymbols, s)
-	symbol := newSymbol(s.Name, ScopeFree, idx)
-	this.m[s.Name] = symbol
+func (this *symbolTable) defineFree(orginal *Symbol) *Symbol {
+	this.frees = append(this.frees, orginal)
+	symbol := newSymbol(orginal.Name, ScopeFree, len(this.frees)-1)
+	this.m[orginal.Name] = symbol
 	return symbol
 }
