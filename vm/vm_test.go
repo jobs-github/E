@@ -367,6 +367,11 @@ func TestClosures(t *testing.T) {
 			`const newFunc = func(a) { func() { a } }; const fn = newFunc(99); fn();`,
 			99,
 		},
+		{
+			"case_2",
+			`const newFunc = func(a, b) { func(c) { a + b + c } }; const fn = newFunc(1,2); fn(8);`,
+			11,
+		},
 	}
 	runVmTests(t, tests)
 }
