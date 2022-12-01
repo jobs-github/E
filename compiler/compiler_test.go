@@ -972,3 +972,52 @@ func Test_Closures(t *testing.T) {
 	}
 	runCompilerTests(t, tests)
 }
+
+func Test_RecursiveFunctions(t *testing.T) {
+	tests := []compilerTestCase{
+		{
+			"case_1",
+			`
+			const countFn = func(x) {
+				countFn(x - 1)
+			};
+			countFn(1);
+			`,
+			[]interface{}{
+				1,
+				[]code.Instructions{
+					newCode(code.OpGetLambda),
+					newCode(code.OpGetLocal, 0),
+					newCode(code.OpConst, 0),
+					newCode(code.OpSub),
+					newCode(code.OpCall, 1),
+					newCode(code.OpReturn),
+				},
+				1,
+			},
+			[]code.Instructions{
+				newCode(code.OpClosure, 1, 0),
+				newCode(code.OpSetGlobal, 0),
+				newCode(code.OpGetGlobal, 0),
+				newCode(code.OpConst, 2),
+				newCode(code.OpCall, 1),
+				newCode(code.OpPop),
+			},
+		},
+	}
+	runCompilerTests(t, tests)
+}
+
+func Test_ResolveFunctionName(t *testing.T) {
+	g := NewSymbolTable(nil)
+	g.defineLambda("a")
+
+	want := &Symbol{Name: "a", Scope: ScopeLambda, Index: 0}
+	r, err := g.resolve(want.Name)
+	if nil != err {
+		t.Fatal(err)
+	}
+	if err := r.equal(want); nil != err {
+		t.Fatalf("want %s to resolve to %+v, got %+v, err: %v", want.Name, want, r, err)
+	}
+}

@@ -9,6 +9,7 @@ import (
 
 // ConstStmt : implement Statement
 type ConstStmt struct {
+	defaultNode
 	Name  *Identifier
 	Value Expression
 }

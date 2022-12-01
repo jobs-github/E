@@ -5,7 +5,7 @@ import (
 )
 
 // Null : implement Expression
-type Null struct{}
+type Null struct{ defaultNode }
 
 func (this *Null) Do(v Visitor) error {
 	return v.DoNull(this)

@@ -6,6 +6,7 @@ import (
 
 // ExpressionStmt : implement Statement
 type ExpressionStmt struct {
+	defaultNode
 	Expr Expression
 }
 

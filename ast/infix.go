@@ -10,6 +10,7 @@ import (
 
 // InfixExpr : implement Expression
 type InfixExpr struct {
+	defaultNode
 	Left  Expression
 	Op    *token.Token
 	Right Expression

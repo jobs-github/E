@@ -8,6 +8,7 @@ import (
 
 // Program : implement Node
 type Program struct {
+	defaultNode
 	Stmts StatementSlice
 }
 

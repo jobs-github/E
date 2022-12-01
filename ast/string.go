@@ -6,6 +6,7 @@ import (
 
 // String : implement Expression
 type String struct {
+	defaultNode
 	Value string
 }
 

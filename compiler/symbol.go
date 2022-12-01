@@ -15,6 +15,7 @@ const (
 	ScopeBuiltin
 	ScopeObjectFn
 	ScopeFree
+	ScopeLambda
 )
 
 type Symbol struct {
@@ -72,6 +73,7 @@ type SymbolTable interface {
 	resolve(key string) (*Symbol, error)
 	freeSymbols() Symbols
 	defineFree(orginal *Symbol) *Symbol
+	defineLambda(name string) *Symbol
 }
 
 // symbolTable : implement SymbolTable
@@ -150,4 +152,10 @@ func (this *symbolTable) defineFree(orginal *Symbol) *Symbol {
 	symbol := newSymbol(orginal.Name, ScopeFree, len(this.frees)-1)
 	this.m[orginal.Name] = symbol
 	return symbol
+}
+
+func (this *symbolTable) defineLambda(name string) *Symbol {
+	s := newSymbol(name, ScopeLambda, 0)
+	this.m[name] = s
+	return s
 }

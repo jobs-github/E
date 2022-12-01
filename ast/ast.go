@@ -1,6 +1,13 @@
 package ast
 
-import "sort"
+import (
+	"errors"
+	"sort"
+)
+
+var (
+	errNotFunction = errors.New("ast type is not function")
+)
 
 type Visitor interface {
 	DoProgram(v *Program) error
@@ -25,11 +32,20 @@ type Visitor interface {
 	DoHash(v *Hash) error
 }
 
+type defaultNode struct {
+}
+
+func (this *defaultNode) AsFunction() (*Function, error) {
+	return nil, errNotFunction
+}
+
 type Node interface {
 	Do(v Visitor) error
 	Encode() interface{}
 	Decode(b []byte) error
 	String() string
+
+	AsFunction() (*Function, error)
 }
 
 type Nodes []Node

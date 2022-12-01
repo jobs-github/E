@@ -32,6 +32,7 @@ const (
 	OpSetLocal
 	OpCall
 	OpGetFree
+	OpGetLambda
 	OpReturn
 	OpPop
 	OpTrue
@@ -71,6 +72,7 @@ var (
 		OpSetLocal:      {"OpSetLocal", []int{1}},
 		OpCall:          {"OpCall", []int{1}},
 		OpGetFree:       {"OpGetFree", []int{1}},
+		OpGetLambda:     {"OpCurrentClosure", []int{1}},
 		OpReturn:        {"OpReturn", []int{}},
 		OpPop:           {"OpPop", []int{}},
 		OpTrue:          {"OpTrue", []int{}},

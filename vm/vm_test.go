@@ -360,6 +360,7 @@ func TestCallMember(t *testing.T) {
 	runVmTests(t, tests)
 }
 
+// create a reference to countDown and save it on countDown itself before countDown exists.
 func TestClosures(t *testing.T) {
 	tests := []vmTestCase{
 		{
@@ -371,6 +372,28 @@ func TestClosures(t *testing.T) {
 			"case_2",
 			`const newFunc = func(a, b) { func(c) { a + b + c } }; const fn = newFunc(1,2); fn(8);`,
 			11,
+		},
+		{
+			"case_3",
+			`const down = func(x) { 
+				(x == 0) ? 0 : down(x - 1)
+			 }; 
+			 down(1);
+			 const wrapper = func() {
+				down(1);
+			 };
+			 wrapper();
+			 `,
+			0,
+		},
+		{
+			"case_4",
+			`const down = func(x) { 
+				(x == 0) ? 0 : down(x - 1)
+			 }; 
+			 down(1);
+			 `,
+			0,
 		},
 	}
 	runVmTests(t, tests)

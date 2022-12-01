@@ -9,6 +9,7 @@ import (
 
 // ObjectMember : implement Expression
 type ObjectMember struct {
+	defaultNode
 	Left   Expression
 	Member *Identifier
 }

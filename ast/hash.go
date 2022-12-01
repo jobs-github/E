@@ -10,6 +10,7 @@ import (
 
 // Hash : implement Expression
 type Hash struct {
+	defaultNode
 	Pairs ExpressionMap
 }
 

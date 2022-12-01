@@ -11,6 +11,7 @@ import (
 
 // Call : implement Expression
 type Call struct {
+	defaultNode
 	Func Expression
 	Args ExpressionSlice
 }

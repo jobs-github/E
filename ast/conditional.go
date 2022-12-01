@@ -9,6 +9,7 @@ import (
 
 // ConditionalExpr : implement Expression
 type ConditionalExpr struct {
+	defaultNode
 	Cond Expression
 	Yes  Expression
 	No   Expression

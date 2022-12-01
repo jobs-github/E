@@ -8,6 +8,7 @@ import (
 
 // Identifier : implement Expression
 type Identifier struct {
+	defaultNode
 	Value string
 }
 

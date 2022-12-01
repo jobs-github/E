@@ -9,6 +9,7 @@ import (
 
 // Integer : implement Expression
 type Integer struct {
+	defaultNode
 	Value int64
 }
 

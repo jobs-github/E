@@ -10,9 +10,11 @@ import (
 
 // Function : implement Expression
 type Function struct {
-	Name string
-	Args IdentifierSlice
-	Body *BlockStmt
+	defaultNode
+	Lambda string
+	Name   string
+	Args   IdentifierSlice
+	Body   *BlockStmt
 }
 
 func (this *Function) Do(v Visitor) error {
@@ -21,9 +23,10 @@ func (this *Function) Do(v Visitor) error {
 
 func (this *Function) value() map[string]interface{} {
 	m := map[string]interface{}{
-		"name": this.Name,
-		"args": this.Args.encode(),
-		"body": this.Body.Encode(),
+		"lambda": this.Lambda,
+		"name":   this.Name,
+		"args":   this.Args.encode(),
+		"body":   this.Body.Encode(),
 	}
 	return m
 }
@@ -36,14 +39,16 @@ func (this *Function) Encode() interface{} {
 }
 func (this *Function) Decode(b []byte) error {
 	var v struct {
-		Name string          `json:"name"`
-		Args json.RawMessage `json:"args"`
-		Body JsonNode        `json:"body"`
+		Lambda string          `json:"lambda"`
+		Name   string          `json:"name"`
+		Args   json.RawMessage `json:"args"`
+		Body   JsonNode        `json:"body"`
 	}
 	var err error
 	if err = json.Unmarshal(b, &v); nil != err {
 		return function.NewError(err)
 	}
+	this.Lambda = v.Lambda
 	this.Name = v.Name
 	this.Args, err = decodeIdents(v.Args)
 	if nil != err {
@@ -76,4 +81,8 @@ func (this *Function) String() string {
 	out.WriteString(this.Body.String())
 
 	return out.String()
+}
+
+func (this *Function) AsFunction() (*Function, error) {
+	return this, nil
 }

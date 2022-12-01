@@ -9,6 +9,7 @@ import (
 
 // FunctionStmt : implement Statement
 type FunctionStmt struct {
+	defaultNode
 	Name  *Identifier
 	Value *Function
 }

@@ -9,6 +9,7 @@ import (
 
 // IndexExpr : implement Expression
 type IndexExpr struct {
+	defaultNode
 	Left  Expression // array
 	Index Expression
 }

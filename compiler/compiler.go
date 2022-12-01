@@ -22,6 +22,7 @@ type Compiler interface {
 	changeOperand(opPos int, operand int) error
 
 	define(key string) *Symbol
+	defineLambda(name string) *Symbol
 	resolve(key string) (*Symbol, error)
 	symbols() int
 	freeSymbols() Symbols
@@ -103,6 +104,10 @@ func (this *compilerImpl) addInstruction(ins []byte) int {
 
 func (this *compilerImpl) define(key string) *Symbol {
 	return this.st.define(key)
+}
+
+func (this *compilerImpl) defineLambda(name string) *Symbol {
+	return this.st.defineLambda(name)
 }
 
 func (this *compilerImpl) resolve(key string) (*Symbol, error) {

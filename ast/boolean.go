@@ -8,6 +8,7 @@ import (
 
 // Boolean : implement Expression
 type Boolean struct {
+	defaultNode
 	Value bool
 }
 

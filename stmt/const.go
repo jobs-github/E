@@ -39,6 +39,9 @@ func (this *constStmt) decode(endTok token.TokenType) (ast.Statement, error) {
 	if nil != err {
 		return nil, function.NewError(err)
 	}
+	if fn, err := expr.AsFunction(); nil == err {
+		fn.Lambda = stmt.Name.Value
+	}
 	stmt.Value = expr
 
 	for !this.scanner.StmtEnd(endTok) {

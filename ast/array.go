@@ -9,6 +9,7 @@ import (
 
 // Array : implement Expression
 type Array struct {
+	defaultNode
 	Items ExpressionSlice
 }
 

@@ -8,6 +8,7 @@ import (
 
 // BlockStmt : implement Statement
 type BlockStmt struct {
+	defaultNode
 	Stmt Statement
 }
 

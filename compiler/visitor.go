@@ -72,6 +72,8 @@ func (this *visitor) opCodeSymbolGet(s *Symbol) code.Opcode {
 		return code.OpGetObjectFn
 	} else if s.Scope == ScopeFree {
 		return code.OpGetFree
+	} else if s.Scope == ScopeLambda {
+		return code.OpGetLambda
 	} else {
 		return code.OpGetLocal
 	}
@@ -94,10 +96,12 @@ func (this *visitor) doConst(v object.Object) error {
 }
 
 func (this *visitor) doBind(name *ast.Identifier, value ast.Expression) error {
+	symbol := this.c.define(name.Value)
+
 	if err := value.Do(this); nil != err {
 		return function.NewError(err)
 	}
-	symbol := this.c.define(name.Value)
+
 	if _, err := this.c.encode(this.opCodeSymbolSet(symbol), symbol.Index); nil != err {
 		return function.NewError(err)
 	}
@@ -235,6 +239,11 @@ func (this *visitor) DoConditional(v *ast.ConditionalExpr) error {
 
 func (this *visitor) DoFn(v *ast.Function) error {
 	this.c.enterScope()
+
+	if v.Lambda != "" {
+		// add the lambda function's name to the symbol table
+		this.c.defineLambda(v.Lambda)
+	}
 
 	for _, a := range v.Args {
 		this.c.define(a.Value)

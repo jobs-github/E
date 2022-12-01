@@ -118,6 +118,12 @@ func (this *virtualMachine) Run() error {
 					return err
 				}
 			}
+		case code.OpGetLambda:
+			{
+				if err := this.push(this.frames.current().fn); nil != err {
+					return err
+				}
+			}
 		case code.OpClosure: // pair with OpCall
 			{
 				// exec after a lot OpGetFree, refer to visitor.DoFn

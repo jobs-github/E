@@ -11,6 +11,7 @@ import (
 
 // CallMember : implement Expression
 type CallMember struct {
+	defaultNode
 	Left Expression
 	Func *Identifier
 	Args ExpressionSlice
