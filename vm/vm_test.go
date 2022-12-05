@@ -398,3 +398,22 @@ func TestClosures(t *testing.T) {
 	}
 	runVmTests(t, tests)
 }
+
+func TestFib(t *testing.T) {
+	tests := []vmTestCase{
+		{
+			"case_1",
+			`func fib(x) {
+				(x == 0) ? 0 : (
+					(x == 1) ? 1 : (
+						fib(x - 1) + fib(x - 2)
+					)
+				)
+			};
+			fib(15);
+			`,
+			610,
+		},
+	}
+	runVmTests(t, tests)
+}
