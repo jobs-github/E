@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 
 	"github.com/jobs-github/escript/function"
+	"github.com/jobs-github/escript/object"
 )
 
 // ConditionalExpr : implement Expression
@@ -65,4 +66,21 @@ func (this *ConditionalExpr) String() string {
 	out.WriteString(this.No.String())
 	out.WriteString(")")
 	return out.String()
+}
+
+func (this *ConditionalExpr) Eval(e object.Env) (object.Object, error) {
+	r, err := this.Cond.Eval(e)
+	if nil != err {
+		return object.Nil, err
+	}
+	node := this.getCondNode(r.True())
+	return node.Eval(e.NewEnclosedEnv())
+}
+
+func (this *ConditionalExpr) getCondNode(yes bool) Expression {
+	if yes {
+		return this.Yes
+	} else {
+		return this.No
+	}
 }

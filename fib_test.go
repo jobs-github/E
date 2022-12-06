@@ -49,7 +49,7 @@ func newVM(node ast.Node) vm.VM {
 }
 
 func TestFibExpr(t *testing.T) {
-	r, err := eval.EvalAst(BENCH_AST, object.NewEnv())
+	r, err := BENCH_AST.Eval(object.NewEnv())
 	if err != nil {
 		panic(err)
 	}

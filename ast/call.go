@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/jobs-github/escript/function"
+	"github.com/jobs-github/escript/object"
 	"github.com/jobs-github/escript/token"
 )
 
@@ -64,4 +65,16 @@ func (this *Call) String() string {
 	out.WriteString(")")
 
 	return out.String()
+}
+
+func (this *Call) Eval(e object.Env) (object.Object, error) {
+	fn, err := this.Func.Eval(e)
+	if nil != err {
+		return object.Nil, err
+	}
+	args, err := this.Args.eval(e)
+	if nil != err {
+		return object.Nil, err
+	}
+	return fn.Call(args)
 }

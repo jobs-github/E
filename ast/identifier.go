@@ -2,8 +2,10 @@ package ast
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"github.com/jobs-github/escript/builtin"
+	"github.com/jobs-github/escript/object"
 )
 
 // Identifier : implement Expression
@@ -37,6 +39,16 @@ func (this *Identifier) expressionNode() {}
 
 func (this *Identifier) String() string {
 	return this.Value
+}
+
+func (this *Identifier) Eval(e object.Env) (object.Object, error) {
+	if val, ok := e.Get(this.Value); ok {
+		return val, nil
+	}
+	if fn := builtin.Get(this.Value); nil != fn {
+		return fn, nil
+	}
+	return object.Nil, fmt.Errorf("symbol `%v` missing", this.Value)
 }
 
 type IdentifierSlice []*Identifier

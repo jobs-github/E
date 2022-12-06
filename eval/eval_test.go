@@ -235,7 +235,7 @@ func testEval(input string) (object.Object, error) {
 		return object.Nil, err
 	}
 	env := object.NewEnv()
-	return EvalAst(program, env)
+	return program.Eval(env)
 }
 
 func testIntegerObject(t *testing.T, obj object.Object, expected int64) bool {

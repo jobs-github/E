@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 
 	"github.com/jobs-github/escript/function"
+	"github.com/jobs-github/escript/object"
 	"github.com/jobs-github/escript/token"
 )
 
@@ -66,4 +67,16 @@ func (this *InfixExpr) String() string {
 	out.WriteString(this.Right.String())
 	out.WriteString(")")
 	return out.String()
+}
+
+func (this *InfixExpr) Eval(e object.Env) (object.Object, error) {
+	left, err := this.Left.Eval(e)
+	if nil != err {
+		return object.Nil, err
+	}
+	right, err := this.Right.Eval(e)
+	if nil != err {
+		return object.Nil, err
+	}
+	return left.Calc(this.Op, right)
 }

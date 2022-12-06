@@ -4,6 +4,7 @@ import (
 	"bytes"
 
 	"github.com/jobs-github/escript/function"
+	"github.com/jobs-github/escript/object"
 )
 
 // BlockStmt : implement Statement
@@ -39,4 +40,8 @@ func (this *BlockStmt) String() string {
 	out.WriteString(this.Stmt.String())
 	out.WriteString("}")
 	return out.String()
+}
+
+func (this *BlockStmt) Eval(e object.Env) (object.Object, error) {
+	return this.Stmt.Eval(e)
 }

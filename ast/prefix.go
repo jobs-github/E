@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 
 	"github.com/jobs-github/escript/function"
+	"github.com/jobs-github/escript/object"
 	"github.com/jobs-github/escript/token"
 )
 
@@ -56,4 +57,12 @@ func (this *PrefixExpr) String() string {
 	out.WriteString(this.Right.String())
 	out.WriteString(")")
 	return out.String()
+}
+
+func (this *PrefixExpr) Eval(e object.Env) (object.Object, error) {
+	r, err := this.Right.Eval(e)
+	if nil != err {
+		return object.Nil, err
+	}
+	return evalPrefix(this.Op, r)
 }

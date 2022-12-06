@@ -4,6 +4,7 @@ import (
 	"bytes"
 
 	"github.com/jobs-github/escript/function"
+	"github.com/jobs-github/escript/object"
 	"github.com/jobs-github/escript/token"
 )
 
@@ -48,4 +49,8 @@ func (this *ConstStmt) String() string {
 	}
 	out.WriteString(";")
 	return out.String()
+}
+
+func (this *ConstStmt) Eval(e object.Env) (object.Object, error) {
+	return evalVar(this.Name, this.Value, e)
 }

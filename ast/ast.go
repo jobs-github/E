@@ -2,7 +2,11 @@ package ast
 
 import (
 	"errors"
+	"fmt"
 	"sort"
+
+	"github.com/jobs-github/escript/object"
+	"github.com/jobs-github/escript/token"
 )
 
 var (
@@ -44,7 +48,7 @@ type Node interface {
 	Encode() interface{}
 	Decode(b []byte) error
 	String() string
-
+	Eval(e object.Env) (object.Object, error)
 	AsFunction() (*Function, error)
 }
 
@@ -61,6 +65,18 @@ type Expression interface {
 }
 
 type ExpressionSlice []Expression
+
+func (this *ExpressionSlice) eval(e object.Env) (object.Objects, error) {
+	result := object.Objects{}
+	for _, expr := range *this {
+		r, err := expr.Eval(e)
+		if nil != err {
+			return nil, err
+		}
+		result.Append(r)
+	}
+	return result, nil
+}
 
 func (this *ExpressionSlice) encode() interface{} {
 	r := []interface{}{}
@@ -99,4 +115,37 @@ func (this *StatementSlice) encode() interface{} {
 		r = append(r, v.Encode())
 	}
 	return r
+}
+
+func (this *StatementSlice) Eval(e object.Env) (object.Object, error) {
+	var r object.Object
+	for _, stmt := range *this {
+		if v, err := stmt.Eval(e); nil != err {
+			return object.Nil, err
+		} else {
+			r = v
+		}
+	}
+	return r, nil
+}
+
+func evalVar(name *Identifier, value Expression, e object.Env) (object.Object, error) {
+	r, err := value.Eval(e)
+	if nil != err {
+		return object.Nil, err
+	}
+	e.Set(name.Value, r)
+	return r, nil
+}
+
+func evalPrefix(op *token.Token, right object.Object) (object.Object, error) {
+	switch op.Type {
+	case token.NOT:
+		return right.CallMember(object.FnNot, object.Objects{})
+	case token.SUB:
+		return right.CallMember(object.FnNeg, object.Objects{})
+	default:
+		err := fmt.Errorf("unsupport op %v(%v)", op.Literal, token.ToString(op.Type))
+		return object.Nil, err
+	}
 }

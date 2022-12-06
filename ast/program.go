@@ -4,6 +4,7 @@ import (
 	"bytes"
 
 	"github.com/jobs-github/escript/function"
+	"github.com/jobs-github/escript/object"
 )
 
 // Program : implement Node
@@ -37,4 +38,8 @@ func (this *Program) String() string {
 		out.WriteString(s.String())
 	}
 	return out.String()
+}
+
+func (this *Program) Eval(e object.Env) (object.Object, error) {
+	return this.Stmts.Eval(e)
 }

@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/jobs-github/escript/function"
+	"github.com/jobs-github/escript/object"
 )
 
 // Function : implement Expression
@@ -83,6 +84,21 @@ func (this *Function) String() string {
 	return out.String()
 }
 
+func (this *Function) Eval(e object.Env) (object.Object, error) {
+	return object.NewFunction(
+		this.Name,
+		this.Args.Values(),
+		this.evalBody(),
+		e,
+	), nil
+}
+
 func (this *Function) AsFunction() (*Function, error) {
 	return this, nil
+}
+
+func (this *Function) evalBody() func(e object.Env) (object.Object, error) {
+	return func(e object.Env) (object.Object, error) {
+		return this.Body.Eval(e)
+	}
 }

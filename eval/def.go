@@ -12,14 +12,6 @@ import (
 	"github.com/jobs-github/escript/parser"
 )
 
-func EvalAst(node ast.Node, env object.Env) (object.Object, error) {
-	v := newVisitor(env)
-	if err := node.Do(v); nil != err {
-		return object.Nil, function.NewError(err)
-	}
-	return v.r, nil
-}
-
 type Eval interface {
 	Repl(baseDir string, in io.Reader, out io.Writer)
 	EvalJson(path string, args []string)

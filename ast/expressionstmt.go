@@ -2,6 +2,7 @@ package ast
 
 import (
 	"github.com/jobs-github/escript/function"
+	"github.com/jobs-github/escript/object"
 )
 
 // ExpressionStmt : implement Statement
@@ -35,4 +36,8 @@ func (this *ExpressionStmt) String() string {
 		return this.Expr.String()
 	}
 	return ""
+}
+
+func (this *ExpressionStmt) Eval(e object.Env) (object.Object, error) {
+	return this.Expr.Eval(e)
 }
