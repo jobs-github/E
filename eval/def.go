@@ -8,24 +8,21 @@ import (
 	"github.com/jobs-github/escript/ast"
 	"github.com/jobs-github/escript/function"
 	"github.com/jobs-github/escript/lexer"
-	"github.com/jobs-github/escript/object"
 	"github.com/jobs-github/escript/parser"
 )
 
 type Eval interface {
 	Repl(baseDir string, in io.Reader, out io.Writer)
-	EvalJson(path string, args []string)
-	EvalScript(path string, args []string)
-	EvalCode(code string, args []string)
-
-	NewEnv(args []string) object.Env
+	EvalJson(path string)
+	EvalScript(path string)
+	EvalCode(code string)
 
 	DumpAst(path string) (string, error)
 	LoadJson(path string) (ast.Node, error)
 	LoadAst(code string) (ast.Node, error)
 }
 
-func New(nonrecursive bool) Eval { return evalImpl{nonrecursive: nonrecursive} }
+func New() Eval { return evalImpl{} }
 
 func loadCode(path string) ([]byte, error) {
 	if !strings.HasSuffix(path, ast.SuffixQs) {

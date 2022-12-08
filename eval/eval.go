@@ -16,7 +16,6 @@ import (
 
 // evalImpl : implement Eval
 type evalImpl struct {
-	nonrecursive bool
 }
 
 func (this evalImpl) Repl(baseDir string, in io.Reader, out io.Writer) {
@@ -54,14 +53,13 @@ func (this evalImpl) Repl(baseDir string, in io.Reader, out io.Writer) {
 	}
 }
 
-func (this evalImpl) EvalJson(path string, args []string) {
+func (this evalImpl) EvalJson(path string) {
 	node, err := this.LoadJson(path)
 	if nil != err {
 		fmt.Println(err.Error())
 		return
 	}
-	env := this.NewEnv(args)
-	val, err := node.Eval(env)
+	val, err := node.Eval(object.NewEnv())
 	if nil != err {
 		fmt.Println(err.Error())
 	} else {
@@ -71,35 +69,22 @@ func (this evalImpl) EvalJson(path string, args []string) {
 	}
 }
 
-func (this evalImpl) EvalScript(path string, args []string) {
+func (this evalImpl) EvalScript(path string) {
 	b, err := loadCode(path)
 	if nil != err {
 		fmt.Println(err.Error())
 		return
 	}
-	this.EvalCode(function.BytesToString(b), args)
+	this.EvalCode(function.BytesToString(b))
 }
 
-func (this evalImpl) NewEnv(args []string) object.Env {
-	env := object.NewEnv()
-	arr := object.Objects{}
-	if nil != args && len(args) > 0 {
-		for _, s := range args {
-			arr = append(arr, object.NewString(s))
-		}
-	}
-	env.Set(object.EnvArgs, object.NewArray(arr))
-	return env
-}
-
-func (this evalImpl) EvalCode(code string, args []string) {
-	env := this.NewEnv(args)
+func (this evalImpl) EvalCode(code string) {
 	node, err := this.LoadAst(code)
 	if nil != err {
 		fmt.Println(err.Error())
 		return
 	}
-	val, err := node.Eval(env)
+	val, err := node.Eval(object.NewEnv())
 	if nil != err {
 		fmt.Println(err.Error())
 	} else {

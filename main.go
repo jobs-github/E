@@ -64,13 +64,13 @@ func Start(in io.Reader, out io.Writer) {
 
 func intepreterMain() {
 	argc := len(os.Args)
-	e := eval.New(false)
+	e := eval.New()
 	if argc == 1 {
 		file, _ := exec.LookPath(os.Args[0])
 		path, _ := filepath.Abs(file)
 		e.Repl(filepath.Dir(path), os.Stdin, os.Stdout)
 	} else if argc == 2 {
-		e.EvalScript(os.Args[1], nil)
+		e.EvalScript(os.Args[1])
 	} else {
 		if os.Args[1] == "--dump" {
 			if s, err := e.DumpAst(os.Args[2]); nil != err {
@@ -80,12 +80,8 @@ func intepreterMain() {
 			}
 		} else if os.Args[1] == "--load" {
 			if argc == 3 {
-				e.EvalJson(os.Args[2], nil)
-			} else {
-				e.EvalJson(os.Args[2], os.Args[3:])
+				e.EvalJson(os.Args[2])
 			}
-		} else {
-			e.EvalScript(os.Args[1], os.Args[2:])
 		}
 	}
 }

@@ -29,10 +29,6 @@ const (
 )
 
 const (
-	EnvArgs = "ENV_ARGS" // TODO: remove
-)
-
-const (
 	TypeHash    = "hash"
 	TypeArray   = "array"
 	TypeBool    = "boolean"

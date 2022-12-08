@@ -32,7 +32,7 @@ var (
 )
 
 func newAst(code string) ast.Node {
-	e := eval.New(false)
+	e := eval.New()
 	node, err := e.LoadAst(code)
 	if nil != err {
 		panic(err)

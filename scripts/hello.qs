@@ -1,1 +1,1 @@
-println((len(ENV_ARGS) < 1) ? "hello world" : ENV_ARGS);
+println("hello world");
