@@ -12,7 +12,7 @@ import (
 )
 
 type Eval interface {
-	Repl(baseDir string, in io.Reader, out io.Writer)
+	Repl(in io.Reader, out io.Writer)
 	EvalJson(path string)
 	EvalScript(path string)
 	EvalCode(code string)

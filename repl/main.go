@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"os/exec"
-	"path/filepath"
 
 	"github.com/jobs-github/escript/compiler"
 	"github.com/jobs-github/escript/eval"
@@ -66,9 +64,7 @@ func intepreterMain() {
 	argc := len(os.Args)
 	e := eval.New()
 	if argc == 1 {
-		file, _ := exec.LookPath(os.Args[0])
-		path, _ := filepath.Abs(file)
-		e.Repl(filepath.Dir(path), os.Stdin, os.Stdout)
+		e.Repl(os.Stdin, os.Stdout)
 	} else if argc == 2 {
 		e.EvalScript(os.Args[1])
 	} else {

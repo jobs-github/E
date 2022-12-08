@@ -18,7 +18,7 @@ import (
 type evalImpl struct {
 }
 
-func (this evalImpl) Repl(baseDir string, in io.Reader, out io.Writer) {
+func (this evalImpl) Repl(in io.Reader, out io.Writer) {
 	scanner := bufio.NewScanner(in)
 	env := object.NewEnv()
 	for {
