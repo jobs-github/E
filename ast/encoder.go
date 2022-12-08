@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	SuffixQs   = ".qs"
+	Suffix     = ".es"
 	SuffixJson = ".json"
 )
 

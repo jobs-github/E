@@ -25,8 +25,8 @@ type Eval interface {
 func New() Eval { return evalImpl{} }
 
 func loadCode(path string) ([]byte, error) {
-	if !strings.HasSuffix(path, ast.SuffixQs) {
-		err := fmt.Errorf(`file "%v" not endwith ".qs"`, path)
+	if !strings.HasSuffix(path, ast.Suffix) {
+		err := fmt.Errorf(`file "%v" not endwith ".es"`, path)
 		return nil, function.NewError(err)
 	}
 	b, err := function.LoadFile(path)

@@ -1,4 +1,4 @@
-for file in ./scripts/*.qs
+for file in ./scripts/*.es
 do
     echo RUN "$file"
     ./escript $file

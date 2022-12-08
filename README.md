@@ -93,17 +93,17 @@ But also:
 
     chmod +x /make.sh
     ./make.sh
-    ./escript scripts/hello.qs
+    ./escript scripts/hello.es
 
 [back to top](#id_top)
 
-### [conditional expression](scripts/conditional.qs) ###
+### [conditional expression](scripts/conditional.es) ###
 
     (1 > 0) ? (1 + 1) : (10 % 3)
 
 [back to top](#id_top)
 
-### [recursion](scripts/mapreduce.qs) ###
+### [recursion](scripts/mapreduce.es) ###
 
     func map_iter(arr, accumulated, fn) {
         return (len(arr) == 0) ? accumulated : map_iter(arr.tail(), accumulated.push(fn(arr.first())), fn);
@@ -134,7 +134,7 @@ But also:
 
 [back to top](#id_top)
 
-### [closure](scripts/closure.qs) ###
+### [closure](scripts/closure.es) ###
 
     func sub(x) {
         return func(y) {
@@ -186,11 +186,11 @@ But also:
 
 [back to top](#id_top)
 
-### [script parameters injection](scripts/hello.qs) ###
+### [script parameters injection](scripts/hello.es) ###
 
     chmod +x /make.sh
     ./make.sh
-    ./escript scripts/hello.qs hello hello world
+    ./escript scripts/hello.es hello hello world
 
 [back to top](#id_top)
 
@@ -217,7 +217,7 @@ dump AST as json:
 
     chmod +x /make.sh
     ./make.sh
-    ./escript --dump scripts/conditional.qs > scripts/conditional.json
+    ./escript --dump scripts/conditional.es > scripts/conditional.json
 
 load & eval AST from json:  
 
@@ -279,13 +279,13 @@ load & eval AST from json:
 
 [back to top](#id_top)
 
-### [getenv](scripts/env.qs) ###
+### [getenv](scripts/env.es) ###
 
-    export test_env=HAHA; ./escript scripts/env.qs
+    export test_env=HAHA; ./escript scripts/env.es
 
 [back to top](#id_top)
 
-### [loads](scripts/json.qs) ###
+### [loads](scripts/json.es) ###
 
     const s = "{\"k3\":{\"k31\":true,\"k32\":[1,2,3]},\"k2\":\"2\",\"k1\":1}"; 
     const obj = loads(s);
@@ -293,7 +293,7 @@ load & eval AST from json:
 
 [back to top](#id_top)
 
-### [dumps](scripts/json.qs) ###
+### [dumps](scripts/json.es) ###
 
     const obj1 = { "k1": null, "k2": 123 };
     const objstr = dumps(obj1);
