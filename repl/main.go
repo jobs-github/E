@@ -1,64 +1,11 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
-	"io"
 	"os"
 
-	"github.com/jobs-github/escript/compiler"
 	"github.com/jobs-github/escript/eval"
-	"github.com/jobs-github/escript/lexer"
-	"github.com/jobs-github/escript/object"
-	"github.com/jobs-github/escript/parser"
-	"github.com/jobs-github/escript/vm"
 )
-
-func Start(in io.Reader, out io.Writer) {
-	scanner := bufio.NewScanner(in)
-
-	consts := object.Objects{}
-	globals := vm.NewGlobals()
-	st := compiler.NewSymbolTable(nil)
-
-	for {
-		fmt.Fprintf(out, ">> ")
-		scanned := scanner.Scan()
-		if !scanned {
-			return
-		}
-
-		line := scanner.Text()
-		l := lexer.New(line)
-		p, err := parser.New(l)
-		if nil != err {
-			io.WriteString(out, fmt.Sprintf("\t%v\n", err))
-			continue
-		}
-
-		program, err := p.ParseProgram()
-		if nil != err {
-			io.WriteString(out, fmt.Sprintf("\t%v\n", err))
-			continue
-		}
-
-		c := compiler.Make(st, consts)
-		if err := c.Compile(program); nil != err {
-			fmt.Fprintf(out, fmt.Sprintf("compile error: %v", err))
-			continue
-		}
-		machine := vm.Make(c.Bytecode(), c.Constants(), globals)
-		if err := machine.Run(); nil != err {
-			fmt.Fprintf(out, fmt.Sprintf("run vm error: %v\n", err))
-			continue
-		}
-		e := machine.LastPopped()
-		if !object.IsNull(e) {
-			io.WriteString(out, e.String())
-			io.WriteString(out, "\n")
-		}
-	}
-}
 
 func intepreterMain() {
 	argc := len(os.Args)
@@ -83,6 +30,5 @@ func intepreterMain() {
 }
 
 func main() {
-	// Start(os.Stdin, os.Stdout)
 	intepreterMain()
 }

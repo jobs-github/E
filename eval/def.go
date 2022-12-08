@@ -23,6 +23,7 @@ type Eval interface {
 }
 
 func NewInterpreter() Eval { return interpreter{} }
+func NewState() Eval       { return &virtualMachine{} }
 
 func loadCode(path string) ([]byte, error) {
 	if !strings.HasSuffix(path, ast.Suffix) {
