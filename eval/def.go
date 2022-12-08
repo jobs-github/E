@@ -22,7 +22,7 @@ type Eval interface {
 	LoadAst(code string) (ast.Node, error)
 }
 
-func New() Eval { return evalImpl{} }
+func NewInterpreter() Eval { return interpreter{} }
 
 func loadCode(path string) ([]byte, error) {
 	if !strings.HasSuffix(path, ast.Suffix) {

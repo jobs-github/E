@@ -62,7 +62,7 @@ func Start(in io.Reader, out io.Writer) {
 
 func intepreterMain() {
 	argc := len(os.Args)
-	e := eval.New()
+	e := eval.NewInterpreter()
 	if argc == 1 {
 		e.Repl(os.Stdin, os.Stdout)
 	} else if argc == 2 {

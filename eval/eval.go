@@ -14,11 +14,10 @@ import (
 	"github.com/jobs-github/escript/parser"
 )
 
-// evalImpl : implement Eval
-type evalImpl struct {
-}
+// interpreter : implement Eval
+type interpreter struct{}
 
-func (this evalImpl) Repl(in io.Reader, out io.Writer) {
+func (this interpreter) Repl(in io.Reader, out io.Writer) {
 	scanner := bufio.NewScanner(in)
 	env := object.NewEnv()
 	for {
@@ -53,7 +52,7 @@ func (this evalImpl) Repl(in io.Reader, out io.Writer) {
 	}
 }
 
-func (this evalImpl) EvalJson(path string) {
+func (this interpreter) EvalJson(path string) {
 	node, err := this.LoadJson(path)
 	if nil != err {
 		fmt.Println(err.Error())
@@ -69,7 +68,7 @@ func (this evalImpl) EvalJson(path string) {
 	}
 }
 
-func (this evalImpl) EvalScript(path string) {
+func (this interpreter) EvalScript(path string) {
 	b, err := loadCode(path)
 	if nil != err {
 		fmt.Println(err.Error())
@@ -78,7 +77,7 @@ func (this evalImpl) EvalScript(path string) {
 	this.EvalCode(function.BytesToString(b))
 }
 
-func (this evalImpl) EvalCode(code string) {
+func (this interpreter) EvalCode(code string) {
 	node, err := this.LoadAst(code)
 	if nil != err {
 		fmt.Println(err.Error())
@@ -94,7 +93,7 @@ func (this evalImpl) EvalCode(code string) {
 	}
 }
 
-func (this evalImpl) DumpAst(path string) (string, error) {
+func (this interpreter) DumpAst(path string) (string, error) {
 	b, err := loadCode(path)
 	if nil != err {
 		return "", function.NewError(err)
@@ -110,7 +109,7 @@ func (this evalImpl) DumpAst(path string) (string, error) {
 	return function.BytesToString(b), nil
 }
 
-func (this evalImpl) LoadJson(path string) (ast.Node, error) {
+func (this interpreter) LoadJson(path string) (ast.Node, error) {
 	if !strings.HasSuffix(path, ast.SuffixJson) {
 		err := fmt.Errorf(`file "%v" not endwith ".json"`, path)
 		return nil, function.NewError(err)
@@ -122,6 +121,6 @@ func (this evalImpl) LoadJson(path string) (ast.Node, error) {
 	return ast.Decode(b)
 }
 
-func (this evalImpl) LoadAst(code string) (ast.Node, error) {
+func (this interpreter) LoadAst(code string) (ast.Node, error) {
 	return loadAst(code)
 }
