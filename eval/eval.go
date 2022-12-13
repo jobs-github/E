@@ -16,8 +16,95 @@ import (
 	"github.com/jobs-github/escript/vm"
 )
 
+type evalNode func(node ast.Node) (object.Object, error)
+
+func loadCode(path string) ([]byte, error) {
+	if !strings.HasSuffix(path, ast.Suffix) {
+		err := fmt.Errorf(`file "%v" not endwith ".es"`, path)
+		return nil, function.NewError(err)
+	}
+	b, err := function.LoadFile(path)
+	if nil != err {
+		return nil, function.NewError(err)
+	}
+	return b, nil
+}
+
+func loadJson(path string) (ast.Node, error) {
+	if !strings.HasSuffix(path, ast.SuffixJson) {
+		err := fmt.Errorf(`file "%v" not endwith ".json"`, path)
+		return nil, function.NewError(err)
+	}
+	b, err := function.LoadFile(path)
+	if nil != err {
+		return nil, function.NewError(err)
+	}
+	return ast.Decode(b)
+}
+
+func evalJson(path string, fn evalNode) {
+	node, err := loadJson(path)
+	if nil != err {
+		fmt.Println(err.Error())
+		return
+	}
+	val, err := fn(node)
+	if nil != err {
+		fmt.Println(err.Error())
+	} else {
+		if !object.IsNull(val) {
+			fmt.Print(val.String())
+		}
+	}
+}
+
+func evalScript(path string, fn evalNode) {
+	b, err := loadCode(path)
+	if nil != err {
+		fmt.Println(err.Error())
+		return
+	}
+	evalCode(function.BytesToString(b), fn)
+}
+
+func evalCode(code string, fn evalNode) {
+	node, err := loadAst(code)
+	if nil != err {
+		fmt.Println(err.Error())
+		return
+	}
+	val, err := fn(node)
+	if nil != err {
+		fmt.Println(err.Error())
+	} else {
+		if !object.IsNull(val) {
+			fmt.Print(val.String())
+		}
+	}
+}
+
+func dumpAst(path string) (string, error) {
+	b, err := loadCode(path)
+	if nil != err {
+		return "", function.NewError(err)
+	}
+	program, err := loadAst(function.BytesToString(b))
+	if nil != err {
+		return "", function.NewError(err)
+	}
+	b, err = json.Marshal(program.Encode())
+	if nil != err {
+		return "", function.NewError(err)
+	}
+	return function.BytesToString(b), nil
+}
+
 // interpreter : implement Eval
 type interpreter struct{}
+
+func (this interpreter) eval(node ast.Node) (object.Object, error) {
+	return node.Eval(object.NewEnv())
+}
 
 func (this interpreter) Repl(in io.Reader, out io.Writer) {
 	scanner := bufio.NewScanner(in)
@@ -55,72 +142,23 @@ func (this interpreter) Repl(in io.Reader, out io.Writer) {
 }
 
 func (this interpreter) EvalJson(path string) {
-	node, err := this.LoadJson(path)
-	if nil != err {
-		fmt.Println(err.Error())
-		return
-	}
-	val, err := node.Eval(object.NewEnv())
-	if nil != err {
-		fmt.Println(err.Error())
-	} else {
-		if !object.IsNull(val) {
-			fmt.Print(val.String())
-		}
-	}
+	evalJson(path, this.eval)
 }
 
 func (this interpreter) EvalScript(path string) {
-	b, err := loadCode(path)
-	if nil != err {
-		fmt.Println(err.Error())
-		return
-	}
-	this.EvalCode(function.BytesToString(b))
+	evalScript(path, this.eval)
 }
 
 func (this interpreter) EvalCode(code string) {
-	node, err := this.LoadAst(code)
-	if nil != err {
-		fmt.Println(err.Error())
-		return
-	}
-	val, err := node.Eval(object.NewEnv())
-	if nil != err {
-		fmt.Println(err.Error())
-	} else {
-		if !object.IsNull(val) {
-			fmt.Print(val.String())
-		}
-	}
+	evalCode(code, this.eval)
 }
 
 func (this interpreter) DumpAst(path string) (string, error) {
-	b, err := loadCode(path)
-	if nil != err {
-		return "", function.NewError(err)
-	}
-	program, err := this.LoadAst(function.BytesToString(b))
-	if nil != err {
-		return "", function.NewError(err)
-	}
-	b, err = json.Marshal(program.Encode())
-	if nil != err {
-		return "", function.NewError(err)
-	}
-	return function.BytesToString(b), nil
+	return dumpAst(path)
 }
 
 func (this interpreter) LoadJson(path string) (ast.Node, error) {
-	if !strings.HasSuffix(path, ast.SuffixJson) {
-		err := fmt.Errorf(`file "%v" not endwith ".json"`, path)
-		return nil, function.NewError(err)
-	}
-	b, err := function.LoadFile(path)
-	if nil != err {
-		return nil, function.NewError(err)
-	}
-	return ast.Decode(b)
+	return loadJson(path)
 }
 
 func (this interpreter) LoadAst(code string) (ast.Node, error) {
@@ -130,7 +168,7 @@ func (this interpreter) LoadAst(code string) (ast.Node, error) {
 // virtualMachine : implement Eval
 type virtualMachine struct{}
 
-func (this *virtualMachine) Repl(in io.Reader, out io.Writer) {
+func (this virtualMachine) Repl(in io.Reader, out io.Writer) {
 	scanner := bufio.NewScanner(in)
 
 	consts := object.Objects{}
@@ -138,7 +176,7 @@ func (this *virtualMachine) Repl(in io.Reader, out io.Writer) {
 	st := compiler.NewSymbolTable(nil)
 
 	for {
-		fmt.Fprintf(out, ">> ")
+		fmt.Printf(">> ")
 		scanned := scanner.Scan()
 		if !scanned {
 			return
@@ -169,14 +207,14 @@ func (this *virtualMachine) Repl(in io.Reader, out io.Writer) {
 			continue
 		}
 		e := machine.LastPopped()
-		if !object.IsNull(e) {
+		if e != nil && !object.IsNull(e) {
 			io.WriteString(out, e.String())
 			io.WriteString(out, "\n")
 		}
 	}
 }
 
-func (this *virtualMachine) eval(program ast.Node) (object.Object, error) {
+func (this virtualMachine) eval(program ast.Node) (object.Object, error) {
 	consts := object.Objects{}
 	globals := vm.NewGlobals()
 	st := compiler.NewSymbolTable(nil)
@@ -191,75 +229,26 @@ func (this *virtualMachine) eval(program ast.Node) (object.Object, error) {
 	return machine.LastPopped(), nil
 }
 
-func (this *virtualMachine) EvalJson(path string) {
-	node, err := this.LoadJson(path)
-	if nil != err {
-		fmt.Println(err.Error())
-		return
-	}
-	val, err := this.eval(node)
-	if nil != err {
-		fmt.Println(err.Error())
-	} else {
-		if !object.IsNull(val) {
-			fmt.Print(val.String())
-		}
-	}
+func (this virtualMachine) EvalJson(path string) {
+	evalJson(path, this.eval)
 }
 
-func (this *virtualMachine) EvalScript(path string) {
-	b, err := loadCode(path)
-	if nil != err {
-		fmt.Println(err.Error())
-		return
-	}
-	this.EvalCode(function.BytesToString(b))
+func (this virtualMachine) EvalScript(path string) {
+	evalScript(path, this.eval)
 }
 
-func (this *virtualMachine) EvalCode(code string) {
-	node, err := this.LoadAst(code)
-	if nil != err {
-		fmt.Println(err.Error())
-		return
-	}
-	val, err := this.eval(node)
-	if nil != err {
-		fmt.Println(err.Error())
-	} else {
-		if !object.IsNull(val) {
-			fmt.Print(val.String())
-		}
-	}
+func (this virtualMachine) EvalCode(code string) {
+	evalCode(code, this.eval)
 }
 
-func (this *virtualMachine) DumpAst(path string) (string, error) {
-	b, err := loadCode(path)
-	if nil != err {
-		return "", function.NewError(err)
-	}
-	program, err := this.LoadAst(function.BytesToString(b))
-	if nil != err {
-		return "", function.NewError(err)
-	}
-	b, err = json.Marshal(program.Encode())
-	if nil != err {
-		return "", function.NewError(err)
-	}
-	return function.BytesToString(b), nil
+func (this virtualMachine) DumpAst(path string) (string, error) {
+	return dumpAst(path)
 }
 
-func (this *virtualMachine) LoadJson(path string) (ast.Node, error) {
-	if !strings.HasSuffix(path, ast.SuffixJson) {
-		err := fmt.Errorf(`file "%v" not endwith ".json"`, path)
-		return nil, function.NewError(err)
-	}
-	b, err := function.LoadFile(path)
-	if nil != err {
-		return nil, function.NewError(err)
-	}
-	return ast.Decode(b)
+func (this virtualMachine) LoadJson(path string) (ast.Node, error) {
+	return loadJson(path)
 }
 
-func (this *virtualMachine) LoadAst(code string) (ast.Node, error) {
+func (this virtualMachine) LoadAst(code string) (ast.Node, error) {
 	return loadAst(code)
 }

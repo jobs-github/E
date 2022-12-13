@@ -1,9 +1,7 @@
 package eval
 
 import (
-	"fmt"
 	"io"
-	"strings"
 
 	"github.com/jobs-github/escript/ast"
 	"github.com/jobs-github/escript/function"
@@ -23,19 +21,7 @@ type Eval interface {
 }
 
 func NewInterpreter() Eval { return interpreter{} }
-func NewState() Eval       { return &virtualMachine{} }
-
-func loadCode(path string) ([]byte, error) {
-	if !strings.HasSuffix(path, ast.Suffix) {
-		err := fmt.Errorf(`file "%v" not endwith ".es"`, path)
-		return nil, function.NewError(err)
-	}
-	b, err := function.LoadFile(path)
-	if nil != err {
-		return nil, function.NewError(err)
-	}
-	return b, nil
-}
+func NewState() Eval       { return virtualMachine{} }
 
 func loadAst(code string) (ast.Node, error) {
 	l := lexer.New(code)
