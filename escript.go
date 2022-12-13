@@ -16,6 +16,29 @@ import (
 	"github.com/jobs-github/escript/vm"
 )
 
+func NewInterpreter() Eval { return interpreter{} }
+func NewState() Eval       { return virtualMachine{} }
+
+type Eval interface {
+	Repl(in io.Reader, out io.Writer)
+	EvalJson(path string)
+	EvalScript(path string)
+	EvalCode(code string)
+
+	DumpAst(path string) (string, error)
+	LoadJson(path string) (ast.Node, error)
+	LoadAst(code string) (ast.Node, error)
+}
+
+func LoadAst(code string) (ast.Node, error) {
+	l := lexer.New(code)
+	p, err := parser.New(l)
+	if nil != err {
+		return nil, function.NewError(err)
+	}
+	return p.ParseProgram()
+}
+
 type evalNode func(node ast.Node) (object.Object, error)
 
 func loadCode(path string) ([]byte, error) {
@@ -68,7 +91,7 @@ func evalScript(path string, fn evalNode) {
 }
 
 func evalCode(code string, fn evalNode) {
-	node, err := loadAst(code)
+	node, err := LoadAst(code)
 	if nil != err {
 		fmt.Println(err.Error())
 		return
@@ -88,7 +111,7 @@ func dumpAst(path string) (string, error) {
 	if nil != err {
 		return "", function.NewError(err)
 	}
-	program, err := loadAst(function.BytesToString(b))
+	program, err := LoadAst(function.BytesToString(b))
 	if nil != err {
 		return "", function.NewError(err)
 	}
@@ -141,29 +164,12 @@ func (this interpreter) Repl(in io.Reader, out io.Writer) {
 	}
 }
 
-func (this interpreter) EvalJson(path string) {
-	evalJson(path, this.eval)
-}
-
-func (this interpreter) EvalScript(path string) {
-	evalScript(path, this.eval)
-}
-
-func (this interpreter) EvalCode(code string) {
-	evalCode(code, this.eval)
-}
-
-func (this interpreter) DumpAst(path string) (string, error) {
-	return dumpAst(path)
-}
-
-func (this interpreter) LoadJson(path string) (ast.Node, error) {
-	return loadJson(path)
-}
-
-func (this interpreter) LoadAst(code string) (ast.Node, error) {
-	return loadAst(code)
-}
+func (this interpreter) EvalJson(path string)                   { evalJson(path, this.eval) }
+func (this interpreter) EvalScript(path string)                 { evalScript(path, this.eval) }
+func (this interpreter) EvalCode(code string)                   { evalCode(code, this.eval) }
+func (this interpreter) DumpAst(path string) (string, error)    { return dumpAst(path) }
+func (this interpreter) LoadJson(path string) (ast.Node, error) { return loadJson(path) }
+func (this interpreter) LoadAst(code string) (ast.Node, error)  { return LoadAst(code) }
 
 // virtualMachine : implement Eval
 type virtualMachine struct{}
@@ -229,26 +235,9 @@ func (this virtualMachine) eval(program ast.Node) (object.Object, error) {
 	return machine.LastPopped(), nil
 }
 
-func (this virtualMachine) EvalJson(path string) {
-	evalJson(path, this.eval)
-}
-
-func (this virtualMachine) EvalScript(path string) {
-	evalScript(path, this.eval)
-}
-
-func (this virtualMachine) EvalCode(code string) {
-	evalCode(code, this.eval)
-}
-
-func (this virtualMachine) DumpAst(path string) (string, error) {
-	return dumpAst(path)
-}
-
-func (this virtualMachine) LoadJson(path string) (ast.Node, error) {
-	return loadJson(path)
-}
-
-func (this virtualMachine) LoadAst(code string) (ast.Node, error) {
-	return loadAst(code)
-}
+func (this virtualMachine) EvalJson(path string)                   { evalJson(path, this.eval) }
+func (this virtualMachine) EvalScript(path string)                 { evalScript(path, this.eval) }
+func (this virtualMachine) EvalCode(code string)                   { evalCode(code, this.eval) }
+func (this virtualMachine) DumpAst(path string) (string, error)    { return dumpAst(path) }
+func (this virtualMachine) LoadJson(path string) (ast.Node, error) { return loadJson(path) }
+func (this virtualMachine) LoadAst(code string) (ast.Node, error)  { return LoadAst(code) }
