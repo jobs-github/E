@@ -1,4 +1,4 @@
-package main
+package escript
 
 import (
 	"testing"
@@ -7,8 +7,6 @@ import (
 	"github.com/jobs-github/escript/compiler"
 	"github.com/jobs-github/escript/object"
 	"github.com/jobs-github/escript/vm"
-
-	"github.com/jobs-github/escript/eval"
 )
 
 // go test -v fib_test.go
@@ -32,7 +30,7 @@ var (
 )
 
 func newAst(code string) ast.Node {
-	e := eval.NewInterpreter()
+	e := NewInterpreter()
 	node, err := e.LoadAst(code)
 	if nil != err {
 		panic(err)
