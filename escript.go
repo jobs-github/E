@@ -16,8 +16,8 @@ import (
 	"github.com/jobs-github/escript/vm"
 )
 
-func NewInterpreter() Eval { return interpreter{} }
-func NewState() Eval       { return virtualMachine{} }
+func NewInterpreter() Eval { return &interpreter{} }
+func NewState() Eval       { return &virtualMachine{} }
 
 type Eval interface {
 	Repl(in io.Reader, out io.Writer)
@@ -125,11 +125,11 @@ func dumpAst(path string) (string, error) {
 // interpreter : implement Eval
 type interpreter struct{}
 
-func (this interpreter) eval(node ast.Node) (object.Object, error) {
+func (this *interpreter) eval(node ast.Node) (object.Object, error) {
 	return node.Eval(object.NewEnv())
 }
 
-func (this interpreter) Repl(in io.Reader, out io.Writer) {
+func (this *interpreter) Repl(in io.Reader, out io.Writer) {
 	scanner := bufio.NewScanner(in)
 	env := object.NewEnv()
 	for {
@@ -164,17 +164,17 @@ func (this interpreter) Repl(in io.Reader, out io.Writer) {
 	}
 }
 
-func (this interpreter) EvalJson(path string)                   { evalJson(path, this.eval) }
-func (this interpreter) EvalScript(path string)                 { evalScript(path, this.eval) }
-func (this interpreter) EvalCode(code string)                   { evalCode(code, this.eval) }
-func (this interpreter) DumpAst(path string) (string, error)    { return dumpAst(path) }
-func (this interpreter) LoadJson(path string) (ast.Node, error) { return loadJson(path) }
-func (this interpreter) LoadAst(code string) (ast.Node, error)  { return LoadAst(code) }
+func (this *interpreter) EvalJson(path string)                   { evalJson(path, this.eval) }
+func (this *interpreter) EvalScript(path string)                 { evalScript(path, this.eval) }
+func (this *interpreter) EvalCode(code string)                   { evalCode(code, this.eval) }
+func (this *interpreter) DumpAst(path string) (string, error)    { return dumpAst(path) }
+func (this *interpreter) LoadJson(path string) (ast.Node, error) { return loadJson(path) }
+func (this *interpreter) LoadAst(code string) (ast.Node, error)  { return LoadAst(code) }
 
 // virtualMachine : implement Eval
 type virtualMachine struct{}
 
-func (this virtualMachine) Repl(in io.Reader, out io.Writer) {
+func (this *virtualMachine) Repl(in io.Reader, out io.Writer) {
 	scanner := bufio.NewScanner(in)
 
 	consts := object.Objects{}
@@ -220,7 +220,7 @@ func (this virtualMachine) Repl(in io.Reader, out io.Writer) {
 	}
 }
 
-func (this virtualMachine) eval(program ast.Node) (object.Object, error) {
+func (this *virtualMachine) eval(program ast.Node) (object.Object, error) {
 	consts := object.Objects{}
 	globals := vm.NewGlobals()
 	st := compiler.NewSymbolTable(nil)
@@ -235,9 +235,9 @@ func (this virtualMachine) eval(program ast.Node) (object.Object, error) {
 	return machine.LastPopped(), nil
 }
 
-func (this virtualMachine) EvalJson(path string)                   { evalJson(path, this.eval) }
-func (this virtualMachine) EvalScript(path string)                 { evalScript(path, this.eval) }
-func (this virtualMachine) EvalCode(code string)                   { evalCode(code, this.eval) }
-func (this virtualMachine) DumpAst(path string) (string, error)    { return dumpAst(path) }
-func (this virtualMachine) LoadJson(path string) (ast.Node, error) { return loadJson(path) }
-func (this virtualMachine) LoadAst(code string) (ast.Node, error)  { return LoadAst(code) }
+func (this *virtualMachine) EvalJson(path string)                   { evalJson(path, this.eval) }
+func (this *virtualMachine) EvalScript(path string)                 { evalScript(path, this.eval) }
+func (this *virtualMachine) EvalCode(code string)                   { evalCode(code, this.eval) }
+func (this *virtualMachine) DumpAst(path string) (string, error)    { return dumpAst(path) }
+func (this *virtualMachine) LoadJson(path string) (ast.Node, error) { return loadJson(path) }
+func (this *virtualMachine) LoadAst(code string) (ast.Node, error)  { return LoadAst(code) }
