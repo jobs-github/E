@@ -88,11 +88,11 @@ func (this *Hash) Dump() (interface{}, error) {
 	for _, item := range this.Pairs {
 		if !IsString(item.Key) {
 			err := fmt.Errorf("`%v` (%v) is not string", item.Key.String(), Typeof(item.Key))
-			return nil, function.NewError(err)
+			return nil, err
 		}
 		v, err := item.Value.Dump()
 		if nil != err {
-			return nil, function.NewError(err)
+			return nil, err
 		}
 		m[item.Key.String()] = v
 	}
@@ -130,7 +130,7 @@ func (this *Hash) equalHash(other *Hash) error {
 			return fmt.Errorf("other hash missing key `%v`", valSrc.Key.String())
 		} else {
 			if err := valDst.Value.equal(valSrc.Value); nil != err {
-				return function.NewError(err)
+				return err
 			}
 		}
 	}
@@ -190,7 +190,7 @@ func (this *Hash) builtinMap(args Objects) (Object, error) {
 	for k, v := range this.Pairs {
 		val, err := cb.Call(Objects{v.Key, v.Value})
 		if nil != err {
-			return Nil, function.NewError(err)
+			return Nil, err
 		}
 		m[k] = &HashPair{v.Key, val}
 	}
@@ -213,7 +213,7 @@ func (this *Hash) builtinReduce(args Objects) (Object, error) {
 	for _, v := range this.Pairs {
 		val, err := cb.Call(Objects{acc, v.Value})
 		if nil != err {
-			return Nil, function.NewError(err)
+			return Nil, err
 		}
 		acc = val
 	}
@@ -236,7 +236,7 @@ func (this *Hash) builtinFilter(args Objects) (Object, error) {
 	for k, v := range this.Pairs {
 		val, err := cb.Call(Objects{v.Key, v.Value})
 		if nil != err {
-			return Nil, function.NewError(err)
+			return Nil, err
 		}
 		if val.True() {
 			m[k] = v

@@ -194,18 +194,18 @@ func infixNull(op *token.Token, right Object, method string) (Object, error) {
 		return right, nil
 	default:
 		err := fmt.Errorf("(%v) unsupported op %v(%v)", method, op.Literal, token.ToString(op.Type))
-		return Nil, function.NewError(err)
+		return Nil, err
 	}
 }
 
 func checkIdx(idx int64, sz int64) error {
 	if idx < 0 {
 		err := fmt.Errorf("list index out of range, idx: %v", idx)
-		return function.NewError(err)
+		return err
 	}
 	if idx > sz-1 {
 		err := fmt.Errorf("list index out of range, idx: %v, len: %v", idx, sz)
-		return function.NewError(err)
+		return err
 	}
 	return nil
 }
@@ -213,7 +213,7 @@ func checkIdx(idx int64, sz int64) error {
 func indexofArray(items Objects, idx int64) (Object, error) {
 	sz := int64(len(items))
 	if err := checkIdx(idx, sz); nil != err {
-		return Nil, function.NewError(err)
+		return Nil, err
 	}
 	return items[idx], nil
 }
@@ -221,7 +221,7 @@ func indexofArray(items Objects, idx int64) (Object, error) {
 func setValue(items Objects, idx int64, v Object) (Object, error) {
 	sz := int64(len(items))
 	if err := checkIdx(idx, sz); nil != err {
-		return Nil, function.NewError(err)
+		return Nil, err
 	}
 	items[idx] = v
 	return NewString(""), nil
@@ -230,7 +230,7 @@ func setValue(items Objects, idx int64, v Object) (Object, error) {
 func indexofString(s string, idx int64) (Object, error) {
 	sz := int64(len(s))
 	if err := checkIdx(idx, sz); nil != err {
-		return Nil, function.NewError(err)
+		return Nil, err
 	}
 	return NewString(s[idx : idx+1]), nil
 }
@@ -238,12 +238,12 @@ func indexofString(s string, idx int64) (Object, error) {
 func keyofHash(m HashMap, key Object) (Object, error) {
 	k, err := key.Hash()
 	if nil != err {
-		return Nil, function.NewError(err)
+		return Nil, err
 	}
 	v, ok := m.get(k)
 	if !ok {
 		err := fmt.Errorf("key `%v` missing", key.String())
-		return Nil, function.NewError(err)
+		return Nil, err
 	}
 	return v.Value, nil
 }
@@ -274,7 +274,7 @@ func callMember(this Object, fns objectBuiltins, name string, args Objects) (Obj
 	fn, ok := fns.get(name)
 	if !ok {
 		err := fmt.Errorf("no attribute '%v' in %v, (`%v`)", name, Typeof(this), this.String())
-		return Nil, function.NewError(err)
+		return Nil, err
 	}
 	return fn(args)
 }
@@ -283,7 +283,7 @@ func getMember(this Object, fns objectBuiltins, name string) (Object, error) {
 	fn, ok := fns.get(name)
 	if !ok {
 		err := fmt.Errorf("no attribute '%v' in %v, (`%v`)", name, Typeof(this), this.String())
-		return Nil, function.NewError(err)
+		return Nil, err
 	}
 	return NewObjectFunc(this, name, fn), nil
 }

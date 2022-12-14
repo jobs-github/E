@@ -15,11 +15,11 @@ func builtinDumps(args object.Objects) (object.Object, error) {
 	}
 	v, err := args[0].Dump()
 	if nil != err {
-		return object.Nil, function.NewError(err)
+		return object.Nil, err
 	}
 	b, err := json.Marshal(v)
 	if nil != err {
-		return object.Nil, function.NewError(err)
+		return object.Nil, err
 	}
 	return object.NewString(function.BytesToString(b)), nil
 }

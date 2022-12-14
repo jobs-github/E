@@ -53,7 +53,7 @@ func (this *Array) Dump() (interface{}, error) {
 	for _, item := range this.Items {
 		v, err := item.Dump()
 		if nil != err {
-			return nil, function.NewError(err)
+			return nil, err
 		}
 		arr = append(arr, v)
 	}
@@ -90,7 +90,7 @@ func (this *Array) equalArray(other *Array) error {
 		src := this.Items[i]
 		dst := other.Items[i]
 		if err := dst.equal(src); nil != err {
-			return function.NewError(err)
+			return err
 		}
 	}
 	return nil
@@ -151,7 +151,7 @@ func (this *Array) builtinIndex(args Objects) (Object, error) {
 	}
 	idx, err := args[0].asInteger()
 	if nil != err {
-		return Nil, function.NewError(err)
+		return Nil, err
 	}
 	return indexofArray(this.Items, idx)
 }
@@ -184,7 +184,7 @@ func (this *Array) builtinMap(args Objects) (Object, error) {
 	for i, item := range this.Items {
 		v, err := cb.Call(Objects{NewInteger(int64(i)), item})
 		if nil != err {
-			return Nil, function.NewError(err)
+			return Nil, err
 		}
 		r = append(r, v)
 	}
@@ -207,7 +207,7 @@ func (this *Array) builtinReduce(args Objects) (Object, error) {
 	for _, item := range this.Items {
 		v, err := cb.Call(Objects{acc, item})
 		if nil != err {
-			return Nil, function.NewError(err)
+			return Nil, err
 		}
 		acc = v
 	}
@@ -230,7 +230,7 @@ func (this *Array) builtinFilter(args Objects) (Object, error) {
 	for _, item := range this.Items {
 		v, err := cb.Call(Objects{item})
 		if nil != err {
-			return Nil, function.NewError(err)
+			return Nil, err
 		}
 		if v.True() {
 			r = append(r, item)

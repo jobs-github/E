@@ -60,7 +60,7 @@ func (this *ObjectFunc) equalObjectFunc(other *ObjectFunc) error {
 		return fmt.Errorf("name mismatch, this: %v, other: %v", this.Name, other.Name)
 	}
 	if err := other.Obj.equal(this.Obj); nil != err {
-		return function.NewError(err)
+		return err
 	}
 	return nil
 }

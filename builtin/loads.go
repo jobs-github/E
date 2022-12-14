@@ -3,7 +3,6 @@ package builtin
 import (
 	"fmt"
 
-	"github.com/jobs-github/escript/function"
 	"github.com/jobs-github/escript/json"
 	"github.com/jobs-github/escript/object"
 )
@@ -19,7 +18,7 @@ func builtinLoads(args object.Objects) (object.Object, error) {
 	s := unquote(args[0].String())
 	v, err := json.Decode(s)
 	if nil != err {
-		return object.Nil, function.NewError(err)
+		return object.Nil, err
 	}
 	return v, nil
 }

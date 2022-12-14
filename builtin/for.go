@@ -3,7 +3,6 @@ package builtin
 import (
 	"fmt"
 
-	"github.com/jobs-github/escript/function"
 	"github.com/jobs-github/escript/object"
 )
 
@@ -14,7 +13,7 @@ func builtinFor(args object.Objects) (object.Object, error) {
 	}
 	i, err := object.ToInteger(args[0])
 	if nil != err {
-		return object.Nil, function.NewError(err)
+		return object.Nil, err
 	}
 	cond := args[1]
 	if !object.Callable(cond) {
@@ -30,23 +29,23 @@ func builtinFor(args object.Objects) (object.Object, error) {
 	}
 	state, err := args[4].AsState()
 	if nil != err {
-		return object.Nil, function.NewError(err)
+		return object.Nil, err
 	}
 	iter := object.NewInteger(i)
 	for {
 		r, err := cond.Call(object.Objects{iter})
 		if nil != err {
-			return object.Nil, function.NewError(err)
+			return object.Nil, err
 		}
 		if !r.True() {
 			break
 		}
 		v, err := fn.Call(object.Objects{iter, state})
 		if nil != err {
-			return object.Nil, function.NewError(err)
+			return object.Nil, err
 		}
 		if s, err := v.AsState(); nil != err {
-			return object.Nil, function.NewError(err)
+			return object.Nil, err
 		} else {
 			state = s
 		}
@@ -55,7 +54,7 @@ func builtinFor(args object.Objects) (object.Object, error) {
 		}
 		nextVal, err := next.Call(object.Objects{iter})
 		if nil != err {
-			return object.Nil, function.NewError(err)
+			return object.Nil, err
 		}
 		iter = nextVal
 	}

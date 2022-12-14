@@ -131,7 +131,7 @@ func (this *String) builtinIndex(args Objects) (Object, error) {
 	}
 	idx, err := args[0].asInteger()
 	if nil != err {
-		return Nil, function.NewError(err)
+		return Nil, err
 	}
 	return indexofString(this.Value, idx)
 }
@@ -155,7 +155,7 @@ func (this *String) builtinInt(args Objects) (Object, error) {
 	}
 	v, err := strconv.ParseInt(this.Value, 10, 64)
 	if nil != err {
-		return Nil, function.NewError(err)
+		return Nil, err
 	}
 	return NewInteger(v), nil
 }

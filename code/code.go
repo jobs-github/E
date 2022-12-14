@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/jobs-github/escript/function"
 	"github.com/jobs-github/escript/token"
 )
 
@@ -222,7 +221,7 @@ func DecodeOperands(d *Definition, ins Instructions) (*Operands, error) {
 	for i, width := range d.OperandWidths {
 		v, err := decodeOperand(width, ins[r.Pos:])
 		if nil != err {
-			return nil, function.NewError(err)
+			return nil, err
 		}
 		r.Add(i, v, width)
 	}
@@ -245,7 +244,7 @@ func Lookup(op Opcode) (*Definition, error) {
 func Make(op Opcode, operands ...int) (Instructions, error) {
 	v, err := Lookup(op)
 	if nil != err {
-		return nil, function.NewError(err)
+		return nil, err
 	}
 
 	sz := 1
@@ -261,7 +260,7 @@ func Make(op Opcode, operands ...int) (Instructions, error) {
 		width := v.OperandWidths[i]
 		err := encodeOperand(o, v.OperandWidths[i], instruction[offset:])
 		if nil != err {
-			return nil, function.NewError(err)
+			return nil, err
 		}
 		offset += width
 	}
@@ -278,8 +277,7 @@ func encodeOperand(operand int, width int, b []byte) error {
 		b[0] = byte(operand)
 		return nil
 	default:
-		err := fmt.Errorf("unsupported width: %v", width)
-		return function.NewError(err)
+		return fmt.Errorf("unsupported width: %v", width)
 	}
 }
 
@@ -298,7 +296,6 @@ func decodeOperand(width int, b []byte) (int, error) {
 	case 1:
 		return int(DecodeUint8(b)), nil
 	default:
-		err := fmt.Errorf("unsupported width: %v", width)
-		return -1, function.NewError(err)
+		return -1, fmt.Errorf("unsupported width: %v", width)
 	}
 }

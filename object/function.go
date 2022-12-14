@@ -45,12 +45,12 @@ func (this *Function) Calc(op *token.Token, right Object) (Object, error) {
 func (this *Function) Call(args Objects) (Object, error) {
 	if len(args) != len(this.Args) {
 		err := fmt.Errorf("%v args provided, but %v args required, (`%v`)", len(args), len(this.Args), this.String())
-		return Nil, function.NewError(err)
+		return Nil, err
 	}
 	innerEnv := newFunctionEnv(this.Env, this.Args, args)
 	evaluated, err := this.EvalBody(innerEnv)
 	if nil != err {
-		return Nil, function.NewError(err)
+		return Nil, err
 	}
 	return evaluated, nil
 }
