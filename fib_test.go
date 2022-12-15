@@ -12,6 +12,7 @@ import (
 // go test -v fib_test.go
 
 const (
+	// 30
 	BENCH_CODE = `
 	func fib(x) {
 		(x == 0) ? 0 : (
@@ -20,7 +21,7 @@ const (
 			)
 		)
 	};
-	fib(30);
+	fib(3);
 	`
 )
 
@@ -30,8 +31,7 @@ var (
 )
 
 func newAst(code string) ast.Node {
-	e := NewInterpreter()
-	node, err := e.LoadAst(code)
+	node, err := LoadAst(code)
 	if nil != err {
 		panic(err)
 	}
