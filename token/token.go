@@ -49,6 +49,7 @@ const (
 	NULL
 	FUNC
 	CONST
+	FOR
 	//keyword_end
 )
 
@@ -58,6 +59,7 @@ const (
 	Null  = "null"
 	True  = "true"
 	False = "false"
+	For   = "for"
 )
 
 var (
@@ -124,6 +126,7 @@ var (
 		Null:  NULL,
 		Func:  FUNC,
 		Const: CONST,
+		For:   FOR,
 	}
 
 	tokenTypeStrings = map[TokenType]string{
@@ -162,6 +165,7 @@ var (
 		NULL:      "NULL",
 		FUNC:      "FUNC",
 		CONST:     "CONST",
+		FOR:       "FOR",
 	}
 )
 

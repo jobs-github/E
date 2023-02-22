@@ -156,6 +156,11 @@ func (this *visitor) DoExpr(v *ast.ExpressionStmt) error {
 	return nil
 }
 
+func (this *visitor) DoFor(v *ast.ForExpr) error {
+	// TODO
+	return nil
+}
+
 func (this *visitor) DoFunction(v *ast.FunctionStmt) error {
 	return this.doBind(v.Name, v.Value)
 }

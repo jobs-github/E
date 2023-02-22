@@ -12,6 +12,7 @@ const (
 	typeStmtExpr         = "expr"
 	typeStmtBlock        = "block"
 	typeExprIdent        = "ident"
+	typeExprFor          = token.For
 	typeExprBuiltin      = object.TypeBuiltin
 	typeExprFn           = "fn"
 	typeExprArray        = object.TypeArray
@@ -34,6 +35,7 @@ func NewFunction() *FunctionStmt       { return &FunctionStmt{} }
 func NewExpr() *ExpressionStmt         { return &ExpressionStmt{} }
 func NewBlock() *BlockStmt             { return &BlockStmt{} }
 func NewIdent() *Identifier            { return &Identifier{} }
+func NewFor() *ForExpr                 { return &ForExpr{} }
 func NewFn() *Function                 { return &Function{} }
 func NewArray() *Array                 { return &Array{} }
 func NewNull() *Null                   { return &Null{} }
@@ -58,6 +60,7 @@ var (
 	}
 	exprFactory = map[string]func() Expression{
 		typeExprIdent:        func() Expression { return NewIdent() },
+		typeExprFor:          func() Expression { return NewFor() },
 		typeExprBuiltin:      func() Expression { return NewIdent() },
 		typeExprFn:           func() Expression { return NewFn() },
 		typeExprArray:        func() Expression { return NewArray() },
