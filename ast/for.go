@@ -12,9 +12,9 @@ import (
 type ForExpr struct {
 	defaultNode
 	Init Expression
-	Cond *Function
-	Next *Function
-	Loop *Function
+	Cond Expression // Function or Identifier
+	Next Expression // Function or Identifier
+	Loop Expression // Function or Identifier
 	St   Expression // initial state
 }
 
@@ -57,15 +57,15 @@ func (this *ForExpr) Decode(b []byte) error {
 	if nil != err {
 		return function.NewError(err)
 	}
-	this.Cond, err = v.Cond.decodeFn()
+	this.Cond, err = v.Cond.decodeExpr()
 	if nil != err {
 		return function.NewError(err)
 	}
-	this.Next, err = v.Next.decodeFn()
+	this.Next, err = v.Next.decodeExpr()
 	if nil != err {
 		return function.NewError(err)
 	}
-	this.Loop, err = v.Loop.decodeFn()
+	this.Loop, err = v.Loop.decodeExpr()
 	if nil != err {
 		return function.NewError(err)
 	}
