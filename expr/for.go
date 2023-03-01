@@ -46,11 +46,7 @@ func (this *forExpr) decode() (ast.Expression, error) {
 	if nil != err {
 		return nil, function.NewError(err)
 	}
-	expr.Loop, err = this.decodeExpr(false)
-	if nil != err {
-		return nil, function.NewError(err)
-	}
-	expr.St, err = this.decodeExpr(true)
+	expr.LoopFn, err = this.decodeExpr(true)
 	if nil != err {
 		return nil, function.NewError(err)
 	}

@@ -4,10 +4,10 @@ import (
 	"fmt"
 )
 
-func NewState(quit bool, v Object) *State {
+func NewState(v Object, quit bool) *State {
 	obj := &State{
-		Quit:  quit,
 		Value: v,
+		Quit:  quit,
 	}
 	obj.fns = objectBuiltins{
 		FnValue: obj.builtinValue,
@@ -18,8 +18,8 @@ func NewState(quit bool, v Object) *State {
 // State : implement Object
 type State struct {
 	defaultObject
-	Quit  bool
 	Value Object
+	Quit  bool
 }
 
 func (this *State) String() string {
