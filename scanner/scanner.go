@@ -25,7 +25,7 @@ type Scanner interface {
 	NewObjectMember(left ast.Expression) *ast.ObjectMember
 	NewCall(left ast.Expression) *ast.Call
 	NewConditional(left ast.Expression) *ast.ConditionalExpr
-	NewFor() *ast.ForExpr
+	NewLoop() *ast.LoopExpr
 	NewFunction() *ast.FunctionStmt
 	NewExpr() *ast.ExpressionStmt
 	NewBlock() *ast.BlockStmt
@@ -171,8 +171,8 @@ func (this *scanner) NewConditional(left ast.Expression) *ast.ConditionalExpr {
 	return &ast.ConditionalExpr{Cond: left}
 }
 
-func (this *scanner) NewFor() *ast.ForExpr {
-	return ast.NewFor()
+func (this *scanner) NewLoop() *ast.LoopExpr {
+	return ast.NewLoop()
 }
 
 func (this *scanner) NewFunction() *ast.FunctionStmt {

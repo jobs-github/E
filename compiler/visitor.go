@@ -16,6 +16,7 @@ const (
 	optionEncodePop     doOption = 1
 	optionEncodeReturn  doOption = 2
 	optionEncodeNothing doOption = 3
+	optionEncodeTODO    doOption = 4
 )
 
 func unsupportedOp(entry string, op *token.Token, node ast.Node) error {
@@ -156,8 +157,57 @@ func (this *visitor) DoExpr(v *ast.ExpressionStmt) error {
 	return nil
 }
 
-func (this *visitor) DoFor(v *ast.ForExpr) error {
-	// TODO
+// ForExpr bytecode format
+//
+//		         init
+//			|--->cond
+//			|    OpJumpWhenFalse--|
+//			|    loop             |
+//	        |    OpJumpWhenFalse--| // quit
+//		    |    next             |
+//			|----OpJump           |
+//			     ...<-------------|
+//
+// encode ast.ForExpr like ast.Function
+func (this *visitor) DoLoop(v *ast.LoopExpr) error {
+	// where to store state & iter
+	// push state
+	/*if err := v.Init.Do(this.enclosed(optionEncodeTODO)); nil != err {
+		return function.NewError(err)
+	}
+	startPos := this.c.pos()
+	// call (iter)
+	if err := v.Cond.Do(this.enclosed(optionEncodeTODO)); nil != err {
+		return function.NewError(err)
+	}
+	posJumpWhenFalse, err := this.c.encode(code.OpJumpWhenFalse, -1)
+	if nil != err {
+		return function.NewError(err)
+	}
+	// newState = call(iter, state)
+	// set state
+	// push state.Quit
+	if err := v.LoopFn.Do(this.enclosed(optionEncodeTODO)); nil != err {
+		return function.NewError(err)
+	}
+	posJumpWhenQuit, err := this.c.encode(code.OpJumpWhenFalse, -1)
+	if nil != err {
+		return function.NewError(err)
+	}
+	// call(iter)
+	if err := v.Next.Do(this.enclosed(optionEncodeTODO)); nil != err {
+		return function.NewError(err)
+	}
+	if _, err := this.c.encode(code.OpJump, startPos); nil != err {
+		return function.NewError(err)
+	}
+	// back-patching
+	if err := this.c.changeOperand(posJumpWhenFalse, this.c.pos()); nil != err {
+		return function.NewError(err)
+	}
+	if err := this.c.changeOperand(posJumpWhenQuit, this.c.pos()); nil != err {
+		return function.NewError(err)
+	}*/
 	return nil
 }
 
@@ -208,11 +258,13 @@ func (this *visitor) DoIdent(v *ast.Identifier) error {
 }
 
 // ConditionalExpr bytecode format
-// cond
-// OpJumpWhenFalse
-// Yes
-// OpJump
-// No
+//
+//	     cond
+//	     OpJumpWhenFalse--|
+//	     Yes              |
+//	|----OpJump           |
+//	|    No<--------------|
+//	|--->...
 func (this *visitor) DoConditional(v *ast.ConditionalExpr) error {
 	if err := v.Cond.Do(this); nil != err {
 		return function.NewError(err)

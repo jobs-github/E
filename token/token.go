@@ -49,7 +49,7 @@ const (
 	NULL
 	FUNC
 	CONST
-	FOR
+	LOOP
 	//keyword_end
 )
 
@@ -59,7 +59,7 @@ const (
 	Null  = "null"
 	True  = "true"
 	False = "false"
-	For   = "for"
+	Loop  = "loop"
 )
 
 var (
@@ -126,7 +126,7 @@ var (
 		Null:  NULL,
 		Func:  FUNC,
 		Const: CONST,
-		For:   FOR,
+		Loop:  LOOP,
 	}
 
 	tokenTypeStrings = map[TokenType]string{
@@ -165,7 +165,7 @@ var (
 		NULL:      "NULL",
 		FUNC:      "FUNC",
 		CONST:     "CONST",
-		FOR:       "FOR",
+		LOOP:      "LOOP",
 	}
 )
 

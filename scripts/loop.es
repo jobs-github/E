@@ -1,20 +1,16 @@
 const n = 10;
-const cond = func(i){ i < 10 };
-const next = func(i){ i + 1 };
 
-const r0 = for(state(0), cond, next, func(i, st){
+const r0 = loop(10, func(i){
     state(println(i + n))
 });
 println(r0);
 
-const r1 = for(state(0), cond, next, func(i, st){
-    state(i + st.value())
+const r1 = loop(10, func(i){
+    state(i + i)
 });
-
 println(r1);
 
-const r2 = for(state(0), cond, next, func(i, st){
-    i < 5 ? state(i + st.value()) : state(i + st.value(), true)
+const r2 = loop(10, func(i){
+    i < 5 ? state(i + i) : state(i + i, true)
 });
-
 println(r2);

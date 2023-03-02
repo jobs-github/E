@@ -18,7 +18,7 @@ type Visitor interface {
 	DoConst(v *ConstStmt) error
 	DoBlock(v *BlockStmt) error
 	DoExpr(v *ExpressionStmt) error
-	DoFor(v *ForExpr) error
+	DoLoop(v *LoopExpr) error
 	DoFunction(v *FunctionStmt) error
 	DoPrefix(v *PrefixExpr) error
 	DoInfix(v *InfixExpr) error
