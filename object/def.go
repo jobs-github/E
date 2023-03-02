@@ -51,7 +51,6 @@ const (
 	FnTail   = "tail"
 	FnPush   = "push"
 	FnKeys   = "keys"
-	FnValue  = "value"
 )
 
 var (

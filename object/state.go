@@ -1,16 +1,12 @@
 package object
 
-import (
-	"fmt"
-)
-
 func NewState(v Object, quit bool) *State {
 	obj := &State{
 		Value: v,
 		Quit:  quit,
 	}
 	obj.fns = objectBuiltins{
-		FnValue: obj.builtinValue,
+		FnNot: obj.builtinNot,
 	}
 	return obj
 }
@@ -43,10 +39,6 @@ func (this *State) getType() ObjectType {
 }
 
 // builtin
-func (this *State) builtinValue(args Objects) (Object, error) {
-	argc := len(args)
-	if argc != 0 {
-		return Nil, fmt.Errorf("value() takes no argument (%v given), (`%v`)", argc, this.String())
-	}
-	return this.Value, nil
+func (this *State) builtinNot(args Objects) (Object, error) {
+	return defaultNot(this, args)
 }

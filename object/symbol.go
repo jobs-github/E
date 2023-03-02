@@ -1,6 +1,5 @@
 package object
 
-// type symbolIndex map[string]int
 type symbolTable []string
 
 func (this *symbolTable) traverse(cb func(i int, name string)) {
@@ -9,15 +8,6 @@ func (this *symbolTable) traverse(cb func(i int, name string)) {
 	}
 }
 
-/*
-func (this *symbolTable) newIndex() symbolIndex {
-	m := symbolIndex{}
-	for i, s := range *this {
-		m[s] = i
-	}
-	return m
-}
-*/
 var (
 	// vm: array
 	objectSymbolTable = symbolTable{
@@ -34,22 +24,9 @@ var (
 		FnTail,
 		FnPush,
 		FnKeys,
-		FnValue,
 	}
-
-	// compiler: map[string]int
-	//objectSymbolIndex = objectSymbolTable.newIndex()
 )
 
-/*
-func SymbolName(index int) string {
-	return objectSymbolTable[index]
-}
-
-func SymbolIndex(fn string) int {
-	return objectSymbolIndex[fn]
-}
-*/
 func Resolve(idx int) string {
 	return objectSymbolTable[idx]
 }
