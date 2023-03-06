@@ -1,6 +1,7 @@
 package ast
 
 import (
+	"bytes"
 	"encoding/json"
 
 	"github.com/jobs-github/escript/function"
@@ -54,7 +55,13 @@ func (this *LoopExpr) Decode(b []byte) error {
 	return nil
 }
 func (this *LoopExpr) String() string {
-	return ""
+	var out bytes.Buffer
+	out.WriteString("loop(")
+	out.WriteString(this.Cnt.String())
+	out.WriteString(",")
+	out.WriteString(this.Body.String())
+	out.WriteString(")")
+	return out.String()
 }
 func (this *LoopExpr) Eval(e object.Env) (object.Object, error) {
 	v, err := this.Cnt.Eval(e)
