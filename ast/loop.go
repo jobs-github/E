@@ -73,20 +73,10 @@ func (this *LoopExpr) Eval(e object.Env) (object.Object, error) {
 	if !object.Callable(fn) {
 		return object.Nil, err
 	}
-	var state *object.State
 	for i := int64(0); i < cnt; i++ {
-		v, err := fn.Call(object.Objects{object.NewInteger(i)})
-		if nil != err {
+		if _, err := fn.Call(object.Objects{object.NewInteger(i)}); nil != err {
 			return object.Nil, err
-		}
-		if s, err := v.AsState(); nil != err {
-			return object.Nil, err
-		} else {
-			state = s
-		}
-		if state.Quit {
-			break
 		}
 	}
-	return state, nil
+	return object.Nil, nil
 }

@@ -44,7 +44,6 @@ var (
 		newSymbol("sprintf", builtinSprintf),
 		newSymbol("loads", builtinLoads),
 		newSymbol("dumps", builtinDumps),
-		newSymbol("state", builtinState),
 	}
 	builtins = builtinSymbolTable.newMap()
 )
