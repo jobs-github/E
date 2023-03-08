@@ -19,6 +19,17 @@ const (
 	optionEncodeTODO    doOption = 4
 )
 
+const (
+	loopIter = "__i__"
+	loopCnt  = "__cnt__"
+)
+
+func newIdent(name string) *ast.Identifier {
+	ident := ast.NewIdent()
+	ident.Value = name
+	return ident
+}
+
 func unsupportedOp(entry string, op *token.Token, node ast.Node) error {
 	return fmt.Errorf("%v -> unsupported op %v(%v), (`%v`)", entry, op.Literal, token.ToString(op.Type), node.String())
 }
@@ -55,6 +66,7 @@ func (this *visitor) optionExpr() doOption {
 	}
 }
 
+// store
 func (this *visitor) opCodeSymbolSet(s *Symbol) code.Opcode {
 	if s.Scope == ScopeGlobal {
 		return code.OpSetGlobal
@@ -63,7 +75,7 @@ func (this *visitor) opCodeSymbolSet(s *Symbol) code.Opcode {
 	}
 }
 
-// loadSymbol
+// load
 func (this *visitor) opCodeSymbolGet(s *Symbol) code.Opcode {
 	if s.Scope == ScopeGlobal {
 		return code.OpGetGlobal
@@ -88,33 +100,31 @@ func (this *visitor) opCodeBoolean(v *ast.Boolean) code.Opcode {
 	}
 }
 
-func (this *visitor) doConst(v object.Object) error {
+func (this *visitor) doConst(v object.Object) (int, error) {
 	idx := this.c.addConst(v)
 	if _, err := this.c.encode(code.OpConst, idx); nil != err {
-		return function.NewError(err)
+		return -1, function.NewError(err)
 	}
-	return nil
+	return idx, nil
 }
 
 func (this *visitor) doBind(name *ast.Identifier, value ast.Expression) error {
-	symbol := this.c.define(name.Value)
-
+	s := this.c.define(name.Value)
 	if err := value.Do(this); nil != err {
 		return function.NewError(err)
 	}
-
-	if _, err := this.c.encode(this.opCodeSymbolSet(symbol), symbol.Index); nil != err {
+	if _, err := this.doStoreSymbol(s); nil != err {
 		return function.NewError(err)
 	}
 	return nil
 }
 
-func (this *visitor) doLoadSymbol(s *Symbol) error {
-	if _, err := this.c.encode(this.opCodeSymbolGet(s), s.Index); nil != err {
-		return function.NewError(err)
-	} else {
-		return nil
-	}
+func (this *visitor) doStoreSymbol(s *Symbol) (int, error) {
+	return this.c.encode(this.opCodeSymbolSet(s), s.Index)
+}
+
+func (this *visitor) doLoadSymbol(s *Symbol) (int, error) {
+	return this.c.encode(this.opCodeSymbolGet(s), s.Index)
 }
 
 func (this *visitor) DoProgram(v *ast.Program) error {
@@ -157,57 +167,105 @@ func (this *visitor) DoExpr(v *ast.ExpressionStmt) error {
 	return nil
 }
 
-// ForExpr bytecode format
+// LoopExpr bytecode format
 //
-//		         init
-//			|--->cond
-//			|    OpJumpWhenFalse--|
-//			|    loop             |
-//	        |    OpJumpWhenFalse--| // quit
-//		    |    next             |
-//			|----OpJump           |
-//			     ...<-------------|
-//
-// encode ast.ForExpr like ast.Function
+//	         init i cnt
+//		|--->cond
+//		|    OpJumpWhenFalse--|
+//		|    loop             |
+//	    |    next             |
+//		|----OpJump           |
+//		     ...<-------------|
 func (this *visitor) DoLoop(v *ast.LoopExpr) error {
-	// where to store state & iter
-	// push state
-	/*if err := v.Init.Do(this.enclosed(optionEncodeTODO)); nil != err {
+	i := newIdent(loopIter)
+	cnt := newIdent(loopCnt)
+
+	if err := this.doLoopFn(v, i, cnt); nil != err {
 		return function.NewError(err)
 	}
-	startPos := this.c.pos()
-	// call (iter)
-	if err := v.Cond.Do(this.enclosed(optionEncodeTODO)); nil != err {
+	// push 0
+	if err := ast.NewInteger().Do(this); nil != err {
 		return function.NewError(err)
 	}
-	posJumpWhenFalse, err := this.c.encode(code.OpJumpWhenFalse, -1)
+	// push cnt
+	if err := v.Cnt.Do(this); nil != err {
+		return function.NewError(err)
+	}
+	if _, err := this.c.encode(code.OpCall, 2); nil != err {
+		return function.NewError(err)
+	}
+	return nil
+}
+
+func (this *visitor) doLoopFn(v *ast.LoopExpr, i *ast.Identifier, cnt *ast.Identifier) error {
+	this.c.enterScope()
+
+	// args
+	si := this.c.define(i.Value)
+	this.c.define(cnt.Value)
+
+	startPos, err := this.doLoopCond(i, cnt)
 	if nil != err {
 		return function.NewError(err)
 	}
-	// newState = call(iter, state)
-	// set state
-	// push state.Quit
-	if err := v.LoopFn.Do(this.enclosed(optionEncodeTODO)); nil != err {
-		return function.NewError(err)
-	}
-	posJumpWhenQuit, err := this.c.encode(code.OpJumpWhenFalse, -1)
+	endPos, err := this.c.encode(code.OpJumpWhenFalse, -1)
 	if nil != err {
 		return function.NewError(err)
 	}
-	// call(iter)
-	if err := v.Next.Do(this.enclosed(optionEncodeTODO)); nil != err {
+	if err := this.doLoopBody(i, v); nil != err {
+		return function.NewError(err)
+	}
+	if _, err := this.c.encode(code.OpIncLocal, si.Index); nil != err {
 		return function.NewError(err)
 	}
 	if _, err := this.c.encode(code.OpJump, startPos); nil != err {
 		return function.NewError(err)
 	}
 	// back-patching
-	if err := this.c.changeOperand(posJumpWhenFalse, this.c.pos()); nil != err {
+	if err := this.c.changeOperand(endPos, this.c.pos()); nil != err {
 		return function.NewError(err)
 	}
-	if err := this.c.changeOperand(posJumpWhenQuit, this.c.pos()); nil != err {
+	if _, err := this.c.encode(code.OpReturn); nil != err {
 		return function.NewError(err)
-	}*/
+	}
+	symbols := this.c.symbols()
+	r := this.c.leaveScope()
+
+	fn := object.NewByteFunc(r.Instructions(), symbols)
+	idx := this.c.addConst(fn)
+	if _, err := this.c.encode(code.OpClosure, idx, 0); nil != err {
+		return function.NewError(err)
+	}
+	return nil
+}
+
+func (this *visitor) doLoopCond(i *ast.Identifier, cnt *ast.Identifier) (int, error) {
+	loopStartPos, err := this.doIdent(i) // push i
+	if nil != err {
+		return -1, function.NewError(err)
+	}
+	if _, err := this.doIdent(cnt); nil != err { // push cnt
+		return -1, function.NewError(err)
+	}
+	if _, err := this.c.encode(code.OpLt); nil != err {
+		return -1, function.NewError(err)
+	}
+	return loopStartPos, nil
+}
+
+// like DoCall
+func (this *visitor) doLoopBody(i *ast.Identifier, v *ast.LoopExpr) error {
+	// push closure
+	if err := v.Body.Do(this); nil != err {
+		return function.NewError(err)
+	}
+	// push args
+	if _, err := this.doIdent(i); nil != err {
+		return function.NewError(err)
+	}
+	if _, err := this.c.encode(code.OpCall, 1); nil != err {
+		return function.NewError(err)
+	}
 	return nil
 }
 
@@ -246,12 +304,16 @@ func (this *visitor) DoInfix(v *ast.InfixExpr) error {
 	return nil
 }
 
-func (this *visitor) DoIdent(v *ast.Identifier) error {
+func (this *visitor) doIdent(v *ast.Identifier) (int, error) {
 	s, err := this.c.resolve(v.Value)
 	if nil != err {
-		return function.NewError(err)
+		return -1, function.NewError(err)
 	}
-	if err := this.doLoadSymbol(s); nil != err {
+	return this.doLoadSymbol(s)
+}
+
+func (this *visitor) DoIdent(v *ast.Identifier) error {
+	if _, err := this.doIdent(v); nil != err {
 		return function.NewError(err)
 	}
 	return nil
@@ -318,7 +380,7 @@ func (this *visitor) DoFn(v *ast.Function) error {
 	// vm will put the free variables on to the stack
 	// waiting to be merged with an ByteFunc into an Closure.
 	for _, s := range freeSymbols {
-		if err := this.doLoadSymbol(s); nil != err {
+		if _, err := this.doLoadSymbol(s); nil != err {
 			return function.NewError(err)
 		}
 	}
@@ -382,11 +444,13 @@ func (this *visitor) DoIndex(v *ast.IndexExpr) error {
 }
 
 func (this *visitor) DoNull(v *ast.Null) error {
-	return this.doConst(object.Nil)
+	_, err := this.doConst(object.Nil)
+	return err
 }
 
 func (this *visitor) DoInteger(v *ast.Integer) error {
-	return this.doConst(object.NewInteger(v.Value))
+	_, err := this.doConst(object.NewInteger(v.Value))
+	return err
 }
 
 func (this *visitor) DoBoolean(v *ast.Boolean) error {
@@ -397,7 +461,8 @@ func (this *visitor) DoBoolean(v *ast.Boolean) error {
 }
 
 func (this *visitor) DoString(v *ast.String) error {
-	return this.doConst(object.NewString(v.Value))
+	_, err := this.doConst(object.NewString(v.Value))
+	return err
 }
 
 func (this *visitor) DoArray(v *ast.Array) error {

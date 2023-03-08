@@ -29,6 +29,7 @@ const (
 	OpGetObjectFn
 	OpGetLocal
 	OpSetLocal
+	OpIncLocal
 	OpCall
 	OpGetFree
 	OpGetLambda
@@ -69,6 +70,7 @@ var (
 		OpGetObjectFn:   {"OpGetObjectFn", []int{1}},
 		OpGetLocal:      {"OpGetLocal", []int{1}},
 		OpSetLocal:      {"OpSetLocal", []int{1}},
+		OpIncLocal:      {"OpIncLocal", []int{1}},
 		OpCall:          {"OpCall", []int{1}},
 		OpGetFree:       {"OpGetFree", []int{1}},
 		OpGetLambda:     {"OpCurrentClosure", []int{1}},
