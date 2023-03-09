@@ -225,6 +225,9 @@ func (this *visitor) doLoopFn(v *ast.LoopExpr, i *ast.Identifier, cnt *ast.Ident
 	if err := this.c.changeOperand(endPos, this.c.pos()); nil != err {
 		return function.NewError(err)
 	}
+	if _, err := this.doConst(object.Nil); nil != err {
+		return function.NewError(err)
+	}
 	if _, err := this.c.encode(code.OpReturn); nil != err {
 		return function.NewError(err)
 	}
@@ -264,6 +267,10 @@ func (this *visitor) doLoopBody(i *ast.Identifier, v *ast.LoopExpr) error {
 		return function.NewError(err)
 	}
 	if _, err := this.c.encode(code.OpCall, 1); nil != err {
+		return function.NewError(err)
+	}
+	// discard return value
+	if _, err := this.c.encode(code.OpPop); nil != err {
 		return function.NewError(err)
 	}
 	return nil

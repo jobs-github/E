@@ -60,6 +60,10 @@ func (this *Integer) True() bool {
 	return true
 }
 
+func (this *Integer) Incr() {
+	this.Value++
+}
+
 func (this *Integer) getType() ObjectType {
 	return objectTypeInteger
 }

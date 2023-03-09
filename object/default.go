@@ -57,6 +57,8 @@ func (this *defaultObject) True() bool {
 	return false
 }
 
+func (this *defaultObject) Incr() {}
+
 func (this *defaultObject) AsByteFunc() (*ByteFunc, error) {
 	return nil, errTypeIsNotByteFunc
 }

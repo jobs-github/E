@@ -21,6 +21,7 @@ type Object interface {
 	CallMember(name string, args Objects) (Object, error)
 	GetMember(name string) (Object, error)
 	True() bool
+	Incr()
 	AsByteFunc() (*ByteFunc, error)
 	AsClosure() (*Closure, error)
 

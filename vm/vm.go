@@ -163,6 +163,12 @@ func (this *virtualMachine) Run() error {
 				idx := this.frames.basePointer() + int(localIndex)
 				this.stack[idx] = this.pop()
 			}
+		case code.OpIncLocal:
+			{
+				localIndex := this.fetchUint8(ip, ins)
+				idx := this.frames.basePointer() + int(localIndex)
+				this.stack[idx].Incr()
+			}
 		case code.OpGetLocal:
 			{
 				localIndex := this.fetchUint8(ip, ins)
