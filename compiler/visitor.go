@@ -243,6 +243,11 @@ func (this *visitor) doLoopFn(v *ast.LoopExpr, i *ast.Identifier, cnt *ast.Ident
 }
 
 func (this *visitor) doLoopCond(i *ast.Identifier, cnt *ast.Identifier) (int, error) {
+	// if loopStartPos == 0
+	//     vm will quit after jmp (ip = unsigned(-1))
+	if _, err := this.c.encode(code.OpPlaceholder); nil != err {
+		return -1, function.NewError(err)
+	}
 	loopStartPos, err := this.doIdent(i) // push i
 	if nil != err {
 		return -1, function.NewError(err)

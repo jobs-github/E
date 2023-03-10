@@ -54,6 +54,7 @@ const (
 	OpAnd
 	OpOr
 	OpIndex
+	OpPlaceholder
 )
 
 var (
@@ -95,6 +96,7 @@ var (
 		OpAnd:           {"OpAnd", []int{}},
 		OpOr:            {"OpOr", []int{}},
 		OpIndex:         {"OpIndex", []int{}},
+		OpPlaceholder:   {"OpPlaceholder", []int{}},
 	}
 	prefixCodePairs = tokenCodePairs{
 		{token.Not, OpNot},
