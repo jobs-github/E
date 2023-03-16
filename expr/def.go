@@ -33,6 +33,7 @@ func NewExprParser(s scanner.Scanner, p interfaces.Parser) ExprParser {
 			token.LBRACE: &lbrace{s, p},
 			token.FUNC:   &lambdaFunction{s, p},
 			token.LOOP:   &loopExpr{s, p},
+			token.MAP:    &mapExpr{s, p},
 		},
 	}
 }
@@ -53,4 +54,36 @@ func (this *exprParser) Decode(tok token.TokenType) (ast.Expression, error) {
 		return nil, function.NewError(err)
 	}
 	return fn.decode()
+}
+
+func decodeExpr(s scanner.Scanner, p interfaces.Parser, final bool) (ast.Expression, error) {
+	s.NextToken()
+	v, err := p.ParseExpression(scanner.PRECED_LOWEST)
+	if nil != err {
+		return nil, function.NewError(err)
+	}
+	if !final {
+		if err := s.ExpectPeek(token.COMMA); nil != err {
+			return nil, function.NewError(err)
+		}
+	}
+	return v, nil
+}
+
+func decodeLoopFn(s scanner.Scanner, p interfaces.Parser) (ast.Expression, ast.Expression, error) {
+	if err := s.ExpectPeek(token.LPAREN); nil != err {
+		return nil, nil, function.NewError(err)
+	}
+	data, err := decodeExpr(s, p, false)
+	if nil != err {
+		return nil, nil, function.NewError(err)
+	}
+	body, err := decodeExpr(s, p, true)
+	if nil != err {
+		return nil, nil, function.NewError(err)
+	}
+	if err := s.ExpectPeek(token.RPAREN); nil != err {
+		return nil, nil, function.NewError(err)
+	}
+	return data, body, nil
 }

@@ -16,7 +16,6 @@ func NewArray(items Objects) Object {
 		FnLen:    obj.builtinLen,
 		FnIndex:  obj.builtinIndex,
 		FnNot:    obj.builtinNot,
-		FnMap:    obj.builtinMap,
 		FnReduce: obj.builtinReduce,
 		FnFilter: obj.builtinFilter,
 		FnFirst:  obj.builtinFirst,
@@ -70,6 +69,10 @@ func (this *Array) CallMember(name string, args Objects) (Object, error) {
 
 func (this *Array) GetMember(name string) (Object, error) {
 	return getMember(this, this.fns, name)
+}
+
+func (this *Array) AsArray() (*Array, error) {
+	return this, nil
 }
 
 func (this *Array) getType() ObjectType {
@@ -166,29 +169,6 @@ func (this *Array) builtinNot(args Objects) (Object, error) {
 	} else {
 		return False, nil
 	}
-}
-
-func (this *Array) builtinMap(args Objects) (Object, error) {
-	argc := len(args)
-	if argc != 1 {
-		return Nil, fmt.Errorf("map() takes exactly one argument (%v given)", argc)
-	}
-	cb := args[0]
-	if !Callable(cb) {
-		return Nil, errors.New("argument is not callable")
-	}
-	if nil == this.Items || len(this.Items) < 1 {
-		return NewArray(Objects{}), nil
-	}
-	r := Objects{}
-	for i, item := range this.Items {
-		v, err := cb.Call(Objects{NewInteger(int64(i)), item})
-		if nil != err {
-			return Nil, err
-		}
-		r = append(r, v)
-	}
-	return NewArray(r), nil
 }
 
 func (this *Array) builtinReduce(args Objects) (Object, error) {

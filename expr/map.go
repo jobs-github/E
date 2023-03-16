@@ -7,19 +7,19 @@ import (
 	"github.com/jobs-github/escript/scanner"
 )
 
-// loopExpr : implement tokenDecoder
-type loopExpr struct {
+// mapExpr : implement tokenDecoder
+type mapExpr struct {
 	scanner scanner.Scanner
 	p       interfaces.Parser
 }
 
-func (this *loopExpr) decode() (ast.Expression, error) {
-	expr := this.scanner.NewLoop()
+func (this *mapExpr) decode() (ast.Expression, error) {
+	expr := this.scanner.NewMap()
 	data, body, err := decodeLoopFn(this.scanner, this.p)
 	if nil != err {
 		return nil, function.NewError(err)
 	}
-	expr.Cnt = data
+	expr.Arr = data
 	expr.Body = body
 	return expr, nil
 }

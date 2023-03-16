@@ -31,6 +31,7 @@ var (
 	errTypeIsNotByteFunc = errors.New("type is not ByteFunc")
 	errTypeIsNotClosure  = errors.New("type is not Closure")
 	errTypeIsNotInt      = errors.New("type is not Integer")
+	errTypeIsNotArray    = errors.New("type is not Array")
 )
 
 type defaultObject struct {
@@ -65,6 +66,10 @@ func (this *defaultObject) AsByteFunc() (*ByteFunc, error) {
 
 func (this *defaultObject) AsClosure() (*Closure, error) {
 	return nil, errTypeIsNotClosure
+}
+
+func (this *defaultObject) AsArray() (*Array, error) {
+	return nil, errTypeIsNotArray
 }
 
 func (this *defaultObject) asInteger() (int64, error) {

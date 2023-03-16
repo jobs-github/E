@@ -26,6 +26,7 @@ type Scanner interface {
 	NewCall(left ast.Expression) *ast.Call
 	NewConditional(left ast.Expression) *ast.ConditionalExpr
 	NewLoop() *ast.LoopExpr
+	NewMap() *ast.MapExpr
 	NewFunction() *ast.FunctionStmt
 	NewExpr() *ast.ExpressionStmt
 	NewBlock() *ast.BlockStmt
@@ -173,6 +174,10 @@ func (this *scanner) NewConditional(left ast.Expression) *ast.ConditionalExpr {
 
 func (this *scanner) NewLoop() *ast.LoopExpr {
 	return ast.NewLoop()
+}
+
+func (this *scanner) NewMap() *ast.MapExpr {
+	return ast.NewMap()
 }
 
 func (this *scanner) NewFunction() *ast.FunctionStmt {

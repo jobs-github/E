@@ -24,6 +24,7 @@ type Object interface {
 	Incr()
 	AsByteFunc() (*ByteFunc, error)
 	AsClosure() (*Closure, error)
+	AsArray() (*Array, error)
 
 	getType() ObjectType
 	asInteger() (int64, error)

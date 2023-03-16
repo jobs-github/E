@@ -50,6 +50,7 @@ const (
 	FUNC
 	CONST
 	LOOP
+	MAP
 	//keyword_end
 )
 
@@ -60,6 +61,7 @@ const (
 	True  = "true"
 	False = "false"
 	Loop  = "loop"
+	Map   = "map"
 )
 
 var (
@@ -127,6 +129,7 @@ var (
 		Func:  FUNC,
 		Const: CONST,
 		Loop:  LOOP,
+		Map:   MAP,
 	}
 
 	tokenTypeStrings = map[TokenType]string{
@@ -166,6 +169,7 @@ var (
 		FUNC:      "FUNC",
 		CONST:     "CONST",
 		LOOP:      "LOOP",
+		MAP:       "MAP",
 	}
 )
 

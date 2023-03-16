@@ -11,6 +11,7 @@ import (
 
 var (
 	errNotFunction = errors.New("ast type is not function")
+	errNotCallable = errors.New("object is not callable")
 )
 
 type Visitor interface {
@@ -19,6 +20,7 @@ type Visitor interface {
 	DoBlock(v *BlockStmt) error
 	DoExpr(v *ExpressionStmt) error
 	DoLoop(v *LoopExpr) error
+	DoMap(v *MapExpr) error
 	DoFunction(v *FunctionStmt) error
 	DoPrefix(v *PrefixExpr) error
 	DoInfix(v *InfixExpr) error

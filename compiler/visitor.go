@@ -197,6 +197,11 @@ func (this *visitor) DoLoop(v *ast.LoopExpr) error {
 	return nil
 }
 
+func (this *visitor) DoMap(v *ast.MapExpr) error {
+	// TODO
+	return nil
+}
+
 func (this *visitor) doLoopFn(v *ast.LoopExpr, i *ast.Identifier, cnt *ast.Identifier) error {
 	this.c.enterScope()
 
