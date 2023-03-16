@@ -30,6 +30,7 @@ const (
 	OpGetLocal
 	OpSetLocal
 	OpIncLocal
+	OpSetLocalIdx
 	OpCall
 	OpGetFree
 	OpGetLambda
@@ -54,6 +55,8 @@ const (
 	OpAnd
 	OpOr
 	OpIndex
+	OpLen
+	OpNewArray
 	OpPlaceholder
 )
 
@@ -72,6 +75,7 @@ var (
 		OpGetLocal:      {"OpGetLocal", []int{1}},
 		OpSetLocal:      {"OpSetLocal", []int{1}},
 		OpIncLocal:      {"OpIncLocal", []int{1}},
+		OpSetLocalIdx:   {"OpSetLocalIdx", []int{1, 1}},
 		OpCall:          {"OpCall", []int{1}},
 		OpGetFree:       {"OpGetFree", []int{1}},
 		OpGetLambda:     {"OpCurrentClosure", []int{1}},
@@ -96,6 +100,8 @@ var (
 		OpAnd:           {"OpAnd", []int{}},
 		OpOr:            {"OpOr", []int{}},
 		OpIndex:         {"OpIndex", []int{}},
+		OpLen:           {"OpLen", []int{}},
+		OpNewArray:      {"OpNewArray", []int{}},
 		OpPlaceholder:   {"OpPlaceholder", []int{}},
 	}
 	prefixCodePairs = tokenCodePairs{

@@ -163,12 +163,6 @@ func (this *virtualMachine) Run() error {
 				idx := this.frames.basePointer() + int(localIndex)
 				this.stack[idx] = this.pop()
 			}
-		case code.OpIncLocal:
-			{
-				localIndex := this.fetchUint8(ip, ins)
-				idx := this.frames.basePointer() + int(localIndex)
-				this.stack[idx].Incr()
-			}
 		case code.OpGetLocal:
 			{
 				localIndex := this.fetchUint8(ip, ins)
@@ -176,6 +170,20 @@ func (this *virtualMachine) Run() error {
 				if err := this.push(this.stack[idx]); nil != err {
 					return err
 				}
+			}
+		case code.OpIncLocal:
+			{
+				localIndex := this.fetchUint8(ip, ins)
+				idx := this.frames.basePointer() + int(localIndex)
+				this.stack[idx].Incr()
+			}
+		case code.OpSetLocalIdx:
+			{
+				localIndex := this.fetchUint8(ip, ins)
+				idx := this.frames.basePointer() + int(localIndex)
+				i := this.pop()
+				v := this.pop()
+				this.stack[idx].Set(i, v)
 			}
 		case code.OpCall:
 			{
@@ -295,6 +303,20 @@ func (this *virtualMachine) Run() error {
 				idx := this.pop()
 				left := this.pop()
 				if err := this.doIndex(left, idx); nil != err {
+					return err
+				}
+			}
+		case code.OpNewArray:
+			{
+				obj := this.pop()
+				arr, err := obj.AsArray()
+				if nil != err {
+					return err
+				}
+				if err := this.push(arr); nil != err {
+					return err
+				}
+				if err := this.push(arr.New()); nil != err {
 					return err
 				}
 			}

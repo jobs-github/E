@@ -20,8 +20,10 @@ const (
 )
 
 const (
-	loopIter = "__i__"
-	loopCnt  = "__cnt__"
+	loopIter   = "__i__"
+	loopCnt    = "__cnt__"
+	loopArray  = "__arr__"
+	loopResult = "__res__"
 )
 
 func newIdent(name string) *ast.Identifier {
@@ -198,89 +200,25 @@ func (this *visitor) DoLoop(v *ast.LoopExpr) error {
 }
 
 func (this *visitor) DoMap(v *ast.MapExpr) error {
-	// TODO
-	return nil
-}
-
-func (this *visitor) doLoopFn(v *ast.LoopExpr, i *ast.Identifier, cnt *ast.Identifier) error {
-	this.c.enterScope()
-
-	// args
-	si := this.c.define(i.Value)
-	this.c.define(cnt.Value)
-
-	startPos, err := this.doLoopCond(i, cnt)
-	if nil != err {
+	i := newIdent(loopIter)
+	arr := newIdent(loopArray)
+	res := newIdent(loopResult)
+	if err := this.doMapFn(v, i, arr, res); nil != err {
 		return function.NewError(err)
 	}
-	endPos, err := this.c.encode(code.OpJumpWhenFalse, -1)
-	if nil != err {
+	// push 0
+	if err := ast.NewInteger().Do(this); nil != err {
 		return function.NewError(err)
 	}
-	if err := this.doLoopBody(i, v); nil != err {
+	// push arr
+	if err := v.Arr.Do(this); nil != err {
 		return function.NewError(err)
 	}
-	if _, err := this.c.encode(code.OpIncLocal, si.Index); nil != err {
+	// push res
+	if _, err := this.c.encode(code.OpNewArray); nil != err {
 		return function.NewError(err)
 	}
-	if _, err := this.c.encode(code.OpJump, startPos); nil != err {
-		return function.NewError(err)
-	}
-	// back-patching
-	if err := this.c.changeOperand(endPos, this.c.pos()); nil != err {
-		return function.NewError(err)
-	}
-	if _, err := this.doConst(object.Nil); nil != err {
-		return function.NewError(err)
-	}
-	if _, err := this.c.encode(code.OpReturn); nil != err {
-		return function.NewError(err)
-	}
-	symbols := this.c.symbols()
-	r := this.c.leaveScope()
-
-	fn := object.NewByteFunc(r.Instructions(), symbols)
-	idx := this.c.addConst(fn)
-	if _, err := this.c.encode(code.OpClosure, idx, 0); nil != err {
-		return function.NewError(err)
-	}
-	return nil
-}
-
-func (this *visitor) doLoopCond(i *ast.Identifier, cnt *ast.Identifier) (int, error) {
-	// if loopStartPos == 0
-	//     vm will quit after jmp (ip = unsigned(-1))
-	if _, err := this.c.encode(code.OpPlaceholder); nil != err {
-		return -1, function.NewError(err)
-	}
-	loopStartPos, err := this.doIdent(i) // push i
-	if nil != err {
-		return -1, function.NewError(err)
-	}
-	if _, err := this.doIdent(cnt); nil != err { // push cnt
-		return -1, function.NewError(err)
-	}
-	if _, err := this.c.encode(code.OpLt); nil != err {
-		return -1, function.NewError(err)
-	}
-	return loopStartPos, nil
-}
-
-// like DoCall
-func (this *visitor) doLoopBody(i *ast.Identifier, v *ast.LoopExpr) error {
-	// push closure
-	if err := v.Body.Do(this); nil != err {
-		return function.NewError(err)
-	}
-	// push args
-	if _, err := this.doIdent(i); nil != err {
-		return function.NewError(err)
-	}
-	if _, err := this.c.encode(code.OpCall, 1); nil != err {
-		return function.NewError(err)
-	}
-	// discard return value
-	if _, err := this.c.encode(code.OpPop); nil != err {
+	if _, err := this.c.encode(code.OpCall, 3); nil != err {
 		return function.NewError(err)
 	}
 	return nil
@@ -454,6 +392,22 @@ func (this *visitor) DoIndex(v *ast.IndexExpr) error {
 	if err := v.Index.Do(this); nil != err {
 		return function.NewError(err)
 	}
+	if _, err := this.c.encode(code.OpIndex); nil != err {
+		return function.NewError(err)
+	}
+	return nil
+}
+
+func (this *visitor) doIndex(arr *ast.Identifier, i *ast.Identifier) error {
+	// push arr
+	if _, err := this.doIdent(arr); nil != err {
+		return function.NewError(err)
+	}
+	// push i
+	if _, err := this.doIdent(i); nil != err {
+		return function.NewError(err)
+	}
+	// pop i, arr & push arr[i]
 	if _, err := this.c.encode(code.OpIndex); nil != err {
 		return function.NewError(err)
 	}

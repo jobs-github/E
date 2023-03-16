@@ -32,6 +32,7 @@ var (
 	errTypeIsNotClosure  = errors.New("type is not Closure")
 	errTypeIsNotInt      = errors.New("type is not Integer")
 	errTypeIsNotArray    = errors.New("type is not Array")
+	errInvalidIndex      = errors.New("list index out of range")
 )
 
 type defaultObject struct {
@@ -70,6 +71,10 @@ func (this *defaultObject) AsClosure() (*Closure, error) {
 
 func (this *defaultObject) AsArray() (*Array, error) {
 	return nil, errTypeIsNotArray
+}
+
+func (this *defaultObject) Set(idx Object, val Object) error {
+	return errInvalidOperation
 }
 
 func (this *defaultObject) asInteger() (int64, error) {

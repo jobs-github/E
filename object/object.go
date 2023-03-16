@@ -25,6 +25,7 @@ type Object interface {
 	AsByteFunc() (*ByteFunc, error)
 	AsClosure() (*Closure, error)
 	AsArray() (*Array, error)
+	Set(idx Object, val Object) error
 
 	getType() ObjectType
 	asInteger() (int64, error)

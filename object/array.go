@@ -75,6 +75,27 @@ func (this *Array) AsArray() (*Array, error) {
 	return this, nil
 }
 
+func (this *Array) Set(idx Object, val Object) error {
+	i, err := idx.asInteger()
+	if nil != err {
+		return err
+	}
+	sz := int64(len(this.Items))
+	if i < 0 || i > sz-1 {
+		return errInvalidIndex
+	}
+	this.Items[i] = val
+	return nil
+}
+
+func (this *Array) New() Object {
+	if this.Items == nil || len(this.Items) == 0 {
+		return NewArray(Objects{})
+	}
+	arr := make(Objects, len(this.Items))
+	return NewArray(arr)
+}
+
 func (this *Array) getType() ObjectType {
 	return objectTypeArray
 }
