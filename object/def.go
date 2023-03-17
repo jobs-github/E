@@ -42,7 +42,6 @@ const (
 	FnNot    = "not"
 	FnNeg    = "neg"
 	FnInt    = "int"
-	FnReduce = "reduce"
 	FnFilter = "filter"
 	FnFirst  = "first"
 	FnLast   = "last"

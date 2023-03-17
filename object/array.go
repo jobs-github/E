@@ -16,7 +16,6 @@ func NewArray(items Objects) Object {
 		FnLen:    obj.builtinLen,
 		FnIndex:  obj.builtinIndex,
 		FnNot:    obj.builtinNot,
-		FnReduce: obj.builtinReduce,
 		FnFilter: obj.builtinFilter,
 		FnFirst:  obj.builtinFirst,
 		FnLast:   obj.builtinLast,
@@ -190,29 +189,6 @@ func (this *Array) builtinNot(args Objects) (Object, error) {
 	} else {
 		return False, nil
 	}
-}
-
-func (this *Array) builtinReduce(args Objects) (Object, error) {
-	argc := len(args)
-	if argc != 2 {
-		return Nil, fmt.Errorf("reduce() takes 2 arguments (%v given), (`%v`)", argc, this.String())
-	}
-	cb := args[0]
-	if !Callable(cb) {
-		return Nil, errors.New("argument 1 is not callable")
-	}
-	acc := args[1]
-	if nil == this.Items || len(this.Items) < 1 {
-		return acc, nil
-	}
-	for _, item := range this.Items {
-		v, err := cb.Call(Objects{acc, item})
-		if nil != err {
-			return Nil, err
-		}
-		acc = v
-	}
-	return acc, nil
 }
 
 func (this *Array) builtinFilter(args Objects) (Object, error) {

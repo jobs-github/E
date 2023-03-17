@@ -51,17 +51,19 @@ const (
 	CONST
 	LOOP
 	MAP
+	REDUCE
 	//keyword_end
 )
 
 const (
-	Const = "const"
-	Func  = "func"
-	Null  = "null"
-	True  = "true"
-	False = "false"
-	Loop  = "loop"
-	Map   = "map"
+	Const  = "const"
+	Func   = "func"
+	Null   = "null"
+	True   = "true"
+	False  = "false"
+	Loop   = "loop"
+	Map    = "map"
+	Reduce = "reduce"
 )
 
 var (
@@ -123,13 +125,14 @@ var (
 		'?': QUESTION,
 	}
 	keywords = map[string]TokenType{
-		True:  TRUE,
-		False: FALSE,
-		Null:  NULL,
-		Func:  FUNC,
-		Const: CONST,
-		Loop:  LOOP,
-		Map:   MAP,
+		True:   TRUE,
+		False:  FALSE,
+		Null:   NULL,
+		Func:   FUNC,
+		Const:  CONST,
+		Loop:   LOOP,
+		Map:    MAP,
+		Reduce: REDUCE,
 	}
 
 	tokenTypeStrings = map[TokenType]string{
@@ -170,6 +173,7 @@ var (
 		CONST:     "CONST",
 		LOOP:      "LOOP",
 		MAP:       "MAP",
+		REDUCE:    "REDUCE",
 	}
 )
 

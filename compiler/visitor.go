@@ -224,6 +224,11 @@ func (this *visitor) DoMap(v *ast.MapExpr) error {
 	return nil
 }
 
+func (this *visitor) DoReduce(v *ast.ReduceExpr) error {
+	// TODO
+	return nil
+}
+
 func (this *visitor) DoFunction(v *ast.FunctionStmt) error {
 	return this.doBind(v.Name, v.Value)
 }

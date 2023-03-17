@@ -27,6 +27,7 @@ type Scanner interface {
 	NewConditional(left ast.Expression) *ast.ConditionalExpr
 	NewLoop() *ast.LoopExpr
 	NewMap() *ast.MapExpr
+	NewReduce() *ast.ReduceExpr
 	NewFunction() *ast.FunctionStmt
 	NewExpr() *ast.ExpressionStmt
 	NewBlock() *ast.BlockStmt
@@ -178,6 +179,10 @@ func (this *scanner) NewLoop() *ast.LoopExpr {
 
 func (this *scanner) NewMap() *ast.MapExpr {
 	return ast.NewMap()
+}
+
+func (this *scanner) NewReduce() *ast.ReduceExpr {
+	return ast.NewReduce()
 }
 
 func (this *scanner) NewFunction() *ast.FunctionStmt {

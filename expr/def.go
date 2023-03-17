@@ -34,6 +34,7 @@ func NewExprParser(s scanner.Scanner, p interfaces.Parser) ExprParser {
 			token.FUNC:   &lambdaFunction{s, p},
 			token.LOOP:   &loopExpr{s, p},
 			token.MAP:    &mapExpr{s, p},
+			token.REDUCE: &reduceExpr{s, p},
 		},
 	}
 }
