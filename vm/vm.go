@@ -306,6 +306,17 @@ func (this *virtualMachine) Run() error {
 					return err
 				}
 			}
+		case code.OpLen:
+			{
+				obj := this.pop()
+				arr, err := obj.AsArray()
+				if nil != err {
+					return err
+				}
+				if err := this.push(object.NewInteger(int64(len(arr.Items)))); nil != err {
+					return err
+				}
+			}
 		case code.OpNewArray:
 			{
 				obj := this.pop()
