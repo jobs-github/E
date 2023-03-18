@@ -7,6 +7,36 @@ import (
 	"github.com/jobs-github/escript/object"
 )
 
+// LoopExpr bytecode format
+//
+//	         init i cnt
+//		|--->cond
+//		|    OpJumpWhenFalse--|
+//		|    loop             |
+//	    |    next             |
+//		|----OpJump           |
+//		     ...<-------------|
+func (this *visitor) DoLoop(v *ast.LoopExpr) error {
+	i := newIdent(loopIter)
+	cnt := newIdent(loopCnt)
+
+	if err := this.doLoopFn(v, i, cnt); nil != err {
+		return function.NewError(err)
+	}
+	// push 0
+	if err := ast.NewInteger().Do(this); nil != err {
+		return function.NewError(err)
+	}
+	// push cnt
+	if err := v.Cnt.Do(this); nil != err {
+		return function.NewError(err)
+	}
+	if _, err := this.c.encode(code.OpCall, 2); nil != err {
+		return function.NewError(err)
+	}
+	return nil
+}
+
 func (this *visitor) doLoopFn(v *ast.LoopExpr, i *ast.Identifier, cnt *ast.Identifier) error {
 	this.c.enterScope()
 
@@ -91,54 +121,7 @@ func (this *visitor) doLoopBody(i *ast.Identifier, v *ast.LoopExpr) error {
 	return nil
 }
 
-// MapExpr
-func (this *visitor) doMapFn(v *ast.MapExpr, i *ast.Identifier, arr *ast.Identifier, res *ast.Identifier) error {
-	this.c.enterScope()
-
-	// args
-	si := this.c.define(i.Value)
-	this.c.define(arr.Value)
-	ri := this.c.define(res.Value)
-
-	startPos, err := this.doMapCond(i, arr)
-	if nil != err {
-		return function.NewError(err)
-	}
-	endPos, err := this.c.encode(code.OpJumpWhenFalse, -1)
-	if nil != err {
-		return function.NewError(err)
-	}
-	if err := this.doMapBody(i, arr, v, ri); nil != err {
-		return function.NewError(err)
-	}
-	if _, err := this.c.encode(code.OpIncLocal, si.Index); nil != err {
-		return function.NewError(err)
-	}
-	if _, err := this.c.encode(code.OpJump, startPos); nil != err {
-		return function.NewError(err)
-	}
-	// back-patching
-	if err := this.c.changeOperand(endPos, this.c.pos()); nil != err {
-		return function.NewError(err)
-	}
-	if _, err := this.doIdent(res); nil != err { // push res
-		return function.NewError(err)
-	}
-	if _, err := this.c.encode(code.OpReturn); nil != err { // return res
-		return function.NewError(err)
-	}
-	symbols := this.c.symbols()
-	r := this.c.leaveScope()
-
-	fn := object.NewByteFunc(r.Instructions(), symbols)
-	idx := this.c.addConst(fn)
-	if _, err := this.c.encode(code.OpClosure, idx, 0); nil != err {
-		return function.NewError(err)
-	}
-	return nil
-}
-
-func (this *visitor) doMapCond(i *ast.Identifier, arr *ast.Identifier) (int, error) {
+func (this *visitor) doArrayCond(i *ast.Identifier, arr *ast.Identifier) (int, error) {
 	// if loopStartPos == 0
 	//     vm will quit after jmp (ip = unsigned(-1))
 	if _, err := this.c.encode(code.OpPlaceholder); nil != err {
@@ -158,28 +141,4 @@ func (this *visitor) doMapCond(i *ast.Identifier, arr *ast.Identifier) (int, err
 		return -1, function.NewError(err)
 	}
 	return loopStartPos, nil
-}
-
-func (this *visitor) doMapBody(i *ast.Identifier, arr *ast.Identifier, v *ast.MapExpr, res *Symbol) error {
-	// push closure
-	if err := v.Body.Do(this); nil != err {
-		return function.NewError(err)
-	}
-	// push args
-	if _, err := this.doIdent(i); nil != err { // push i
-		return function.NewError(err)
-	}
-	if err := this.doIndex(arr, i); nil != err { // push arr[i]
-		return function.NewError(err)
-	}
-	if _, err := this.c.encode(code.OpCall, 2); nil != err {
-		return function.NewError(err)
-	}
-	if _, err := this.doIdent(i); nil != err { // push i
-		return function.NewError(err)
-	}
-	if _, err := this.c.encode(code.OpSetLocalIdx, res.Index); nil != err {
-		return function.NewError(err)
-	}
-	return nil
 }
