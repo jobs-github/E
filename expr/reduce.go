@@ -24,11 +24,11 @@ func (this *reduceExpr) decode() (ast.Expression, error) {
 	if nil != err {
 		return nil, function.NewError(err)
 	}
-	expr.Init, err = decodeExpr(this.scanner, this.p, false)
+	expr.Body, err = decodeExpr(this.scanner, this.p, false)
 	if nil != err {
 		return nil, function.NewError(err)
 	}
-	expr.Body, err = decodeExpr(this.scanner, this.p, true)
+	expr.Init, err = decodeExpr(this.scanner, this.p, true)
 	if nil != err {
 		return nil, function.NewError(err)
 	}

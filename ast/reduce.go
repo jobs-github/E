@@ -12,8 +12,8 @@ import (
 type ReduceExpr struct {
 	defaultNode
 	Arr  Expression // Array or Identifier
-	Init Expression
 	Body Expression // Function or Identifier
+	Init Expression
 }
 
 func (this *ReduceExpr) expressionNode() {}
@@ -25,8 +25,8 @@ func (this *ReduceExpr) Do(v Visitor) error {
 func (this *ReduceExpr) value() map[string]interface{} {
 	m := map[string]interface{}{
 		"arr":  this.Arr.Encode(),
-		"init": this.Init.Encode(),
 		"body": this.Body.Encode(),
+		"init": this.Init.Encode(),
 	}
 	return m
 }
@@ -40,8 +40,8 @@ func (this *ReduceExpr) Encode() interface{} {
 func (this *ReduceExpr) Decode(b []byte) error {
 	var v struct {
 		Arr  JsonNode `json:"arr"`
-		Init JsonNode `json:"init"`
 		Body JsonNode `json:"body"`
+		Init JsonNode `json:"init"`
 	}
 	var err error
 	if err = json.Unmarshal(b, &v); nil != err {
@@ -51,11 +51,11 @@ func (this *ReduceExpr) Decode(b []byte) error {
 	if nil != err {
 		return function.NewError(err)
 	}
-	this.Init, err = v.Init.decodeExpr()
+	this.Body, err = v.Body.decodeExpr()
 	if nil != err {
 		return function.NewError(err)
 	}
-	this.Body, err = v.Body.decodeExpr()
+	this.Init, err = v.Init.decodeExpr()
 	if nil != err {
 		return function.NewError(err)
 	}
@@ -66,9 +66,9 @@ func (this *ReduceExpr) String() string {
 	out.WriteString("reduce(")
 	out.WriteString(this.Arr.String())
 	out.WriteString(",")
-	out.WriteString(this.Init.String())
-	out.WriteString(",")
 	out.WriteString(this.Body.String())
+	out.WriteString(",")
+	out.WriteString(this.Init.String())
 	out.WriteString(")")
 	return out.String()
 }
