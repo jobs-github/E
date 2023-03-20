@@ -52,6 +52,7 @@ const (
 	LOOP
 	MAP
 	REDUCE
+	FILTER
 	//keyword_end
 )
 
@@ -64,6 +65,7 @@ const (
 	Loop   = "loop"
 	Map    = "map"
 	Reduce = "reduce"
+	Filter = "filter"
 )
 
 var (
@@ -133,6 +135,7 @@ var (
 		Loop:   LOOP,
 		Map:    MAP,
 		Reduce: REDUCE,
+		Filter: FILTER,
 	}
 
 	tokenTypeStrings = map[TokenType]string{
@@ -174,6 +177,7 @@ var (
 		LOOP:      "LOOP",
 		MAP:       "MAP",
 		REDUCE:    "REDUCE",
+		FILTER:    "FILTER",
 	}
 )
 

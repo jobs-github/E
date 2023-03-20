@@ -37,17 +37,16 @@ const (
 )
 
 const (
-	FnLen    = "len"
-	FnIndex  = "index"
-	FnNot    = "not"
-	FnNeg    = "neg"
-	FnInt    = "int"
-	FnFilter = "filter"
-	FnFirst  = "first"
-	FnLast   = "last"
-	FnTail   = "tail"
-	FnPush   = "push"
-	FnKeys   = "keys"
+	FnLen   = "len"
+	FnIndex = "index"
+	FnNot   = "not"
+	FnNeg   = "neg"
+	FnInt   = "int"
+	FnFirst = "first"
+	FnLast  = "last"
+	FnTail  = "tail"
+	FnPush  = "push"
+	FnKeys  = "keys"
 )
 
 var (

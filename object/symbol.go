@@ -16,7 +16,6 @@ var (
 		FnNot,
 		FnNeg,
 		FnInt,
-		FnFilter,
 		FnFirst,
 		FnLast,
 		FnTail,

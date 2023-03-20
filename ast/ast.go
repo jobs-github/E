@@ -22,6 +22,7 @@ type Visitor interface {
 	DoLoop(v *LoopExpr) error
 	DoMap(v *MapExpr) error
 	DoReduce(v *ReduceExpr) error
+	DoFilter(v *FilterExpr) error
 	DoFunction(v *FunctionStmt) error
 	DoPrefix(v *PrefixExpr) error
 	DoInfix(v *InfixExpr) error

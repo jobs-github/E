@@ -28,6 +28,7 @@ type Scanner interface {
 	NewLoop() *ast.LoopExpr
 	NewMap() *ast.MapExpr
 	NewReduce() *ast.ReduceExpr
+	NewFilter() *ast.FilterExpr
 	NewFunction() *ast.FunctionStmt
 	NewExpr() *ast.ExpressionStmt
 	NewBlock() *ast.BlockStmt
@@ -183,6 +184,10 @@ func (this *scanner) NewMap() *ast.MapExpr {
 
 func (this *scanner) NewReduce() *ast.ReduceExpr {
 	return ast.NewReduce()
+}
+
+func (this *scanner) NewFilter() *ast.FilterExpr {
+	return ast.NewFilter()
 }
 
 func (this *scanner) NewFunction() *ast.FunctionStmt {

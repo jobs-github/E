@@ -2,7 +2,6 @@ package object
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"strings"
 
@@ -13,14 +12,13 @@ import (
 func NewArray(items Objects) Object {
 	obj := &Array{Items: items}
 	obj.fns = objectBuiltins{
-		FnLen:    obj.builtinLen,
-		FnIndex:  obj.builtinIndex,
-		FnNot:    obj.builtinNot,
-		FnFilter: obj.builtinFilter,
-		FnFirst:  obj.builtinFirst,
-		FnLast:   obj.builtinLast,
-		FnTail:   obj.builtinTail,
-		FnPush:   obj.builtinPush,
+		FnLen:   obj.builtinLen,
+		FnIndex: obj.builtinIndex,
+		FnNot:   obj.builtinNot,
+		FnFirst: obj.builtinFirst,
+		FnLast:  obj.builtinLast,
+		FnTail:  obj.builtinTail,
+		FnPush:  obj.builtinPush,
 	}
 	return obj
 }
@@ -189,29 +187,4 @@ func (this *Array) builtinNot(args Objects) (Object, error) {
 	} else {
 		return False, nil
 	}
-}
-
-func (this *Array) builtinFilter(args Objects) (Object, error) {
-	argc := len(args)
-	if argc != 1 {
-		return Nil, fmt.Errorf("filter() takes exactly one argument (%v given), (`%v`)", argc, this.String())
-	}
-	cb := args[0]
-	if !Callable(cb) {
-		return Nil, errors.New("argument 1 is not callable")
-	}
-	if nil == this.Items || len(this.Items) < 1 {
-		return NewArray(Objects{}), nil
-	}
-	r := Objects{}
-	for _, item := range this.Items {
-		v, err := cb.Call(Objects{item})
-		if nil != err {
-			return Nil, err
-		}
-		if v.True() {
-			r = append(r, item)
-		}
-	}
-	return NewArray(r), nil
 }
