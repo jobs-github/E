@@ -95,6 +95,39 @@ func (this *virtualMachine) Run() error {
 		this.ins = this.frames.instructions()
 		op := code.Opcode(this.ins[this.ip])
 		switch op {
+		case code.OpSetGlobal:
+			{
+				idx := this.fetchUint16()
+				this.globals[idx] = this.pop() // bind
+			}
+		case code.OpGetGlobal:
+			{
+				idx := this.fetchUint16()
+				// resolve
+				if err := this.push(this.globals[idx]); nil != err {
+					return err
+				}
+			}
+		case code.OpSetLocal: // pop the stack and fill the hole
+			{
+				localIndex := this.fetchUint8()
+				idx := this.frames.basePointer() + int(localIndex)
+				this.stack[idx] = this.pop()
+			}
+		case code.OpGetLocal:
+			{
+				localIndex := this.fetchUint8()
+				idx := this.frames.basePointer() + int(localIndex)
+				if err := this.push(this.stack[idx]); nil != err {
+					return err
+				}
+			}
+		case code.OpIncLocal:
+			{
+				localIndex := this.fetchUint8()
+				idx := this.frames.basePointer() + int(localIndex)
+				this.stack[idx].Incr()
+			}
 		case code.OpArrayLen:
 			{
 				if err := this.doArrayLen(); nil != err {
@@ -148,39 +181,6 @@ func (this *virtualMachine) Run() error {
 				if err := this.doClosure(); nil != err {
 					return err
 				}
-			}
-		case code.OpSetGlobal:
-			{
-				idx := this.fetchUint16()
-				this.globals[idx] = this.pop() // bind
-			}
-		case code.OpGetGlobal:
-			{
-				idx := this.fetchUint16()
-				// resolve
-				if err := this.push(this.globals[idx]); nil != err {
-					return err
-				}
-			}
-		case code.OpSetLocal: // pop the stack and fill the hole
-			{
-				localIndex := this.fetchUint8()
-				idx := this.frames.basePointer() + int(localIndex)
-				this.stack[idx] = this.pop()
-			}
-		case code.OpGetLocal:
-			{
-				localIndex := this.fetchUint8()
-				idx := this.frames.basePointer() + int(localIndex)
-				if err := this.push(this.stack[idx]); nil != err {
-					return err
-				}
-			}
-		case code.OpIncLocal:
-			{
-				localIndex := this.fetchUint8()
-				idx := this.frames.basePointer() + int(localIndex)
-				this.stack[idx].Incr()
 			}
 		case code.OpCall:
 			{
