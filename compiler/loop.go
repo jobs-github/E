@@ -134,7 +134,7 @@ func (this *visitor) doArrayCond(i *ast.Identifier, arr *ast.Identifier) (int, e
 	if _, err := this.doIdent(arr); nil != err { // push arr
 		return -1, function.NewError(err)
 	}
-	if _, err := this.c.encode(code.OpLen); nil != err { // pop arr & push len
+	if _, err := this.c.encode(code.OpArrayLen); nil != err { // pop arr & push len
 		return -1, function.NewError(err)
 	}
 	if _, err := this.c.encode(code.OpLt); nil != err {

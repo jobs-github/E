@@ -34,6 +34,8 @@ func Make(b compiler.Bytecode, c object.Objects, globals object.Objects) VM {
 		globals:   globals,
 		sp:        0,
 		frames:    NewCallFrame(b, MaxFrames),
+		ip:        -1,
+		ins:       nil,
 	}
 }
 
@@ -55,66 +57,83 @@ type virtualMachine struct {
 	globals   object.Objects
 	sp        int // top stack [sp - 1]
 	frames    CallFrame
+	ip        int
+	ins       code.Instructions
 }
 
-func (this *virtualMachine) decodeUint16(ip int, ins code.Instructions) uint16 {
-	return code.DecodeUint16(ins[ip+1:])
+func (this *virtualMachine) decodeUint16() uint16 {
+	return code.DecodeUint16(this.ins[this.ip+1:])
 }
 
-func (this *virtualMachine) decodeUint8(ip int, ins code.Instructions) uint8 {
-	return code.DecodeUint8(ins[ip+1:])
+func (this *virtualMachine) decodeUint8() uint8 {
+	return code.DecodeUint8(this.ins[this.ip+1:])
 }
 
-func (this *virtualMachine) fetchUint16(ip int, ins code.Instructions) uint16 {
-	v := this.decodeUint16(ip, ins)
+func (this *virtualMachine) fetchUint16() uint16 {
+	v := this.decodeUint16()
 	this.frames.incrby(2)
 	return v
 }
 
-func (this *virtualMachine) fetchUint8(ip int, ins code.Instructions) uint8 {
-	v := this.decodeUint8(ip, ins)
+func (this *virtualMachine) fetchUint8() uint8 {
+	v := this.decodeUint8()
 	this.frames.incr()
 	return v
 }
 
-func (this *virtualMachine) Run() error {
-	var ip int
-	var ins code.Instructions
+func (this *virtualMachine) fetchClosure() (uint16, int) {
+	idx := this.fetchUint16()
+	frees := code.DecodeUint8(this.ins[this.ip+3:])
+	this.frames.incr()
+	return idx, int(frees)
+}
 
+func (this *virtualMachine) Run() error {
 	for !this.frames.eof() {
 		this.frames.incr()
-		ip = this.frames.ip()
-		ins = this.frames.instructions()
-		op := code.Opcode(ins[ip])
+		this.ip = this.frames.ip()
+		this.ins = this.frames.instructions()
+		op := code.Opcode(this.ins[this.ip])
 		switch op {
+		case code.OpArrayLen:
+			{
+				if err := this.doArrayLen(); nil != err {
+					return err
+				}
+			}
+		case code.OpArrayNew:
+			{
+				if err := this.doArrayNew(); nil != err {
+					return err
+				}
+			}
+		case code.OpArrayAppend:
+			{
+				if err := this.doArrayAppend(); nil != err {
+					return err
+				}
+			}
+		case code.OpArraySet:
+			{
+				if err := this.doArraySet(); nil != err {
+					return err
+				}
+			}
 		case code.OpGetBuiltin: // pair with OpCall
 			{
-				idx := this.fetchUint8(ip, ins)
-				builtinFn := builtin.Resolve(int(idx))
-				// object.Builtin
-				if err := this.push(builtinFn); nil != err {
+				if err := this.doGetBuiltin(); nil != err {
 					return err
 				}
 			}
 		case code.OpGetObjectFn: // pair with OpCall
 			{
-				idx := this.fetchUint8(ip, ins)
-				obj := this.pop()
-				fn := object.Resolve(int(idx))
-				r, err := obj.GetMember(fn)
-				if nil != err {
-					return err
-				}
-				// object.ObjectFunc
-				if err := this.push(r); nil != err {
+				if err := this.doGetObjectFn(); nil != err {
 					return err
 				}
 			}
 		case code.OpGetFree:
 			{
-				idx := this.fetchUint8(ip, ins)
-				fn := this.frames.current().fn
-				if err := this.push(fn.Free[idx]); nil != err {
+				if err := this.doGetFree(); nil != err {
 					return err
 				}
 			}
@@ -126,32 +145,18 @@ func (this *virtualMachine) Run() error {
 			}
 		case code.OpClosure: // pair with OpCall
 			{
-				// exec after a lot OpGetFree, refer to visitor.DoFn
-				idx := this.fetchUint16(ip, ins)
-				frees := int(this.fetchUint8(ip+2, ins))
-				fn, err := this.constants[idx].AsByteFunc()
-				if nil != err {
-					return err
-				}
-				// fetch free symbol from stack top
-				freeSymbols := make(object.Objects, frees)
-				for i := 0; i < frees; i++ {
-					freeSymbols[i] = this.stack[this.sp-frees+i]
-				}
-				// clean up the stack
-				this.sp = this.sp - frees
-				if err := this.push(object.NewClosure(fn, freeSymbols)); nil != err {
+				if err := this.doClosure(); nil != err {
 					return err
 				}
 			}
 		case code.OpSetGlobal:
 			{
-				idx := this.fetchUint16(ip, ins)
+				idx := this.fetchUint16()
 				this.globals[idx] = this.pop() // bind
 			}
 		case code.OpGetGlobal:
 			{
-				idx := this.fetchUint16(ip, ins)
+				idx := this.fetchUint16()
 				// resolve
 				if err := this.push(this.globals[idx]); nil != err {
 					return err
@@ -159,13 +164,13 @@ func (this *virtualMachine) Run() error {
 			}
 		case code.OpSetLocal: // pop the stack and fill the hole
 			{
-				localIndex := this.fetchUint8(ip, ins)
+				localIndex := this.fetchUint8()
 				idx := this.frames.basePointer() + int(localIndex)
 				this.stack[idx] = this.pop()
 			}
 		case code.OpGetLocal:
 			{
-				localIndex := this.fetchUint8(ip, ins)
+				localIndex := this.fetchUint8()
 				idx := this.frames.basePointer() + int(localIndex)
 				if err := this.push(this.stack[idx]); nil != err {
 					return err
@@ -173,47 +178,32 @@ func (this *virtualMachine) Run() error {
 			}
 		case code.OpIncLocal:
 			{
-				localIndex := this.fetchUint8(ip, ins)
+				localIndex := this.fetchUint8()
 				idx := this.frames.basePointer() + int(localIndex)
 				this.stack[idx].Incr()
 			}
-		case code.OpSetLocalIdx:
-			{
-				localIndex := this.fetchUint8(ip, ins)
-				idx := this.frames.basePointer() + int(localIndex)
-				i := this.pop()
-				v := this.pop()
-				this.stack[idx].Set(i, v)
-			}
 		case code.OpCall:
 			{
-				args := this.fetchUint8(ip, ins)
-				obj := this.stack[this.sp-1-int(args)]
-				if err := this.doCall(obj, args); nil != err {
+				if err := this.doCall(); nil != err {
 					return err
 				}
 			}
 		case code.OpReturn:
 			{
-				returnValue := this.pop()
-				// recover env
-				frame := this.frames.pop()
-				this.sp = frame.bp - 1 // frame.bp point to the just-executed function on the stack
-
-				if err := this.push(returnValue); nil != err {
+				if err := this.doReturn(); nil != err {
 					return err
 				}
 			}
 		case code.OpJump:
 			{
-				pos := this.decodeUint16(ip, ins)
+				pos := this.decodeUint16()
 				// in a loop that increments ip with each iteration
 				// we need to set ip to the offset right before the one we want
 				this.frames.jmp(int(pos - 1))
 			}
 		case code.OpJumpWhenFalse:
 			{
-				pos := this.fetchUint16(ip, ins)
+				pos := this.fetchUint16()
 				cond := this.pop()
 				if !cond.True() {
 					this.frames.jmp(int(pos - 1))
@@ -221,7 +211,7 @@ func (this *virtualMachine) Run() error {
 			}
 		case code.OpConst:
 			{
-				idx := this.fetchUint16(ip, ins)
+				idx := this.fetchUint16()
 				err := this.push(this.constants[idx])
 				if nil != err {
 					return err
@@ -229,20 +219,13 @@ func (this *virtualMachine) Run() error {
 			}
 		case code.OpArray:
 			{
-				sz := int(this.fetchUint16(ip, ins))
-				arr := this.doArray(sz)
-				if err := this.push(arr); nil != err {
+				if err := this.doArray(); nil != err {
 					return err
 				}
 			}
 		case code.OpHash:
 			{
-				sz := int(this.fetchUint16(ip, ins))
-				h, err := this.doHash(sz)
-				if nil != err {
-					return err
-				}
-				if err := this.push(h); nil != err {
+				if err := this.doHash(); nil != err {
 					return err
 				}
 			}
@@ -300,34 +283,7 @@ func (this *virtualMachine) Run() error {
 			}
 		case code.OpIndex:
 			{
-				idx := this.pop()
-				left := this.pop()
-				if err := this.doIndex(left, idx); nil != err {
-					return err
-				}
-			}
-		case code.OpLen:
-			{
-				obj := this.pop()
-				arr, err := obj.AsArray()
-				if nil != err {
-					return err
-				}
-				if err := this.push(object.NewInteger(int64(len(arr.Items)))); nil != err {
-					return err
-				}
-			}
-		case code.OpNewArray:
-			{
-				obj := this.pop()
-				arr, err := obj.AsArray()
-				if nil != err {
-					return err
-				}
-				if err := this.push(arr); nil != err {
-					return err
-				}
-				if err := this.push(arr.New()); nil != err {
+				if err := this.doIndex(); nil != err {
 					return err
 				}
 			}
@@ -336,7 +292,122 @@ func (this *virtualMachine) Run() error {
 	return nil
 }
 
-func (this *virtualMachine) doCall(obj object.Object, args uint8) error {
+func (this *virtualMachine) doArrayLen() error {
+	arr, err := this.pop().AsArray()
+	if nil != err {
+		return err
+	}
+	if err := this.push(object.NewInteger(int64(len(arr.Items)))); nil != err {
+		return err
+	}
+	return nil
+}
+
+func (this *virtualMachine) doArrayNew() error {
+	flag := this.fetchUint8()
+	arr, err := this.pop().AsArray()
+	if nil != err {
+		return err
+	}
+	if err := this.push(arr); nil != err {
+		return err
+	}
+	if err := this.push(arr.New(flag)); nil != err {
+		return err
+	}
+	return nil
+}
+
+func (this *virtualMachine) doArrayAppend() error {
+	localIndex := this.fetchUint8()
+	idx := this.frames.basePointer() + int(localIndex)
+	arr, err := this.stack[idx].AsArray()
+	if nil != err {
+		return err
+	}
+	item := this.pop()
+	v := this.pop()
+	if v.True() {
+		arr.Append(item)
+	}
+	return nil
+}
+
+func (this *virtualMachine) doArraySet() error {
+	localIndex := this.fetchUint8()
+	idx := this.frames.basePointer() + int(localIndex)
+	arr, err := this.stack[idx].AsArray()
+	if nil != err {
+		return err
+	}
+	i := this.pop()
+	v := this.pop()
+	if err := arr.Set(i, v); nil != err {
+		return err
+	}
+	return nil
+}
+
+func (this *virtualMachine) doGetBuiltin() error {
+	idx := this.fetchUint8()
+	builtinFn := builtin.Resolve(int(idx))
+	// object.Builtin
+	if err := this.push(builtinFn); nil != err {
+		return err
+	}
+	return nil
+}
+
+func (this *virtualMachine) doGetObjectFn() error {
+	idx := this.fetchUint8()
+	obj := this.pop()
+	fn := object.Resolve(int(idx))
+	r, err := obj.GetMember(fn)
+	if nil != err {
+		return err
+	}
+	// object.ObjectFunc
+	if err := this.push(r); nil != err {
+		return err
+	}
+	return nil
+}
+
+func (this *virtualMachine) doGetFree() error {
+	idx := this.fetchUint8()
+	fn := this.frames.current().fn
+	if err := this.push(fn.Free[idx]); nil != err {
+		return err
+	}
+	return nil
+}
+
+func (this *virtualMachine) doClosure() error {
+	// exec after a lot OpGetFree, refer to visitor.DoFn
+	// idx := this.fetchUint16()
+	// frees := int(this.fetchUint8(ip+2, ins))
+	idx, frees := this.fetchClosure()
+	fn, err := this.constants[idx].AsByteFunc()
+	if nil != err {
+		return err
+	}
+	// fetch free symbol from stack top
+	freeSymbols := make(object.Objects, frees)
+	for i := 0; i < frees; i++ {
+		freeSymbols[i] = this.stack[this.sp-frees+i]
+	}
+	// clean up the stack
+	this.sp = this.sp - frees
+	if err := this.push(object.NewClosure(fn, freeSymbols)); nil != err {
+		return err
+	}
+	return nil
+}
+
+func (this *virtualMachine) doCall() error {
+	args := this.fetchUint8()
+	obj := this.stack[this.sp-1-int(args)]
+
 	if object.IsBuiltin(obj) || object.IsObjectFunc(obj) {
 		arguments := this.stack[this.sp-int(args) : this.sp]
 		r, err := obj.Call(arguments)
@@ -366,7 +437,20 @@ func (this *virtualMachine) doCall(obj object.Object, args uint8) error {
 	return errNotCallable
 }
 
-func (this *virtualMachine) doHash(sz int) (object.Object, error) {
+func (this *virtualMachine) doReturn() error {
+	returnValue := this.pop()
+	// recover env
+	frame := this.frames.pop()
+	this.sp = frame.bp - 1 // frame.bp point to the just-executed function on the stack
+
+	if err := this.push(returnValue); nil != err {
+		return err
+	}
+	return nil
+}
+
+func (this *virtualMachine) doHash() error {
+	sz := int(this.fetchUint16())
 	h := object.HashMap{}
 	for i := 0; i < sz; i++ {
 		v := this.pop()
@@ -376,19 +460,27 @@ func (this *virtualMachine) doHash(sz int) (object.Object, error) {
 
 		key, err := k.Hash()
 		if nil != err {
-			return nil, err
+			return err
 		}
 		h[*key] = &pair
 	}
-	return object.NewHash(h), nil
+	if err := this.push(object.NewHash(h)); nil != err {
+		return err
+	}
+	return nil
 }
 
-func (this *virtualMachine) doArray(sz int) object.Object {
+func (this *virtualMachine) doArray() error {
+	sz := int(this.fetchUint16())
 	arr := make(object.Objects, sz)
 	for i := 0; i < sz; i++ {
 		arr[sz-i-1] = this.pop()
 	}
-	return object.NewArray(arr)
+	r := object.NewArray(arr)
+	if err := this.push(r); nil != err {
+		return err
+	}
+	return nil
 }
 
 func (this *virtualMachine) doPrefix(fn string) error {
@@ -400,7 +492,9 @@ func (this *virtualMachine) doPrefix(fn string) error {
 	}
 }
 
-func (this *virtualMachine) doIndex(left object.Object, idx object.Object) error {
+func (this *virtualMachine) doIndex() error {
+	idx := this.pop()
+	left := this.pop()
 	if r, err := left.CallMember(object.FnIndex, object.Objects{idx}); nil != err {
 		return err
 	} else {

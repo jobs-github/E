@@ -73,10 +73,6 @@ func (this *defaultObject) AsArray() (*Array, error) {
 	return nil, errTypeIsNotArray
 }
 
-func (this *defaultObject) Set(idx Object, val Object) error {
-	return errInvalidOperation
-}
-
 func (this *defaultObject) asInteger() (int64, error) {
 	return 0, errTypeIsNotInt
 }

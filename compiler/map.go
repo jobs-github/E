@@ -24,7 +24,7 @@ func (this *visitor) DoMap(v *ast.MapExpr) error {
 		return function.NewError(err)
 	}
 	// push res
-	if _, err := this.c.encode(code.OpNewArray); nil != err {
+	if _, err := this.c.encode(code.OpArrayNew, 1); nil != err {
 		return function.NewError(err)
 	}
 	if _, err := this.c.encode(code.OpCall, 3); nil != err {
@@ -97,7 +97,7 @@ func (this *visitor) doMapBody(i *ast.Identifier, arr *ast.Identifier, v *ast.Ma
 	if _, err := this.doIdent(i); nil != err { // push i
 		return function.NewError(err)
 	}
-	if _, err := this.c.encode(code.OpSetLocalIdx, res.Index); nil != err {
+	if _, err := this.c.encode(code.OpArraySet, res.Index); nil != err {
 		return function.NewError(err)
 	}
 	return nil

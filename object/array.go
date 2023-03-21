@@ -85,8 +85,12 @@ func (this *Array) Set(idx Object, val Object) error {
 	return nil
 }
 
-func (this *Array) New() Object {
-	if this.Items == nil || len(this.Items) == 0 {
+func (this *Array) Append(val Object) {
+	this.Items = append(this.Items, val)
+}
+
+func (this *Array) New(flag uint8) Object {
+	if this.Items == nil || len(this.Items) == 0 || flag == 0 {
 		return NewArray(Objects{})
 	}
 	arr := make(Objects, len(this.Items))
