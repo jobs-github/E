@@ -95,6 +95,14 @@ func (this *virtualMachine) Run() error {
 		this.ins = this.frames.instructions()
 		op := code.Opcode(this.ins[this.ip])
 		switch op {
+		case code.OpConst:
+			{
+				idx := this.fetchUint16()
+				err := this.push(this.constants[idx])
+				if nil != err {
+					return err
+				}
+			}
 		case code.OpSetGlobal:
 			{
 				idx := this.fetchUint16()
@@ -127,6 +135,21 @@ func (this *virtualMachine) Run() error {
 				localIndex := this.fetchUint8()
 				idx := this.frames.basePointer() + int(localIndex)
 				this.stack[idx].Incr()
+			}
+		case code.OpJump:
+			{
+				pos := this.decodeUint16()
+				// in a loop that increments ip with each iteration
+				// we need to set ip to the offset right before the one we want
+				this.frames.jmp(int(pos - 1))
+			}
+		case code.OpJumpWhenFalse:
+			{
+				pos := this.fetchUint16()
+				cond := this.pop()
+				if !cond.True() {
+					this.frames.jmp(int(pos - 1))
+				}
 			}
 		case code.OpArrayLen:
 			{
@@ -191,29 +214,6 @@ func (this *virtualMachine) Run() error {
 		case code.OpReturn:
 			{
 				if err := this.doReturn(); nil != err {
-					return err
-				}
-			}
-		case code.OpJump:
-			{
-				pos := this.decodeUint16()
-				// in a loop that increments ip with each iteration
-				// we need to set ip to the offset right before the one we want
-				this.frames.jmp(int(pos - 1))
-			}
-		case code.OpJumpWhenFalse:
-			{
-				pos := this.fetchUint16()
-				cond := this.pop()
-				if !cond.True() {
-					this.frames.jmp(int(pos - 1))
-				}
-			}
-		case code.OpConst:
-			{
-				idx := this.fetchUint16()
-				err := this.push(this.constants[idx])
-				if nil != err {
 					return err
 				}
 			}
