@@ -7,6 +7,11 @@ import (
 	"github.com/jobs-github/escript/token"
 )
 
+type Lexer interface {
+	Parse() ([]*token.Token, error)
+	nextToken() (*token.Token, error)
+}
+
 // lexer : implement Lexer
 type lexer struct {
 	input        string
