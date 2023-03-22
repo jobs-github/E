@@ -54,6 +54,7 @@ func NewSymbolTable(parent SymbolTable) SymbolTable {
 		sz:     0,
 		frees:  Symbols{},
 	}
+	// TODO: conflict between builtin & object
 	builtin.Traverse(func(i int, name string) {
 		s.defineBuiltin(i, name)
 	})
