@@ -34,7 +34,6 @@ func (this *symbolTable) traverse(cb func(i int, name string)) {
 
 var (
 	builtinSymbolTable = symbolTable{
-		newSymbol(object.FnLen, builtinLen),
 		newSymbol("type", builtinType),
 		newSymbol("str", builtinStr),
 		newSymbol("int", builtinInt),
