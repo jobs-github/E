@@ -5,7 +5,7 @@ const arr = [1,2,3];
 println(str(arr));
 
 const is = "123";
-println(int(is));
+println(is.int());
 
 print("123 ", 456, " ", [7,8,9]);
 println("");

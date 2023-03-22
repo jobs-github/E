@@ -1,6 +1,6 @@
 const s = "123";
-println(int(s));
+println(s.int());
 const b = true;
-println(int(b));
+println(b.int());
 const i = 123;
-println(int(i));
+println(i.int());

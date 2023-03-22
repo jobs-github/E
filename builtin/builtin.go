@@ -36,7 +36,6 @@ var (
 	builtinSymbolTable = symbolTable{
 		newSymbol("type", builtinType),
 		newSymbol("str", builtinStr),
-		newSymbol("int", builtinInt),
 		newSymbol("print", builtinPrint),
 		newSymbol("println", builtinPrintln),
 		newSymbol("printf", builtinPrintf),
