@@ -14,7 +14,7 @@ type mapExpr struct {
 }
 
 func (this *mapExpr) decode() (ast.Expression, error) {
-	expr := this.scanner.NewMap()
+	expr := ast.NewMap()
 	data, body, err := decodeLoopFn(this.scanner, this.p)
 	if nil != err {
 		return nil, function.NewError(err)

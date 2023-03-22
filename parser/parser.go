@@ -85,7 +85,7 @@ func (this *parserImpl) ParseProgram() (ast.Node, error) {
 }
 
 func (this *parserImpl) ParseBlockStmt() (*ast.BlockStmt, error) {
-	block := this.scanner.NewBlock()
+	block := ast.NewBlock()
 	this.scanner.NextToken()
 	stmt, err := this.ParseStmt(token.SEMICOLON)
 	if nil != err {

@@ -11,5 +11,5 @@ type null struct {
 }
 
 func (this *null) decode() (ast.Expression, error) {
-	return this.scanner.NewNull(), nil
+	return ast.NewNull(), nil
 }

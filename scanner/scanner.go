@@ -25,20 +25,10 @@ type Scanner interface {
 	NewObjectMember(left ast.Expression) *ast.ObjectMember
 	NewCall(left ast.Expression) *ast.Call
 	NewConditional(left ast.Expression) *ast.ConditionalExpr
-	NewLoop() *ast.LoopExpr
-	NewMap() *ast.MapExpr
-	NewReduce() *ast.ReduceExpr
-	NewFilter() *ast.FilterExpr
 	NewFunction() *ast.FunctionStmt
-	NewExpr() *ast.ExpressionStmt
-	NewBlock() *ast.BlockStmt
-	NewConst() *ast.ConstStmt
 	NewBoolean() *ast.Boolean
 	NewInteger() (*ast.Integer, error)
 	NewString() *ast.String
-	NewHash() *ast.Hash
-	NewArray() *ast.Array
-	NewNull() *ast.Null
 
 	Clone() Scanner
 	String() string
@@ -174,36 +164,8 @@ func (this *scanner) NewConditional(left ast.Expression) *ast.ConditionalExpr {
 	return &ast.ConditionalExpr{Cond: left}
 }
 
-func (this *scanner) NewLoop() *ast.LoopExpr {
-	return ast.NewLoop()
-}
-
-func (this *scanner) NewMap() *ast.MapExpr {
-	return ast.NewMap()
-}
-
-func (this *scanner) NewReduce() *ast.ReduceExpr {
-	return ast.NewReduce()
-}
-
-func (this *scanner) NewFilter() *ast.FilterExpr {
-	return ast.NewFilter()
-}
-
 func (this *scanner) NewFunction() *ast.FunctionStmt {
 	return &ast.FunctionStmt{Name: &ast.Identifier{Value: this.curTok.Literal}}
-}
-
-func (this *scanner) NewExpr() *ast.ExpressionStmt {
-	return ast.NewExpr()
-}
-
-func (this *scanner) NewBlock() *ast.BlockStmt {
-	return ast.NewBlock()
-}
-
-func (this *scanner) NewConst() *ast.ConstStmt {
-	return ast.NewConst()
 }
 
 func (this *scanner) NewBoolean() *ast.Boolean {
@@ -223,18 +185,6 @@ func (this *scanner) NewInteger() (*ast.Integer, error) {
 
 func (this *scanner) NewString() *ast.String {
 	return &ast.String{Value: this.curTok.Literal}
-}
-
-func (this *scanner) NewHash() *ast.Hash {
-	return &ast.Hash{Pairs: ast.ExpressionMap{}}
-}
-
-func (this *scanner) NewArray() *ast.Array {
-	return ast.NewArray()
-}
-
-func (this *scanner) NewNull() *ast.Null {
-	return ast.NewNull()
 }
 
 func (this *scanner) Clone() Scanner {

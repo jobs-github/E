@@ -18,7 +18,7 @@ type constStmt struct {
 }
 
 func (this *constStmt) decode(endTok token.TokenType) (ast.Statement, error) {
-	stmt := this.scanner.NewConst()
+	stmt := ast.NewConst()
 	if err := this.scanner.ExpectPeek(token.IDENT); nil != err {
 		return nil, function.NewError(err)
 	}

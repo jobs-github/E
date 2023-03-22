@@ -14,7 +14,7 @@ type loopExpr struct {
 }
 
 func (this *loopExpr) decode() (ast.Expression, error) {
-	expr := this.scanner.NewLoop()
+	expr := ast.NewLoop()
 	data, body, err := decodeLoopFn(this.scanner, this.p)
 	if nil != err {
 		return nil, function.NewError(err)

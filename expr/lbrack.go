@@ -15,7 +15,7 @@ type lbrack struct {
 }
 
 func (this *lbrack) decode() (ast.Expression, error) {
-	expr := this.scanner.NewArray()
+	expr := ast.NewArray()
 	v, err := this.p.ParseExpressions(token.RBRACK)
 	if nil != err {
 		return nil, function.NewError(err)

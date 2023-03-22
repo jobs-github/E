@@ -15,7 +15,7 @@ type reduceExpr struct {
 }
 
 func (this *reduceExpr) decode() (ast.Expression, error) {
-	expr := this.scanner.NewReduce()
+	expr := ast.NewReduce()
 	if err := this.scanner.ExpectPeek(token.LPAREN); nil != err {
 		return nil, function.NewError(err)
 	}

@@ -19,7 +19,8 @@ func (this *lbrace) eof() bool {
 }
 
 func (this *lbrace) decode() (ast.Expression, error) {
-	h := this.scanner.NewHash()
+	h := ast.NewHash()
+	h.Pairs = ast.ExpressionMap{}
 	// empty hash
 	if this.eof() {
 		this.scanner.NextToken()

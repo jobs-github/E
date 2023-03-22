@@ -15,7 +15,7 @@ type exprStmt struct {
 }
 
 func (this *exprStmt) decode(endTok token.TokenType) (ast.Statement, error) {
-	stmt := this.scanner.NewExpr()
+	stmt := ast.NewExpr()
 	expr, err := this.p.ParseExpression(scanner.PRECED_LOWEST)
 	if nil != err {
 		return nil, function.NewError(err)

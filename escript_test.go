@@ -27,7 +27,7 @@ func TestEvalExpr(t *testing.T) {
 		{`const a1 = [1,2,3]; const a2 = [1,2]; a1 == a2;`, false},
 		{`const arr = [1,2,3]; const f1 = arr.len; const f2 = arr.len; f1 == f2;`, true},
 		{`const f1 = str; const f2 = str; f1 == f2;`, true},
-		{`const f1 = str; const f2 = len; f1 == f2;`, false},
+		{`const f1 = str; const f2 = type; f1 == f2;`, false},
 		{`const s1 = "hello"; const s2 = "hello"; s1 == s2;`, true},
 		{`const s1 = "hello1"; const s2 = "hello2"; s1 == s2;`, false},
 
@@ -57,9 +57,6 @@ func TestEvalExpr(t *testing.T) {
 		{`const arr = [1,2,4]; arr[2];`, 4},
 		{`const arr = [1,2,4]; arr[0] + arr[1] + arr[2];`, 7},
 		{`const arr = [1,2,4]; const i = arr[0];`, 1},
-
-		{`len("")`, 0},
-		{`len("four")`, 4},
 
 		{`"hello world"`, "hello world"},
 		{`"hello" + " " + "world"`, "hello world"},

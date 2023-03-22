@@ -14,7 +14,7 @@ type filterExpr struct {
 }
 
 func (this *filterExpr) decode() (ast.Expression, error) {
-	expr := this.scanner.NewFilter()
+	expr := ast.NewFilter()
 	data, body, err := decodeLoopFn(this.scanner, this.p)
 	if nil != err {
 		return nil, function.NewError(err)
