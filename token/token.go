@@ -53,6 +53,7 @@ const (
 	MAP
 	REDUCE
 	FILTER
+	SYMBOL
 	//keyword_end
 )
 
@@ -66,6 +67,7 @@ const (
 	Map    = "map"
 	Reduce = "reduce"
 	Filter = "filter"
+	Symbol = "$"
 )
 
 var (
@@ -136,6 +138,7 @@ var (
 		Map:    MAP,
 		Reduce: REDUCE,
 		Filter: FILTER,
+		Symbol: SYMBOL,
 	}
 
 	tokenTypeStrings = map[TokenType]string{
@@ -178,6 +181,7 @@ var (
 		MAP:       "MAP",
 		REDUCE:    "REDUCE",
 		FILTER:    "FILTER",
+		SYMBOL:    "SYMBOL",
 	}
 )
 

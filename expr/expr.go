@@ -36,6 +36,7 @@ func NewExprParser(s scanner.Scanner, p interfaces.Parser) ExprParser {
 			token.MAP:    &mapExpr{s, p},
 			token.REDUCE: &reduceExpr{s, p},
 			token.FILTER: &filterExpr{s, p},
+			token.SYMBOL: &symbol{s},
 		},
 	}
 }

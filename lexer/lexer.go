@@ -31,7 +31,7 @@ func newToken(tokenType token.TokenType, ch byte) *token.Token {
 }
 
 func isLetter(ch byte) bool {
-	return 'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || '_' == ch
+	return 'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || ch == '_'
 }
 
 func isDigit(c byte) bool {
@@ -153,6 +153,14 @@ func (this *lexer) nextToken() (*token.Token, error) {
 		tok = this.twoCharToken(token.LT, '=', token.LEQ, "<=")
 	case '>':
 		tok = this.twoCharToken(token.GT, '=', token.GEQ, ">=")
+	case '$':
+		this.readChar()
+		if isLetter(this.ch) {
+			literal := this.readIdentifier()
+			return &token.Token{Type: token.SYMBOL, Literal: literal}, nil
+		} else {
+			tok = newToken(token.ILLEGAL, this.ch)
+		}
 	default:
 		tt, ok := token.GetTokenType(this.ch)
 		if ok {
