@@ -1,4 +1,4 @@
-package stmt
+package parser
 
 import (
 	"fmt"
@@ -6,24 +6,20 @@ import (
 	"github.com/jobs-github/escript/ast"
 	"github.com/jobs-github/escript/builtin"
 	"github.com/jobs-github/escript/function"
-	"github.com/jobs-github/escript/interfaces"
-	"github.com/jobs-github/escript/scanner"
 	"github.com/jobs-github/escript/token"
 )
 
-type StmtParser interface {
+type stmtParser interface {
 	Decode(t token.TokenType, endTok token.TokenType) (ast.Statement, error)
 }
 
-func NewStmtParser(
-	s scanner.Scanner,
-	p interfaces.Parser,
-	newParser func(s scanner.Scanner) interfaces.Parser,
-) StmtParser {
-	return &stmtParser{
+func newStmtParser(
+	s scanner,
+	p Parser,
+) stmtParser {
+	return &stmtParserImpl{
 		scanner:         s,
 		p:               p,
-		newParser:       newParser,
 		functionDecoder: &functionStmt{s, p},
 		exprDecoder:     &exprStmt{s, p},
 		m: map[token.TokenType]stmtDecoder{
@@ -36,17 +32,16 @@ type stmtDecoder interface {
 	decode(endTok token.TokenType) (ast.Statement, error)
 }
 
-// stmtParser : implement StmtParser
-type stmtParser struct {
-	scanner         scanner.Scanner
-	p               interfaces.Parser
-	newParser       func(s scanner.Scanner) interfaces.Parser
+// stmtParserImpl : implement StmtParser
+type stmtParserImpl struct {
+	scanner         scanner
+	p               Parser
 	functionDecoder stmtDecoder
 	exprDecoder     stmtDecoder
 	m               map[token.TokenType]stmtDecoder
 }
 
-func (this *stmtParser) Decode(t token.TokenType, endTok token.TokenType) (ast.Statement, error) {
+func (this *stmtParserImpl) Decode(t token.TokenType, endTok token.TokenType) (ast.Statement, error) {
 	parser, ok := this.m[t]
 	if ok {
 		return parser.decode(endTok)
@@ -59,35 +54,35 @@ func (this *stmtParser) Decode(t token.TokenType, endTok token.TokenType) (ast.S
 	}
 }
 
-func (this *stmtParser) isFunctionStmt() bool {
+func (this *stmtParserImpl) isFunctionStmt() bool {
 	return this.scanner.ExpectCur2(token.FUNC, token.IDENT)
 }
 
 // constStmt : implement stmtDecoder
 type constStmt struct {
-	scanner scanner.Scanner
-	p       interfaces.Parser
+	s scanner
+	p Parser
 }
 
 func (this *constStmt) decode(endTok token.TokenType) (ast.Statement, error) {
 	stmt := ast.NewConst()
-	if err := this.scanner.ExpectPeek(token.IDENT); nil != err {
+	if err := this.s.ExpectPeek(token.IDENT); nil != err {
 		return nil, function.NewError(err)
 	}
-	stmt.Name = this.scanner.GetIdentifier()
+	stmt.Name = this.s.GetIdentifier()
 
 	if builtin.IsBuiltin(stmt.Name.Value) {
 		err := fmt.Errorf("`%v` is built-in function", stmt.Name.Value)
 		return nil, function.NewError(err)
 	}
 
-	if err := this.scanner.ExpectPeek(token.ASSIGN); nil != err {
+	if err := this.s.ExpectPeek(token.ASSIGN); nil != err {
 		return nil, function.NewError(err)
 	}
 
-	this.scanner.NextToken()
+	this.s.NextToken()
 
-	expr, err := this.p.ParseExpression(scanner.PRECED_LOWEST)
+	expr, err := this.p.ParseExpression(PRECED_LOWEST)
 	if nil != err {
 		return nil, function.NewError(err)
 	}
@@ -96,48 +91,48 @@ func (this *constStmt) decode(endTok token.TokenType) (ast.Statement, error) {
 	}
 	stmt.Value = expr
 
-	for !this.scanner.StmtEnd(endTok) {
-		this.scanner.NextToken()
+	for !this.s.StmtEnd(endTok) {
+		this.s.NextToken()
 	}
 	return stmt, nil
 }
 
 // exprStmt : implement stmtDecoder
 type exprStmt struct {
-	scanner scanner.Scanner
-	p       interfaces.Parser
+	s scanner
+	p Parser
 }
 
 func (this *exprStmt) decode(endTok token.TokenType) (ast.Statement, error) {
 	stmt := ast.NewExpr()
-	expr, err := this.p.ParseExpression(scanner.PRECED_LOWEST)
+	expr, err := this.p.ParseExpression(PRECED_LOWEST)
 	if nil != err {
 		return nil, function.NewError(err)
 	}
 	stmt.Expr = expr
 
-	if err := this.scanner.PeekIs(token.SEMICOLON); nil == err {
-		this.scanner.NextToken()
+	if err := this.s.PeekIs(token.SEMICOLON); nil == err {
+		this.s.NextToken()
 	}
 	return stmt, nil
 }
 
 // functionStmt : implement stmtDecoder
 type functionStmt struct {
-	scanner scanner.Scanner
-	p       interfaces.Parser
+	s scanner
+	p Parser
 }
 
 func (this *functionStmt) decode(endTok token.TokenType) (ast.Statement, error) {
-	this.scanner.NextToken()
-	stmt := this.scanner.NewFunction()
-	fn, err := this.scanner.ParseFunction(false, this.p)
+	this.s.NextToken()
+	stmt := this.s.NewFunction()
+	fn, err := this.s.ParseFunction(false, this.p)
 	if nil != err {
 		return nil, function.NewError(err)
 	}
 	stmt.Value = fn
-	for !this.scanner.StmtEnd(endTok) {
-		this.scanner.NextToken()
+	for !this.s.StmtEnd(endTok) {
+		this.s.NextToken()
 	}
 	return stmt, nil
 }

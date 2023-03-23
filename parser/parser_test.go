@@ -5,11 +5,10 @@ import (
 	"testing"
 
 	"github.com/jobs-github/escript/ast"
-	"github.com/jobs-github/escript/interfaces"
 	"github.com/jobs-github/escript/lexer"
 )
 
-func parseProgram(t *testing.T, p interfaces.Parser) *ast.Program {
+func parseProgram(t *testing.T, p Parser) *ast.Program {
 	program, err := p.ParseProgram()
 	if nil != err {
 		t.Fatal(err)

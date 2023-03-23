@@ -1,4 +1,4 @@
-package scanner
+package parser
 
 import (
 	"errors"
@@ -7,7 +7,6 @@ import (
 
 	"github.com/jobs-github/escript/ast"
 	"github.com/jobs-github/escript/function"
-	"github.com/jobs-github/escript/interfaces"
 	"github.com/jobs-github/escript/lexer"
 	"github.com/jobs-github/escript/token"
 )
@@ -16,8 +15,8 @@ var (
 	errNoTok = errors.New("no valid token")
 )
 
-type Scanner interface {
-	ParseFunction(lambda bool, p interfaces.Parser) (*ast.Function, error)
+type scanner interface {
+	ParseFunction(lambda bool, p Parser) (*ast.Function, error)
 	NewPrefix() *ast.PrefixExpr
 	NewInfix(left ast.Expression) *ast.InfixExpr
 	NewIndex(left ast.Expression) *ast.IndexExpr
@@ -30,7 +29,7 @@ type Scanner interface {
 	NewInteger() (*ast.Integer, error)
 	NewString() *ast.String
 
-	Clone() Scanner
+	Clone() scanner
 	String() string
 	StmtEnd(endTok token.TokenType) bool
 	GetIdentifier() *ast.Identifier
@@ -48,8 +47,8 @@ type Scanner interface {
 	ExpectCur2(cur token.TokenType, peek token.TokenType) bool
 }
 
-// scanner : implement Scanner
-type scanner struct {
+// scannerImpl : implement Scanner
+type scannerImpl struct {
 	toks     []*token.Token
 	pos      int
 	curTok   *token.Token
@@ -57,7 +56,7 @@ type scanner struct {
 	peekTok2 *token.Token
 }
 
-func New(l lexer.Lexer) (Scanner, error) {
+func newScanner(l lexer.Lexer) (scanner, error) {
 	toks, err := l.Parse()
 	if nil != err {
 		return nil, function.NewError(err)
@@ -65,7 +64,7 @@ func New(l lexer.Lexer) (Scanner, error) {
 	if nil == toks || len(toks) < 1 {
 		return nil, function.NewError(errNoTok)
 	}
-	s := &scanner{toks: toks, pos: 0}
+	s := &scannerImpl{toks: toks, pos: 0}
 	s.curTok = toks[0]
 	sz := len(toks)
 	if sz == 1 {
@@ -81,7 +80,7 @@ func New(l lexer.Lexer) (Scanner, error) {
 	return s, nil
 }
 
-func (this *scanner) fnName(lambda bool) string {
+func (this *scannerImpl) fnName(lambda bool) string {
 	if lambda {
 		return ""
 	} else {
@@ -89,7 +88,7 @@ func (this *scanner) fnName(lambda bool) string {
 	}
 }
 
-func (this *scanner) ParseFunction(lambda bool, p interfaces.Parser) (*ast.Function, error) {
+func (this *scannerImpl) ParseFunction(lambda bool, p Parser) (*ast.Function, error) {
 	fn := &ast.Function{Name: this.fnName(lambda)}
 	if err := this.ExpectPeek(token.LPAREN); nil != err {
 		return nil, function.NewError(err)
@@ -110,7 +109,7 @@ func (this *scanner) ParseFunction(lambda bool, p interfaces.Parser) (*ast.Funct
 	return fn, nil
 }
 
-func (this *scanner) parseArgs() (ast.IdentifierSlice, error) {
+func (this *scannerImpl) parseArgs() (ast.IdentifierSlice, error) {
 	args := ast.IdentifierSlice{}
 	if err := this.PeekIs(token.RPAREN); nil == err {
 		this.NextToken()
@@ -133,46 +132,46 @@ func (this *scanner) parseArgs() (ast.IdentifierSlice, error) {
 	return args, nil
 }
 
-func (this *scanner) NewPrefix() *ast.PrefixExpr {
+func (this *scannerImpl) NewPrefix() *ast.PrefixExpr {
 	return &ast.PrefixExpr{Op: this.curTok}
 }
 
-func (this *scanner) NewInfix(left ast.Expression) *ast.InfixExpr {
+func (this *scannerImpl) NewInfix(left ast.Expression) *ast.InfixExpr {
 	return &ast.InfixExpr{
 		Op:   this.curTok,
 		Left: left,
 	}
 }
 
-func (this *scanner) NewIndex(left ast.Expression) *ast.IndexExpr {
+func (this *scannerImpl) NewIndex(left ast.Expression) *ast.IndexExpr {
 	return &ast.IndexExpr{Left: left}
 }
 
-func (this *scanner) NewCallMember(left ast.Expression) *ast.CallMember {
+func (this *scannerImpl) NewCallMember(left ast.Expression) *ast.CallMember {
 	return &ast.CallMember{Left: left}
 }
 
-func (this *scanner) NewObjectMember(left ast.Expression) *ast.ObjectMember {
+func (this *scannerImpl) NewObjectMember(left ast.Expression) *ast.ObjectMember {
 	return &ast.ObjectMember{Left: left}
 }
 
-func (this *scanner) NewCall(left ast.Expression) *ast.Call {
+func (this *scannerImpl) NewCall(left ast.Expression) *ast.Call {
 	return &ast.Call{Func: left}
 }
 
-func (this *scanner) NewConditional(left ast.Expression) *ast.ConditionalExpr {
+func (this *scannerImpl) NewConditional(left ast.Expression) *ast.ConditionalExpr {
 	return &ast.ConditionalExpr{Cond: left}
 }
 
-func (this *scanner) NewFunction() *ast.FunctionStmt {
+func (this *scannerImpl) NewFunction() *ast.FunctionStmt {
 	return &ast.FunctionStmt{Name: &ast.Identifier{Value: this.curTok.Literal}}
 }
 
-func (this *scanner) NewBoolean() *ast.Boolean {
+func (this *scannerImpl) NewBoolean() *ast.Boolean {
 	return &ast.Boolean{Value: this.curTok.TypeIs(token.TRUE)}
 }
 
-func (this *scanner) NewInteger() (*ast.Integer, error) {
+func (this *scannerImpl) NewInteger() (*ast.Integer, error) {
 	expr := &ast.Integer{}
 	val, err := strconv.ParseInt(this.curTok.Literal, 0, 64)
 	if nil != err {
@@ -183,12 +182,12 @@ func (this *scanner) NewInteger() (*ast.Integer, error) {
 	return expr, nil
 }
 
-func (this *scanner) NewString() *ast.String {
+func (this *scannerImpl) NewString() *ast.String {
 	return &ast.String{Value: this.curTok.Literal}
 }
 
-func (this *scanner) Clone() Scanner {
-	return &scanner{
+func (this *scannerImpl) Clone() scanner {
+	return &scannerImpl{
 		toks:     this.toks,
 		pos:      this.pos,
 		curTok:   this.curTok,
@@ -197,39 +196,39 @@ func (this *scanner) Clone() Scanner {
 	}
 }
 
-func (this *scanner) String() string {
+func (this *scannerImpl) String() string {
 	return fmt.Sprintf("`%v %v %v`", this.curTok.Literal, this.peekTok.Literal, this.peekTok2.Literal)
 }
 
-func (this *scanner) StmtEnd(endTok token.TokenType) bool {
+func (this *scannerImpl) StmtEnd(endTok token.TokenType) bool {
 	return this.curTok.TypeIs(endTok) || this.curTok.Eof()
 }
 
-func (this *scanner) GetIdentifier() *ast.Identifier {
+func (this *scannerImpl) GetIdentifier() *ast.Identifier {
 	return &ast.Identifier{Value: this.curTok.Literal}
 }
 
-func (this *scanner) Eof() bool {
+func (this *scannerImpl) Eof() bool {
 	return this.curTok.Eof()
 }
 
-func (this *scanner) PeekPrecedence() int {
+func (this *scannerImpl) PeekPrecedence() int {
 	return getPrecedence(this.peekTok)
 }
 
-func (this *scanner) CurPrecedence() int {
+func (this *scannerImpl) CurPrecedence() int {
 	return getPrecedence(this.curTok)
 }
 
-func (this *scanner) CurTokenType() token.TokenType {
+func (this *scannerImpl) CurTokenType() token.TokenType {
 	return this.curTok.Type
 }
 
-func (this *scanner) PeekTokenType() token.TokenType {
+func (this *scannerImpl) PeekTokenType() token.TokenType {
 	return this.peekTok.Type
 }
 
-func (this *scanner) NextToken() {
+func (this *scannerImpl) NextToken() {
 	if this.Eof() {
 		return
 	}
@@ -243,7 +242,7 @@ func (this *scanner) NextToken() {
 	}
 }
 
-func (this *scanner) ExpectPeek(t token.TokenType) error {
+func (this *scannerImpl) ExpectPeek(t token.TokenType) error {
 	if this.peekTok.TypeIs(t) {
 		this.NextToken()
 		return nil
@@ -252,7 +251,7 @@ func (this *scanner) ExpectPeek(t token.TokenType) error {
 	return function.NewError(err)
 }
 
-func (this *scanner) PeekIs(t token.TokenType) error {
+func (this *scannerImpl) PeekIs(t token.TokenType) error {
 	if !this.peekTok.TypeIs(t) {
 		err := fmt.Errorf("expected peek token to be %v, got %v instead", token.ToString(t), token.ToString(this.peekTok.Type))
 		return function.NewError(err)
@@ -260,7 +259,7 @@ func (this *scanner) PeekIs(t token.TokenType) error {
 	return nil
 }
 
-func (this *scanner) Peek2Is(t token.TokenType) error {
+func (this *scannerImpl) Peek2Is(t token.TokenType) error {
 	if !this.peekTok2.TypeIs(t) {
 		err := fmt.Errorf("expected peek2 token to be %v, got %v instead", token.ToString(t), token.ToString(this.peekTok2.Type))
 		return function.NewError(err)
@@ -268,7 +267,7 @@ func (this *scanner) Peek2Is(t token.TokenType) error {
 	return nil
 }
 
-func (this *scanner) CurrentIs(t token.TokenType) error {
+func (this *scannerImpl) CurrentIs(t token.TokenType) error {
 	if !this.curTok.TypeIs(t) {
 		err := fmt.Errorf("expected current token to be %v, got %v instead", token.ToString(t), token.ToString(this.curTok.Type))
 		return function.NewError(err)
@@ -276,10 +275,10 @@ func (this *scanner) CurrentIs(t token.TokenType) error {
 	return nil
 }
 
-func (this *scanner) ExpectPeek2(t1 token.TokenType, t2 token.TokenType) bool {
+func (this *scannerImpl) ExpectPeek2(t1 token.TokenType, t2 token.TokenType) bool {
 	return this.peekTok.TypeIs(t1) && this.peekTok2.TypeIs(t2)
 }
 
-func (this *scanner) ExpectCur2(cur token.TokenType, peek token.TokenType) bool {
+func (this *scannerImpl) ExpectCur2(cur token.TokenType, peek token.TokenType) bool {
 	return this.curTok.TypeIs(cur) && this.peekTok.TypeIs(peek)
 }

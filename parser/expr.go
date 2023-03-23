@@ -1,24 +1,22 @@
-package expr
+package parser
 
 import (
 	"fmt"
 
 	"github.com/jobs-github/escript/ast"
 	"github.com/jobs-github/escript/function"
-	"github.com/jobs-github/escript/interfaces"
-	"github.com/jobs-github/escript/scanner"
 	"github.com/jobs-github/escript/token"
 )
 
-type ExprParser interface {
+type exprParser interface {
 	Decode(tok token.TokenType) (ast.Expression, error)
 }
 
-func NewExprParser(s scanner.Scanner, p interfaces.Parser) ExprParser {
+func newExprParser(s scanner, p Parser) exprParser {
 	bd := &boolean{s}
 	pd := &prefixExpr{s, p}
 
-	return &exprParser{
+	return &exprParserImpl{
 		m: map[token.TokenType]tokenDecoder{
 			token.SYMBOL: &symbol{s},
 			token.IDENT:  &identifier{s},
@@ -45,12 +43,12 @@ type tokenDecoder interface {
 	decode() (ast.Expression, error)
 }
 
-// exprParser : implement ExprParser
-type exprParser struct {
+// exprParserImpl : implement exprParser
+type exprParserImpl struct {
 	m map[token.TokenType]tokenDecoder
 }
 
-func (this *exprParser) Decode(tok token.TokenType) (ast.Expression, error) {
+func (this *exprParserImpl) Decode(tok token.TokenType) (ast.Expression, error) {
 	fn, ok := this.m[tok]
 	if !ok {
 		err := fmt.Errorf("%v has no parser", token.ToString(tok))
@@ -59,9 +57,9 @@ func (this *exprParser) Decode(tok token.TokenType) (ast.Expression, error) {
 	return fn.decode()
 }
 
-func decodeExpr(s scanner.Scanner, p interfaces.Parser, final bool) (ast.Expression, error) {
+func decodeExpr(s scanner, p Parser, final bool) (ast.Expression, error) {
 	s.NextToken()
-	v, err := p.ParseExpression(scanner.PRECED_LOWEST)
+	v, err := p.ParseExpression(PRECED_LOWEST)
 	if nil != err {
 		return nil, function.NewError(err)
 	}
@@ -73,7 +71,7 @@ func decodeExpr(s scanner.Scanner, p interfaces.Parser, final bool) (ast.Express
 	return v, nil
 }
 
-func decodeLoopFn(s scanner.Scanner, p interfaces.Parser) (ast.Expression, ast.Expression, error) {
+func decodeLoopFn(s scanner, p Parser) (ast.Expression, ast.Expression, error) {
 	if err := s.ExpectPeek(token.LPAREN); nil != err {
 		return nil, nil, function.NewError(err)
 	}
@@ -93,7 +91,7 @@ func decodeLoopFn(s scanner.Scanner, p interfaces.Parser) (ast.Expression, ast.E
 
 // symbol : implement tokenDecoder
 type symbol struct {
-	scanner scanner.Scanner
+	s scanner
 }
 
 func (this *symbol) decode() (ast.Expression, error) {
@@ -103,43 +101,43 @@ func (this *symbol) decode() (ast.Expression, error) {
 
 // identifier : implement tokenDecoder
 type identifier struct {
-	scanner scanner.Scanner
+	s scanner
 }
 
 func (this *identifier) decode() (ast.Expression, error) {
-	return this.scanner.GetIdentifier(), nil
+	return this.s.GetIdentifier(), nil
 }
 
 // integer : implement tokenDecoder
 type integer struct {
-	scanner scanner.Scanner
+	s scanner
 }
 
 func (this *integer) decode() (ast.Expression, error) {
-	return this.scanner.NewInteger()
+	return this.s.NewInteger()
 }
 
 // stringExpr : implement tokenDecoder
 type stringExpr struct {
-	scanner scanner.Scanner
+	s scanner
 }
 
 func (this *stringExpr) decode() (ast.Expression, error) {
-	return this.scanner.NewString(), nil
+	return this.s.NewString(), nil
 }
 
 // boolean : implement tokenDecoder
 type boolean struct {
-	scanner scanner.Scanner
+	s scanner
 }
 
 func (this *boolean) decode() (ast.Expression, error) {
-	return this.scanner.NewBoolean(), nil
+	return this.s.NewBoolean(), nil
 }
 
 // null : implement tokenDecoder
 type null struct {
-	scanner scanner.Scanner
+	s scanner
 }
 
 func (this *null) decode() (ast.Expression, error) {
@@ -148,14 +146,14 @@ func (this *null) decode() (ast.Expression, error) {
 
 // prefixExpr : implement tokenDecoder
 type prefixExpr struct {
-	scanner scanner.Scanner
-	p       interfaces.Parser
+	s scanner
+	p Parser
 }
 
 func (this *prefixExpr) decode() (ast.Expression, error) {
-	expr := this.scanner.NewPrefix()
-	this.scanner.NextToken()
-	right, err := this.p.ParseExpression(scanner.PRECED_PREFIX)
+	expr := this.s.NewPrefix()
+	this.s.NextToken()
+	right, err := this.p.ParseExpression(PRECED_PREFIX)
 	if nil != err {
 		return nil, function.NewError(err)
 	}
@@ -165,17 +163,17 @@ func (this *prefixExpr) decode() (ast.Expression, error) {
 
 // lparen : implement tokenDecoder
 type lparen struct {
-	scanner scanner.Scanner
-	p       interfaces.Parser
+	s scanner
+	p Parser
 }
 
 func (this *lparen) decode() (ast.Expression, error) {
-	this.scanner.NextToken()
-	expr, err := this.p.ParseExpression(scanner.PRECED_LOWEST)
+	this.s.NextToken()
+	expr, err := this.p.ParseExpression(PRECED_LOWEST)
 	if nil != err {
 		return nil, function.NewError(err)
 	}
-	if err := this.scanner.ExpectPeek(token.RPAREN); nil != err {
+	if err := this.s.ExpectPeek(token.RPAREN); nil != err {
 		return nil, function.NewError(err)
 	}
 	return expr, nil
@@ -183,8 +181,8 @@ func (this *lparen) decode() (ast.Expression, error) {
 
 // lbrack : implement tokenDecoder
 type lbrack struct {
-	scanner scanner.Scanner
-	p       interfaces.Parser
+	s scanner
+	p Parser
 }
 
 func (this *lbrack) decode() (ast.Expression, error) {
@@ -199,12 +197,12 @@ func (this *lbrack) decode() (ast.Expression, error) {
 
 // lbrace : implement tokenDecoder
 type lbrace struct {
-	scanner scanner.Scanner
-	p       interfaces.Parser
+	s scanner
+	p Parser
 }
 
 func (this *lbrace) eof() bool {
-	return nil == this.scanner.PeekIs(token.RBRACE)
+	return nil == this.s.PeekIs(token.RBRACE)
 }
 
 func (this *lbrace) decode() (ast.Expression, error) {
@@ -212,20 +210,20 @@ func (this *lbrace) decode() (ast.Expression, error) {
 	h.Pairs = ast.ExpressionMap{}
 	// empty hash
 	if this.eof() {
-		this.scanner.NextToken()
+		this.s.NextToken()
 		return h, nil
 	}
 	for !this.eof() {
-		this.scanner.NextToken()
-		key, err := this.p.ParseExpression(scanner.PRECED_LOWEST)
+		this.s.NextToken()
+		key, err := this.p.ParseExpression(PRECED_LOWEST)
 		if nil != err {
 			return nil, function.NewError(err)
 		}
-		if err := this.scanner.ExpectPeek(token.COLON); nil != err {
+		if err := this.s.ExpectPeek(token.COLON); nil != err {
 			return nil, function.NewError(err)
 		}
-		this.scanner.NextToken()
-		val, err := this.p.ParseExpression(scanner.PRECED_LOWEST)
+		this.s.NextToken()
+		val, err := this.p.ParseExpression(PRECED_LOWEST)
 		if nil != err {
 			return nil, function.NewError(err)
 		}
@@ -233,11 +231,11 @@ func (this *lbrace) decode() (ast.Expression, error) {
 		if this.eof() {
 			break
 		}
-		if err := this.scanner.ExpectPeek(token.COMMA); nil != err {
+		if err := this.s.ExpectPeek(token.COMMA); nil != err {
 			return nil, function.NewError(err)
 		}
 	}
-	if err := this.scanner.ExpectPeek(token.RBRACE); nil != err {
+	if err := this.s.ExpectPeek(token.RBRACE); nil != err {
 		return nil, function.NewError(err)
 	}
 	return h, nil
@@ -245,23 +243,23 @@ func (this *lbrace) decode() (ast.Expression, error) {
 
 // lambdaFunction : implement tokenDecoder
 type lambdaFunction struct {
-	scanner scanner.Scanner
-	p       interfaces.Parser
+	s scanner
+	p Parser
 }
 
 func (this *lambdaFunction) decode() (ast.Expression, error) {
-	return this.scanner.ParseFunction(true, this.p)
+	return this.s.ParseFunction(true, this.p)
 }
 
 // loopExpr : implement tokenDecoder
 type loopExpr struct {
-	scanner scanner.Scanner
-	p       interfaces.Parser
+	s scanner
+	p Parser
 }
 
 func (this *loopExpr) decode() (ast.Expression, error) {
 	expr := ast.NewLoop()
-	data, body, err := decodeLoopFn(this.scanner, this.p)
+	data, body, err := decodeLoopFn(this.s, this.p)
 	if nil != err {
 		return nil, function.NewError(err)
 	}
@@ -272,13 +270,13 @@ func (this *loopExpr) decode() (ast.Expression, error) {
 
 // mapExpr : implement tokenDecoder
 type mapExpr struct {
-	scanner scanner.Scanner
-	p       interfaces.Parser
+	s scanner
+	p Parser
 }
 
 func (this *mapExpr) decode() (ast.Expression, error) {
 	expr := ast.NewMap()
-	data, body, err := decodeLoopFn(this.scanner, this.p)
+	data, body, err := decodeLoopFn(this.s, this.p)
 	if nil != err {
 		return nil, function.NewError(err)
 	}
@@ -289,29 +287,29 @@ func (this *mapExpr) decode() (ast.Expression, error) {
 
 // reduceExpr : implement tokenDecoder
 type reduceExpr struct {
-	scanner scanner.Scanner
-	p       interfaces.Parser
+	s scanner
+	p Parser
 }
 
 func (this *reduceExpr) decode() (ast.Expression, error) {
 	expr := ast.NewReduce()
-	if err := this.scanner.ExpectPeek(token.LPAREN); nil != err {
+	if err := this.s.ExpectPeek(token.LPAREN); nil != err {
 		return nil, function.NewError(err)
 	}
 	var err error
-	expr.Arr, err = decodeExpr(this.scanner, this.p, false)
+	expr.Arr, err = decodeExpr(this.s, this.p, false)
 	if nil != err {
 		return nil, function.NewError(err)
 	}
-	expr.Body, err = decodeExpr(this.scanner, this.p, false)
+	expr.Body, err = decodeExpr(this.s, this.p, false)
 	if nil != err {
 		return nil, function.NewError(err)
 	}
-	expr.Init, err = decodeExpr(this.scanner, this.p, true)
+	expr.Init, err = decodeExpr(this.s, this.p, true)
 	if nil != err {
 		return nil, function.NewError(err)
 	}
-	if err := this.scanner.ExpectPeek(token.RPAREN); nil != err {
+	if err := this.s.ExpectPeek(token.RPAREN); nil != err {
 		return nil, function.NewError(err)
 	}
 	return expr, nil
@@ -319,13 +317,13 @@ func (this *reduceExpr) decode() (ast.Expression, error) {
 
 // filterExpr : implement tokenDecoder
 type filterExpr struct {
-	scanner scanner.Scanner
-	p       interfaces.Parser
+	s scanner
+	p Parser
 }
 
 func (this *filterExpr) decode() (ast.Expression, error) {
 	expr := ast.NewFilter()
-	data, body, err := decodeLoopFn(this.scanner, this.p)
+	data, body, err := decodeLoopFn(this.s, this.p)
 	if nil != err {
 		return nil, function.NewError(err)
 	}
