@@ -5,7 +5,6 @@ import (
 
 	"github.com/jobs-github/escript/ast"
 	"github.com/jobs-github/escript/function"
-	"github.com/jobs-github/escript/lexer"
 	"github.com/jobs-github/escript/token"
 )
 
@@ -25,7 +24,8 @@ type Parser interface {
 	ParseExpressions(endTok token.TokenType) (ast.ExpressionSlice, error)
 }
 
-func New(l lexer.Lexer) (Parser, error) {
+func New(code string) (Parser, error) {
+	l := newLexer(code)
 	s, err := newScanner(l)
 	if nil == s {
 		return nil, err

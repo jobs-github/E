@@ -11,7 +11,6 @@ import (
 	"github.com/jobs-github/escript/ast"
 	"github.com/jobs-github/escript/compiler"
 	"github.com/jobs-github/escript/function"
-	"github.com/jobs-github/escript/lexer"
 	"github.com/jobs-github/escript/object"
 	"github.com/jobs-github/escript/parser"
 	"github.com/jobs-github/escript/vm"
@@ -60,8 +59,7 @@ type Eval interface {
 }
 
 func LoadAst(code string) (ast.Node, error) {
-	l := lexer.New(code)
-	p, err := parser.New(l)
+	p, err := parser.New(code)
 	if nil != err {
 		return nil, function.NewError(err)
 	}
@@ -168,8 +166,7 @@ func (this *interpreter) Repl(in io.Reader, out io.Writer) {
 			return
 		}
 		line := scanner.Text()
-		l := lexer.New(line)
-		p, err := parser.New(l)
+		p, err := parser.New(line)
 		if nil != err {
 			io.WriteString(out, fmt.Sprintf("\t%v\n", err))
 			continue
@@ -218,8 +215,7 @@ func (this *virtualMachine) Repl(in io.Reader, out io.Writer) {
 		}
 
 		line := scanner.Text()
-		l := lexer.New(line)
-		p, err := parser.New(l)
+		p, err := parser.New(line)
 		if nil != err {
 			io.WriteString(out, fmt.Sprintf("\t%v\n", err))
 			continue

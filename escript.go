@@ -6,7 +6,6 @@ import (
 
 	"github.com/jobs-github/escript/compiler"
 	"github.com/jobs-github/escript/function"
-	"github.com/jobs-github/escript/lexer"
 	"github.com/jobs-github/escript/parser"
 	"github.com/jobs-github/escript/vm"
 )
@@ -90,8 +89,7 @@ func (this *virtualMachine) Run() (object.Object, error) {
 }
 
 func LoadAst(code string) (ast.Node, error) {
-	l := lexer.New(code)
-	p, err := parser.New(l)
+	p, err := parser.New(code)
 	if nil != err {
 		return nil, function.NewError(err)
 	}

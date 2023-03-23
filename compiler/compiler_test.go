@@ -7,7 +7,6 @@ import (
 	"github.com/jobs-github/escript/ast"
 	"github.com/jobs-github/escript/code"
 	"github.com/jobs-github/escript/function"
-	"github.com/jobs-github/escript/lexer"
 	"github.com/jobs-github/escript/object"
 	"github.com/jobs-github/escript/parser"
 )
@@ -28,8 +27,7 @@ func newCode(op code.Opcode, operands ...int) code.Instructions {
 }
 
 func parse(t *testing.T, input string) *ast.Program {
-	l := lexer.New(input)
-	p, err := parser.New(l)
+	p, err := parser.New(input)
 	if nil != err {
 		t.Fatal(err)
 	}

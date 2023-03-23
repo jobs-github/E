@@ -4,7 +4,6 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/jobs-github/escript/lexer"
 	"github.com/jobs-github/escript/object"
 	"github.com/jobs-github/escript/parser"
 )
@@ -222,8 +221,7 @@ func TestEvalExpr(t *testing.T) {
 }
 
 func testEval(input string) (object.Object, error) {
-	l := lexer.New(input)
-	p, err := parser.New(l)
+	p, err := parser.New(input)
 	if nil != err {
 		return object.Nil, err
 	}

@@ -7,7 +7,6 @@ import (
 
 	"github.com/jobs-github/escript/ast"
 	"github.com/jobs-github/escript/function"
-	"github.com/jobs-github/escript/lexer"
 	"github.com/jobs-github/escript/token"
 )
 
@@ -56,7 +55,7 @@ type scannerImpl struct {
 	peekTok2 *token.Token
 }
 
-func newScanner(l lexer.Lexer) (scanner, error) {
+func newScanner(l Lexer) (scanner, error) {
 	toks, err := l.Parse()
 	if nil != err {
 		return nil, function.NewError(err)

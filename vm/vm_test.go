@@ -7,7 +7,6 @@ import (
 	"github.com/jobs-github/escript/ast"
 	"github.com/jobs-github/escript/compiler"
 	"github.com/jobs-github/escript/function"
-	"github.com/jobs-github/escript/lexer"
 	"github.com/jobs-github/escript/object"
 	"github.com/jobs-github/escript/parser"
 )
@@ -15,8 +14,7 @@ import (
 type testHashType = map[object.HashKey]int64
 
 func parse(t *testing.T, input string) *ast.Program {
-	l := lexer.New(input)
-	p, err := parser.New(l)
+	p, err := parser.New(input)
 	if nil != err {
 		t.Fatal(err)
 	}
