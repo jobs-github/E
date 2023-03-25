@@ -20,7 +20,7 @@ const (
 type Runnable interface {
 	Type() RunnableType
 	Ast() ast.Node
-	Run() (object.Object, error) // TODO: env
+	Run(s object.Symbols) (object.Object, error)
 }
 
 func NewInterpreter(code string) (Runnable, error) {
@@ -63,8 +63,8 @@ func (this *interpreter) Ast() ast.Node {
 	return this.node
 }
 
-func (this *interpreter) Run() (object.Object, error) {
-	return this.node.Eval(object.NewEnv())
+func (this *interpreter) Run(s object.Symbols) (object.Object, error) {
+	return this.node.Eval(object.NewEnv(s))
 }
 
 // virtualMachine : implement Runnable
@@ -81,8 +81,8 @@ func (this *virtualMachine) Ast() ast.Node {
 	return this.node
 }
 
-func (this *virtualMachine) Run() (object.Object, error) {
-	if err := this.state.Run(); nil != err {
+func (this *virtualMachine) Run(s object.Symbols) (object.Object, error) {
+	if err := this.state.Run(s); nil != err {
 		return nil, err
 	}
 	return this.state.LastPopped(), nil

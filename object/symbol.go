@@ -1,16 +1,19 @@
 package object
 
-type symbolTable []string
+type Symbols map[string]Callable
 
-func (this *symbolTable) traverse(cb func(i int, name string)) {
+type SymbolTable map[string]Object
+
+type objectSymbols []string
+
+func (this *objectSymbols) traverse(cb func(i int, name string)) {
 	for i, fn := range *this {
 		cb(i, fn)
 	}
 }
 
 var (
-	// vm: array
-	objectSymbolTable = symbolTable{
+	objectSymbolTable = objectSymbols{
 		FnLen,
 		FnIndex,
 		FnNot,

@@ -141,7 +141,7 @@ func runVmTests(t *testing.T, tests []vmTestCase) {
 				t.Fatal(err)
 			}
 			vm := New(c.Bytecode(), c.Constants())
-			if err := vm.Run(); nil != err {
+			if err := vm.Run(nil); nil != err {
 				t.Fatal(err)
 			}
 			e := vm.LastPopped()

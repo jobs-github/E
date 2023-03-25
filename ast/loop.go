@@ -70,7 +70,7 @@ func (this *LoopExpr) Eval(e object.Env) (object.Object, error) {
 		return object.Nil, err
 	}
 	fn, err := this.Body.Eval(e)
-	if !object.Callable(fn) {
+	if !object.IsCallable(fn) {
 		return object.Nil, err
 	}
 	for i := int64(0); i < cnt; i++ {

@@ -22,6 +22,11 @@ func (this *visitor) DoIdent(v *ast.Identifier) error {
 	return nil
 }
 
+func (this *visitor) DoSymbol(v *ast.SymbolExpr) error {
+	// TODO
+	return nil
+}
+
 func (this *visitor) DoNull(v *ast.Null) error {
 	_, err := this.doConst(object.Nil)
 	return err

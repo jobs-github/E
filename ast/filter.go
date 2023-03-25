@@ -76,7 +76,7 @@ func (this *FilterExpr) Eval(e object.Env) (object.Object, error) {
 	if nil != err {
 		return object.Nil, err
 	}
-	if !object.Callable(cb) {
+	if !object.IsCallable(cb) {
 		return object.Nil, errNotCallable
 	}
 	if arr.Items == nil || len(arr.Items) < 1 {

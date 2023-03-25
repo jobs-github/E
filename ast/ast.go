@@ -27,6 +27,7 @@ type Visitor interface {
 	DoPrefix(v *PrefixExpr) error
 	DoInfix(v *InfixExpr) error
 	DoIdent(v *Identifier) error
+	DoSymbol(v *SymbolExpr) error
 	DoConditional(v *ConditionalExpr) error
 	DoFn(v *Function) error
 	DoCall(v *Call) error
@@ -41,12 +42,9 @@ type Visitor interface {
 	DoHash(v *Hash) error
 }
 
-type defaultNode struct {
-}
+type defaultNode struct{}
 
-func (this *defaultNode) AsFunction() (*Function, error) {
-	return nil, errNotFunction
-}
+func (this *defaultNode) AsFunction() (*Function, error) { return nil, errNotFunction }
 
 type Node interface {
 	Do(v Visitor) error

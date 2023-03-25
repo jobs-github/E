@@ -153,12 +153,12 @@ func dumpAst(path string) (string, error) {
 type interpreter struct{}
 
 func (this *interpreter) eval(node ast.Node) (object.Object, error) {
-	return node.Eval(object.NewEnv())
+	return node.Eval(object.NewEnv(nil))
 }
 
 func (this *interpreter) Repl(in io.Reader, out io.Writer) {
 	scanner := bufio.NewScanner(in)
-	env := object.NewEnv()
+	env := object.NewEnv(nil)
 	for {
 		fmt.Printf(">> ")
 		scanned := scanner.Scan()
@@ -233,7 +233,7 @@ func (this *virtualMachine) Repl(in io.Reader, out io.Writer) {
 			continue
 		}
 		machine := vm.Make(c.Bytecode(), c.Constants(), globals)
-		if err := machine.Run(); nil != err {
+		if err := machine.Run(nil); nil != err {
 			fmt.Fprintf(out, fmt.Sprintf("run vm error: %v\n", err))
 			continue
 		}
@@ -254,7 +254,7 @@ func (this *virtualMachine) eval(program ast.Node) (object.Object, error) {
 		return object.Nil, function.NewError(err)
 	}
 	machine := vm.Make(c.Bytecode(), c.Constants(), globals)
-	if err := machine.Run(); nil != err {
+	if err := machine.Run(nil); nil != err {
 		return object.Nil, function.NewError(err)
 	}
 	return machine.LastPopped(), nil

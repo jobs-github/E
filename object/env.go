@@ -1,6 +1,7 @@
 package object
 
 type Env interface {
+	Symbol(name string) (Callable, bool)
 	Get(name string) (Object, bool)
 	Set(name string, val Object) Object
 	NewEnclosedEnv() Env
@@ -8,15 +9,22 @@ type Env interface {
 
 // environment : implement Env
 type environment struct {
+	s      Symbols
 	parent Env
-	e      map[string]Object
+	e      SymbolTable
 }
 
-func NewEnv() Env {
+func NewEnv(s Symbols) Env {
 	return &environment{
+		s:      s,
 		parent: nil,
-		e:      map[string]Object{},
+		e:      SymbolTable{},
 	}
+}
+
+func (this *environment) Symbol(name string) (Callable, bool) {
+	v, ok := this.s[name]
+	return v, ok
 }
 
 func (this *environment) Get(name string) (Object, bool) {
@@ -35,8 +43,9 @@ func (this *environment) Set(name string, val Object) Object {
 
 func (this *environment) NewEnclosedEnv() Env {
 	return &environment{
+		s:      this.s,
 		parent: this,
-		e:      map[string]Object{},
+		e:      SymbolTable{},
 	}
 }
 

@@ -18,7 +18,7 @@ func newExprParser(s scanner, p Parser) exprParser {
 
 	return &exprParserImpl{
 		m: map[token.TokenType]tokenDecoder{
-			token.SYMBOL: &symbol{s},
+			token.SYMBOL: &symbolExpr{s},
 			token.IDENT:  &identifier{s},
 			token.INT:    &integer{s},
 			token.STRING: &stringExpr{s},
@@ -89,14 +89,13 @@ func decodeLoopFn(s scanner, p Parser) (ast.Expression, ast.Expression, error) {
 	return data, body, nil
 }
 
-// symbol : implement tokenDecoder
-type symbol struct {
+// symbolExpr : implement tokenDecoder
+type symbolExpr struct {
 	s scanner
 }
 
-func (this *symbol) decode() (ast.Expression, error) {
-	// TODO
-	return nil, nil
+func (this *symbolExpr) decode() (ast.Expression, error) {
+	return this.s.NewSymbol(), nil
 }
 
 // identifier : implement tokenDecoder

@@ -47,8 +47,8 @@ func newSymbol(name string, fn object.BuiltinFunction) *symbol {
 
 type symbolTable []*symbol
 
-func (this *symbolTable) newMap() map[string]object.Object {
-	m := map[string]object.Object{}
+func (this *symbolTable) newSymbolTable() object.SymbolTable {
+	m := object.SymbolTable{}
 	for _, v := range *this {
 		m[v.name] = v.fn
 	}
@@ -72,7 +72,7 @@ var (
 		newSymbol("loads", builtinLoads),
 		newSymbol("dumps", builtinDumps),
 	}
-	builtins = builtinSymbolTable.newMap()
+	builtins = builtinSymbolTable.newSymbolTable()
 )
 
 type formatArgs struct {

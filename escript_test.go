@@ -210,7 +210,7 @@ func TestEvalExpr(t *testing.T) {
 		{"null || null", object.Nil},
 	}
 	for i, tt := range tests {
-		evaluated, err := testEval(tt.input)
+		evaluated, err := testEval(tt.input, nil)
 		if nil != err {
 			t.Fatalf("i: %v, err: %v", i, err)
 		}
@@ -220,7 +220,7 @@ func TestEvalExpr(t *testing.T) {
 	}
 }
 
-func testEval(input string) (object.Object, error) {
+func testEval(input string, s object.Symbols) (object.Object, error) {
 	p, err := parser.New(input)
 	if nil != err {
 		return object.Nil, err
@@ -229,7 +229,7 @@ func testEval(input string) (object.Object, error) {
 	if nil != err {
 		return object.Nil, err
 	}
-	env := object.NewEnv()
+	env := object.NewEnv(s)
 	return program.Eval(env)
 }
 
@@ -350,7 +350,7 @@ func TestVarStmts(t *testing.T) {
 		{"const a = 5; const b = a; const c = a + b + 5; c;", 15},
 	}
 	for _, tt := range tests {
-		evaluated, err := testEval(tt.input)
+		evaluated, err := testEval(tt.input, nil)
 		if nil != err {
 			t.Fatal(err)
 		}
@@ -360,7 +360,7 @@ func TestVarStmts(t *testing.T) {
 
 func TestFunctionObject(t *testing.T) {
 	input := "func(x) { x + 2; };"
-	evaluated, err := testEval(input)
+	evaluated, err := testEval(input, nil)
 	if nil != err {
 		t.Fatal(err)
 	}
@@ -399,7 +399,7 @@ func TestFunctionCases(t *testing.T) {
 		{"func(x) { func(y) { x + y } }(5)(5)", 10},
 	}
 	for _, tt := range tests {
-		evaluated, err := testEval(tt.input)
+		evaluated, err := testEval(tt.input, nil)
 		if nil != err {
 			t.Fatal(err)
 		}
@@ -415,7 +415,7 @@ func TestArrayCases(t *testing.T) {
 		{"[1, 2 * 3, 3 * 4]", []int64{1, 6, 12}},
 	}
 	for _, tt := range tests {
-		evaluated, err := testEval(tt.input)
+		evaluated, err := testEval(tt.input, nil)
 		if nil != err {
 			t.Fatal(err)
 		}
@@ -446,7 +446,7 @@ func TestHash(t *testing.T) {
 	};
 	`
 
-	evaluated, err := testEval(input)
+	evaluated, err := testEval(input, nil)
 	if nil != err {
 		t.Fatal(err)
 	}
@@ -478,5 +478,44 @@ func TestHash(t *testing.T) {
 			t.Fatalf("mismatch key, got=%v", *ek)
 		}
 		testIntegerObject(t, pair.Value, ev)
+	}
+}
+
+func TestSymbol(t *testing.T) {
+	tests := []struct {
+		input    string
+		s        object.Symbols
+		expected interface{}
+	}{
+		{
+			`$s1;`,
+			object.Symbols{
+				"s1": func() (object.Object, error) { return object.NewString("teststring"), nil },
+			},
+			`teststring`,
+		},
+		{
+			`$i1;`,
+			object.Symbols{
+				"i1": func() (object.Object, error) { return object.NewInteger(65535), nil },
+			},
+			65535,
+		},
+		{
+			`$t1;`,
+			object.Symbols{
+				"t1": func() (object.Object, error) { return object.True, nil },
+			},
+			true,
+		},
+	}
+	for i, tt := range tests {
+		evaluated, err := testEval(tt.input, tt.s)
+		if nil != err {
+			t.Fatalf("i: %v, err: %v", i, err)
+		}
+		if !testEvalObject(t, evaluated, tt.expected) {
+			t.Fatalf("i: %v", i)
+		}
 	}
 }

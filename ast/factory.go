@@ -12,6 +12,7 @@ const (
 	typeStmtExpr         = "expr"
 	typeStmtBlock        = "block"
 	typeExprIdent        = "ident"
+	typeExprSymbol       = "symbol"
 	typeExprLoop         = token.Loop
 	typeExprMap          = token.Map
 	typeExprReduce       = token.Reduce
@@ -38,6 +39,7 @@ func NewFunction() *FunctionStmt       { return &FunctionStmt{} }
 func NewExpr() *ExpressionStmt         { return &ExpressionStmt{} }
 func NewBlock() *BlockStmt             { return &BlockStmt{} }
 func NewIdent() *Identifier            { return &Identifier{} }
+func NewSymbol() *SymbolExpr           { return &SymbolExpr{} }
 func NewLoop() *LoopExpr               { return &LoopExpr{} }
 func NewMap() *MapExpr                 { return &MapExpr{} }
 func NewReduce() *ReduceExpr           { return &ReduceExpr{} }
@@ -66,6 +68,7 @@ var (
 	}
 	exprFactory = map[string]func() Expression{
 		typeExprIdent:        func() Expression { return NewIdent() },
+		typeExprSymbol:       func() Expression { return NewSymbol() },
 		typeExprLoop:         func() Expression { return NewLoop() },
 		typeExprMap:          func() Expression { return NewMap() },
 		typeExprReduce:       func() Expression { return NewReduce() },

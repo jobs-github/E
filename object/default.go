@@ -27,7 +27,6 @@ var (
 	errInvalidOperation = errors.New("invalid operation")
 	errNotSupportCalc   = errors.New("not support calc func")
 
-	errTypeIsNotState    = errors.New("type is not State")
 	errTypeIsNotByteFunc = errors.New("type is not ByteFunc")
 	errTypeIsNotClosure  = errors.New("type is not Closure")
 	errTypeIsNotInt      = errors.New("type is not Integer")

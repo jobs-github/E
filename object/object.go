@@ -10,6 +10,8 @@ import (
 	"github.com/jobs-github/escript/token"
 )
 
+type Callable func() (Object, error)
+
 type ObjectType uint8
 
 type ObjectTypes []ObjectType
@@ -103,7 +105,7 @@ func IsClosure(v Object) bool {
 	return v.getType() == objectTypeClosure
 }
 
-func Callable(v Object) bool {
+func IsCallable(v Object) bool {
 	t := v.getType()
 	return t == objectTypeFunction ||
 		t == objectTypeObjectFunc ||

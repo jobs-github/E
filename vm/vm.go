@@ -44,7 +44,7 @@ func New(b compiler.Bytecode, c object.Objects) VM {
 }
 
 type VM interface {
-	Run() error
+	Run(s object.Symbols) error
 	StackTop() object.Object
 	LastPopped() object.Object
 }
@@ -88,7 +88,7 @@ func (this *virtualMachine) fetchClosure() (uint16, int) {
 	return idx, int(frees)
 }
 
-func (this *virtualMachine) Run() error {
+func (this *virtualMachine) Run(s object.Symbols) error {
 	for !this.frames.eof() {
 		this.frames.incr()
 		this.ip = this.frames.ip()

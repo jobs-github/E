@@ -27,6 +27,7 @@ type scanner interface {
 	NewBoolean() *ast.Boolean
 	NewInteger() (*ast.Integer, error)
 	NewString() *ast.String
+	NewSymbol() *ast.SymbolExpr
 
 	Clone() scanner
 	String() string
@@ -183,6 +184,10 @@ func (this *scannerImpl) NewInteger() (*ast.Integer, error) {
 
 func (this *scannerImpl) NewString() *ast.String {
 	return &ast.String{Value: this.curTok.Literal}
+}
+
+func (this *scannerImpl) NewSymbol() *ast.SymbolExpr {
+	return &ast.SymbolExpr{Value: this.curTok.Literal}
 }
 
 func (this *scannerImpl) Clone() scanner {
