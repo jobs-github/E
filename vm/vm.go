@@ -36,6 +36,7 @@ func Make(b compiler.Bytecode, c object.Objects, globals object.Objects) VM {
 		frames:    NewCallFrame(b, MaxFrames),
 		ip:        -1,
 		ins:       nil,
+		symbols:   nil,
 	}
 }
 
@@ -59,6 +60,7 @@ type virtualMachine struct {
 	frames    CallFrame
 	ip        int
 	ins       code.Instructions
+	symbols   object.Symbols
 }
 
 func (this *virtualMachine) decodeUint16() uint16 {
@@ -89,6 +91,7 @@ func (this *virtualMachine) fetchClosure() (uint16, int) {
 }
 
 func (this *virtualMachine) Run(s object.Symbols) error {
+	this.symbols = s
 	for !this.frames.eof() {
 		this.frames.incr()
 		this.ip = this.frames.ip()
@@ -100,6 +103,12 @@ func (this *virtualMachine) Run(s object.Symbols) error {
 				idx := this.fetchUint16()
 				err := this.push(this.constants[idx])
 				if nil != err {
+					return err
+				}
+			}
+		case code.OpSymbol:
+			{
+				if err := this.doSymbol(); nil != err {
 					return err
 				}
 			}
@@ -263,19 +272,9 @@ func (this *virtualMachine) Run(s object.Symbols) error {
 					return err
 				}
 			}
-		case code.OpAdd,
-			code.OpSub,
-			code.OpMul,
-			code.OpDiv,
-			code.OpMod,
-			code.OpLt,
-			code.OpGt,
-			code.OpEq,
-			code.OpNeq,
-			code.OpLeq,
-			code.OpGeq,
-			code.OpAnd,
-			code.OpOr:
+		case code.OpAdd, code.OpSub, code.OpMul, code.OpDiv, code.OpMod,
+			code.OpLt, code.OpGt, code.OpEq, code.OpNeq, code.OpLeq, code.OpGeq,
+			code.OpAnd, code.OpOr:
 			{
 				if err := this.doInfix(op); nil != err {
 					return err
@@ -288,6 +287,23 @@ func (this *virtualMachine) Run(s object.Symbols) error {
 				}
 			}
 		}
+	}
+	return nil
+}
+
+func (this *virtualMachine) doSymbol() error {
+	idx := this.fetchUint16()
+	key := this.constants[idx].String()
+	cb, ok := this.symbols[key]
+	if !ok {
+		return fmt.Errorf("symbol `%v` missing", key)
+	}
+	r, err := cb()
+	if nil != err {
+		return err
+	}
+	if err := this.push(r); nil != err {
+		return err
 	}
 	return nil
 }

@@ -27,6 +27,7 @@ const (
 	OpHash
 	OpJumpWhenFalse
 	OpJump
+	OpSymbol
 	OpGetGlobal
 	OpSetGlobal
 	OpGetBuiltin
@@ -73,6 +74,7 @@ var (
 		OpHash:          {"OpHash", []int{2}},
 		OpJumpWhenFalse: {"OpJumpWhenFalse", []int{2}},
 		OpJump:          {"OpJump", []int{2}},
+		OpSymbol:        {"OpSymbol", []int{2}},
 		OpGetGlobal:     {"OpGetGlobal", []int{2}},
 		OpSetGlobal:     {"OpSetGlobal", []int{2}},
 		OpGetBuiltin:    {"OpGetBuiltin", []int{1}},

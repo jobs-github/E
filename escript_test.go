@@ -519,3 +519,46 @@ func TestSymbol(t *testing.T) {
 		}
 	}
 }
+
+func TestSymbolVM(t *testing.T) {
+	tests := []struct {
+		input    string
+		s        object.Symbols
+		expected interface{}
+	}{
+		{
+			`$s1;`,
+			object.Symbols{
+				"s1": func() (object.Object, error) { return object.NewString("teststring"), nil },
+			},
+			`teststring`,
+		},
+		{
+			`$i1;`,
+			object.Symbols{
+				"i1": func() (object.Object, error) { return object.NewInteger(65535), nil },
+			},
+			65535,
+		},
+		{
+			`$t1;`,
+			object.Symbols{
+				"t1": func() (object.Object, error) { return object.True, nil },
+			},
+			true,
+		},
+	}
+	for i, tt := range tests {
+		r, err := NewState(tt.input)
+		if nil != err {
+			t.Fatalf("i: %v, err: %v", i, err)
+		}
+		res, err := r.Run(tt.s)
+		if nil != err {
+			t.Fatalf("i: %v, err: %v", i, err)
+		}
+		if !testEvalObject(t, res, tt.expected) {
+			t.Fatalf("i: %v", i)
+		}
+	}
+}

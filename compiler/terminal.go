@@ -23,7 +23,10 @@ func (this *visitor) DoIdent(v *ast.Identifier) error {
 }
 
 func (this *visitor) DoSymbol(v *ast.SymbolExpr) error {
-	// TODO
+	idx := this.c.addConst(object.NewString(v.Value))
+	if _, err := this.c.encode(code.OpSymbol, idx); nil != err {
+		return function.NewError(err)
+	}
 	return nil
 }
 
