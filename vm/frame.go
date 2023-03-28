@@ -31,7 +31,12 @@ type Frame struct {
 	bp int // => stack
 }
 
+func (this *Frame) reset() {
+	this.ip = -1
+}
+
 type CallFrame interface {
+	reset()
 	instructions() code.Instructions
 	ip() int
 	basePointer() int
@@ -48,6 +53,11 @@ type CallFrame interface {
 type callFrame struct {
 	frames     []*Frame
 	frameIndex int
+}
+
+func (this *callFrame) reset() {
+	this.frameIndex = 1
+	this.current().reset()
 }
 
 func (this *callFrame) instructions() code.Instructions {

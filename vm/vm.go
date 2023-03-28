@@ -91,6 +91,7 @@ func (this *virtualMachine) fetchClosure() (uint16, int) {
 }
 
 func (this *virtualMachine) Run(s object.Symbols) error {
+	this.frames.reset()
 	this.symbols = s
 	for !this.frames.eof() {
 		this.frames.incr()

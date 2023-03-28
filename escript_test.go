@@ -562,3 +562,42 @@ func TestSymbolVM(t *testing.T) {
 		}
 	}
 }
+
+func TestSymbolBool(t *testing.T) {
+	T := func() (object.Object, error) { return object.True, nil }
+	F := func() (object.Object, error) { return object.False, nil }
+	r, err := NewState(`($a || $b) && ($c || $d);`)
+	if nil != err {
+		t.Fatalf("err: %v", err)
+	}
+	tests := []struct {
+		s        object.Symbols
+		expected interface{}
+	}{
+		{object.Symbols{"a": T, "b": T, "c": T, "d": T}, true},
+		{object.Symbols{"a": T, "b": T, "c": T, "d": F}, true},
+		{object.Symbols{"a": T, "b": T, "c": F, "d": F}, false},
+		{object.Symbols{"a": T, "b": T, "c": F, "d": T}, true},
+		{object.Symbols{"a": T, "b": F, "c": T, "d": T}, true},
+		{object.Symbols{"a": T, "b": F, "c": T, "d": F}, true},
+		{object.Symbols{"a": T, "b": F, "c": F, "d": F}, false},
+		{object.Symbols{"a": T, "b": F, "c": F, "d": T}, true},
+		{object.Symbols{"a": F, "b": T, "c": T, "d": T}, true},
+		{object.Symbols{"a": F, "b": T, "c": T, "d": F}, true},
+		{object.Symbols{"a": F, "b": T, "c": F, "d": F}, false},
+		{object.Symbols{"a": F, "b": T, "c": F, "d": T}, true},
+		{object.Symbols{"a": F, "b": F, "c": T, "d": T}, false},
+		{object.Symbols{"a": F, "b": F, "c": T, "d": F}, false},
+		{object.Symbols{"a": F, "b": F, "c": F, "d": F}, false},
+		{object.Symbols{"a": F, "b": F, "c": F, "d": T}, false},
+	}
+	for i, tt := range tests {
+		res, err := r.Run(tt.s)
+		if nil != err {
+			t.Fatalf("i: %v, err: %v", i, err)
+		}
+		if !testEvalObject(t, res, tt.expected) {
+			t.Fatalf("i: %v", i)
+		}
+	}
+}
