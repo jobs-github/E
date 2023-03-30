@@ -16,18 +16,25 @@ import (
 	"github.com/jobs-github/escript/vm"
 )
 
+const (
+	useVM = true
+)
+
+func newEval() Eval {
+	if useVM {
+		return newState()
+	} else {
+		return newInterpreter()
+	}
+}
+
 func main() {
 	argc := len(os.Args)
-	e := newInterpreter()
+	e := newEval()
 	if argc == 1 {
 		e.Repl(os.Stdin, os.Stdout)
 	} else if argc == 2 {
-		if os.Args[1] == "--vm" {
-			e := newState()
-			e.Repl(os.Stdin, os.Stdout)
-		} else {
-			e.EvalScript(os.Args[1])
-		}
+		e.EvalScript(os.Args[1])
 	} else {
 		if os.Args[1] == "--dump" {
 			if s, err := e.DumpAst(os.Args[2]); nil != err {
