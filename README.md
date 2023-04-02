@@ -8,9 +8,8 @@
     - [conditional expression](#conditional-expression)
     - [recursion](#recursion)
     - [closure](#closure)
-    - [script parameters injection](#script-parameters-injection)
     - [eval](#eval)
-    - [inject](#inject)
+    - [embedded eval](#embedded-eval)
     - [dump \& load AST as json](#dump--load-ast-as-json)
   - [builtin function](#builtin-function)
     - [type](#type)
@@ -156,14 +155,6 @@ escript is a tiny, expression-based embedded language for Go.
 
 [back to top](#id_top)
 
-### [script parameters injection](scripts/hello.es) ###
-
-    chmod +x /make.sh
-    ./make.sh
-    ./escript scripts/hello.es hello hello world
-
-[back to top](#id_top)
-
 ### eval ###
 
     package main
@@ -182,7 +173,7 @@ escript is a tiny, expression-based embedded language for Go.
 
 [back to top](#id_top)
 
-### inject ###
+### embedded eval ###
 
     package main
 
