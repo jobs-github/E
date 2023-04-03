@@ -17,6 +17,7 @@ const (
 	typeExprMap          = token.Map
 	typeExprReduce       = token.Reduce
 	typeExprFilter       = token.Filter
+	typeExprRange        = token.Range
 	typeExprBuiltin      = object.TypeBuiltin
 	typeExprFn           = "fn"
 	typeExprArray        = object.TypeArray
@@ -44,6 +45,7 @@ func NewLoop() *LoopExpr               { return &LoopExpr{} }
 func NewMap() *MapExpr                 { return &MapExpr{} }
 func NewReduce() *ReduceExpr           { return &ReduceExpr{} }
 func NewFilter() *FilterExpr           { return &FilterExpr{} }
+func NewRange() *RangeExpr             { return &RangeExpr{} }
 func NewFn() *Function                 { return &Function{} }
 func NewArray() *Array                 { return &Array{} }
 func NewNull() *Null                   { return &Null{} }
@@ -73,6 +75,7 @@ var (
 		typeExprMap:          func() Expression { return NewMap() },
 		typeExprReduce:       func() Expression { return NewReduce() },
 		typeExprFilter:       func() Expression { return NewFilter() },
+		typeExprRange:        func() Expression { return NewRange() },
 		typeExprBuiltin:      func() Expression { return NewIdent() },
 		typeExprFn:           func() Expression { return NewFn() },
 		typeExprArray:        func() Expression { return NewArray() },

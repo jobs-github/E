@@ -23,6 +23,7 @@ type Visitor interface {
 	DoMap(v *MapExpr) error
 	DoReduce(v *ReduceExpr) error
 	DoFilter(v *FilterExpr) error
+	DoRange(v *RangeExpr) error
 	DoFunction(v *FunctionStmt) error
 	DoPrefix(v *PrefixExpr) error
 	DoInfix(v *InfixExpr) error

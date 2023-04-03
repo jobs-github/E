@@ -35,6 +35,7 @@ func newExprParser(s scanner, p Parser) exprParser {
 			token.MAP:    &mapExpr{s, p},
 			token.REDUCE: &reduceExpr{s, p},
 			token.FILTER: &filterExpr{s, p},
+			token.RANGE:  &rangeExpr{s, p},
 		},
 	}
 }
@@ -327,6 +328,23 @@ func (this *filterExpr) decode() (ast.Expression, error) {
 		return nil, function.NewError(err)
 	}
 	expr.Arr = data
+	expr.Body = body
+	return expr, nil
+}
+
+// rangeExpr : implement tokenDecoder
+type rangeExpr struct {
+	s scanner
+	p Parser
+}
+
+func (this *rangeExpr) decode() (ast.Expression, error) {
+	expr := ast.NewRange()
+	data, body, err := decodeLoopFn(this.s, this.p)
+	if nil != err {
+		return nil, function.NewError(err)
+	}
+	expr.Cnt = data
 	expr.Body = body
 	return expr, nil
 }

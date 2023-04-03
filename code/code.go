@@ -18,6 +18,7 @@ type Opcode byte
 const (
 	OpUndefined Opcode = iota
 	OpArray
+	OpArrayReserve
 	OpArrayNew
 	OpArraySet
 	OpArrayAppend
@@ -65,6 +66,7 @@ const (
 var (
 	definitions = map[Opcode]*Definition{
 		OpArray:         {"OpArray", []int{2}},
+		OpArrayReserve:  {"OpArrayReserve", []int{}},
 		OpArrayNew:      {"OpArrayNew", []int{1}},
 		OpArraySet:      {"OpArraySet", []int{1, 1}},
 		OpArrayAppend:   {"OpArrayAppend", []int{1}},

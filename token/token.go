@@ -53,6 +53,7 @@ const (
 	MAP
 	REDUCE
 	FILTER
+	RANGE
 	SYMBOL
 	//keyword_end
 )
@@ -67,6 +68,7 @@ const (
 	Map    = "map"
 	Reduce = "reduce"
 	Filter = "filter"
+	Range  = "range"
 	Symbol = "$"
 )
 
@@ -138,6 +140,7 @@ var (
 		Map:    MAP,
 		Reduce: REDUCE,
 		Filter: FILTER,
+		Range:  RANGE,
 		Symbol: SYMBOL,
 	}
 
@@ -181,6 +184,7 @@ var (
 		MAP:       "MAP",
 		REDUCE:    "REDUCE",
 		FILTER:    "FILTER",
+		RANGE:     "RANGE",
 		SYMBOL:    "SYMBOL",
 	}
 )

@@ -173,6 +173,12 @@ func (this *virtualMachine) Run(s object.Symbols) error {
 					return err
 				}
 			}
+		case code.OpArrayReserve:
+			{
+				if err := this.doArrayReserve(); nil != err {
+					return err
+				}
+			}
 		case code.OpArrayAppend:
 			{
 				if err := this.doArrayAppend(); nil != err {
@@ -330,6 +336,22 @@ func (this *virtualMachine) doArrayNew() error {
 		return err
 	}
 	if err := this.push(arr.New(flag)); nil != err {
+		return err
+	}
+	return nil
+}
+
+func (this *virtualMachine) doArrayReserve() error {
+	v := this.pop()
+	cnt, err := object.ToInteger(v)
+	if nil != err {
+		return err
+	}
+	if err := this.push(v); nil != err {
+		return err
+	}
+	arr := make(object.Objects, cnt)
+	if err := this.push(object.NewArray(arr)); nil != err {
 		return err
 	}
 	return nil

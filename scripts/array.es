@@ -1,3 +1,6 @@
+println(range(10, func(i) { 
+    sprintf("key_%v", (i % 2 == 0) ? i * 2 : i)
+}));
 const arr = [1,2,3];
 const r = map(arr, func(i, item) { item * 2 });
 println(r);
