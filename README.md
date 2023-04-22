@@ -1,6 +1,6 @@
 <p id="id_top"></p>
 
-- [escript - a embedded script for Go](#escript---a-embedded-script-for-go)
+- [escript - an embedded script for Go](#escript---a-embedded-script-for-go)
   - [Features](#features)
   - [Quick Start](#quick-start)
     - [run interactive interpreter](#run-interactive-interpreter)
@@ -36,7 +36,7 @@
   - [Author](#author)
   - [More](#more)
 
-# escript - a embedded script for Go #
+# escript - an embedded script for Go #
 
 escript is a tiny, expression-based embedded language for Go.
 
