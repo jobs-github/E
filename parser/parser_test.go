@@ -5,11 +5,9 @@ import (
 	"testing"
 
 	"github.com/jobs-github/escript/ast"
-	"github.com/jobs-github/escript/interfaces"
-	"github.com/jobs-github/escript/lexer"
 )
 
-func parseProgram(t *testing.T, p interfaces.Parser) *ast.Program {
+func parseProgram(t *testing.T, p Parser) *ast.Program {
 	program, err := p.ParseProgram()
 	if nil != err {
 		t.Fatal(err)
@@ -45,8 +43,7 @@ func TestConstStatements(t *testing.T) {
 		{"const foobar = y;", "foobar", "y"},
 	}
 	for _, tt := range cases {
-		l := lexer.New(tt.input)
-		p, err := New(l)
+		p, err := New(tt.input)
 		if nil != err {
 			t.Fatal(err)
 		}
@@ -69,8 +66,7 @@ func TestConstStatements(t *testing.T) {
 func TestIdentExpr(t *testing.T) {
 	input := `foobar;`
 
-	l := lexer.New(input)
-	p, err := New(l)
+	p, err := New(input)
 	if nil != err {
 		t.Fatal(err)
 	}
@@ -96,8 +92,7 @@ func TestIdentExpr(t *testing.T) {
 func TestIntExpr(t *testing.T) {
 	input := `5;`
 
-	l := lexer.New(input)
-	p, err := New(l)
+	p, err := New(input)
 	if nil != err {
 		t.Fatal(err)
 	}
@@ -123,8 +118,7 @@ func TestIntExpr(t *testing.T) {
 func TestStringExpr(t *testing.T) {
 	input := `"hello world";`
 
-	l := lexer.New(input)
-	p, err := New(l)
+	p, err := New(input)
 	if nil != err {
 		t.Fatal(err)
 	}
@@ -189,8 +183,7 @@ func testBooleanLiteral(t *testing.T, expr ast.Expression, val bool) bool {
 func TestBoolExpr(t *testing.T) {
 	input := `true;`
 
-	l := lexer.New(input)
-	p, err := New(l)
+	p, err := New(input)
 	if nil != err {
 		t.Fatal(err)
 	}
@@ -259,8 +252,7 @@ func TestParsingPrefixExpressions(t *testing.T) {
 		{"!false", "!", false},
 	}
 	for _, tt := range cases {
-		l := lexer.New(tt.input)
-		p, err := New(l)
+		p, err := New(tt.input)
 		if nil != err {
 			t.Fatal(err)
 		}
@@ -307,8 +299,7 @@ func TestParsingInfixExpressions(t *testing.T) {
 	}
 
 	for _, tt := range cases {
-		l := lexer.New(tt.input)
-		p, err := New(l)
+		p, err := New(tt.input)
 		if nil != err {
 			t.Fatal(err)
 		}
@@ -373,8 +364,7 @@ func TestOpPrecedParsing(t *testing.T) {
 		{"add(a + b + c * d / f + g)", "add((((a + b) + ((c * d) / f)) + g))"},
 	}
 	for _, tt := range cases {
-		l := lexer.New(tt.input)
-		p, err := New(l)
+		p, err := New(tt.input)
 		if nil != err {
 			t.Fatal(err)
 		}
@@ -388,8 +378,7 @@ func TestOpPrecedParsing(t *testing.T) {
 
 func TestFunctionParsing(t *testing.T) {
 	input := `func(x, y) { x + y }`
-	l := lexer.New(input)
-	p, err := New(l)
+	p, err := New(input)
 	if nil != err {
 		t.Fatal(err)
 	}
@@ -430,8 +419,7 @@ func TestFuncArgsParsing(t *testing.T) {
 	}
 
 	for _, tt := range cases {
-		l := lexer.New(tt.input)
-		p, err := New(l)
+		p, err := New(tt.input)
 		if nil != err {
 			t.Fatal(err)
 		}
@@ -456,8 +444,7 @@ func TestFuncArgsParsing(t *testing.T) {
 func TestCallParsing(t *testing.T) {
 	input := "add(1, 2 * 3, 4 + 5)"
 
-	l := lexer.New(input)
-	p, err := New(l)
+	p, err := New(input)
 	if nil != err {
 		t.Fatal(err)
 	}
@@ -484,8 +471,7 @@ func TestCallParsing(t *testing.T) {
 func TestArrayParsing(t *testing.T) {
 	input := "[1, 2 * 3, 4 + 5]"
 
-	l := lexer.New(input)
-	p, err := New(l)
+	p, err := New(input)
 	if nil != err {
 		t.Fatal(err)
 	}
@@ -509,8 +495,7 @@ func TestArrayParsing(t *testing.T) {
 func TestIndexParsing(t *testing.T) {
 	input := "testArr[1 + 10]"
 
-	l := lexer.New(input)
-	p, err := New(l)
+	p, err := New(input)
 	if nil != err {
 		t.Fatal(err)
 	}
@@ -530,8 +515,7 @@ func TestIndexParsing(t *testing.T) {
 func TestHashParsing(t *testing.T) {
 	input := `{"k1": 1, "k2": 2, "k3": 3}`
 
-	l := lexer.New(input)
-	p, err := New(l)
+	p, err := New(input)
 	if nil != err {
 		t.Fatal(err)
 	}
@@ -561,8 +545,7 @@ func TestHashParsing(t *testing.T) {
 func TestHashExprParsing(t *testing.T) {
 	input := `{"k1": 1 + 1, "k2": 100 - 90, "k3": 30 / 10}`
 
-	l := lexer.New(input)
-	p, err := New(l)
+	p, err := New(input)
 	if nil != err {
 		t.Fatal(err)
 	}

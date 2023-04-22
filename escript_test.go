@@ -4,7 +4,6 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/jobs-github/escript/lexer"
 	"github.com/jobs-github/escript/object"
 	"github.com/jobs-github/escript/parser"
 )
@@ -27,7 +26,7 @@ func TestEvalExpr(t *testing.T) {
 		{`const a1 = [1,2,3]; const a2 = [1,2]; a1 == a2;`, false},
 		{`const arr = [1,2,3]; const f1 = arr.len; const f2 = arr.len; f1 == f2;`, true},
 		{`const f1 = str; const f2 = str; f1 == f2;`, true},
-		{`const f1 = str; const f2 = len; f1 == f2;`, false},
+		{`const f1 = str; const f2 = type; f1 == f2;`, false},
 		{`const s1 = "hello"; const s2 = "hello"; s1 == s2;`, true},
 		{`const s1 = "hello1"; const s2 = "hello2"; s1 == s2;`, false},
 
@@ -57,9 +56,6 @@ func TestEvalExpr(t *testing.T) {
 		{`const arr = [1,2,4]; arr[2];`, 4},
 		{`const arr = [1,2,4]; arr[0] + arr[1] + arr[2];`, 7},
 		{`const arr = [1,2,4]; const i = arr[0];`, 1},
-
-		{`len("")`, 0},
-		{`len("four")`, 4},
 
 		{`"hello world"`, "hello world"},
 		{`"hello" + " " + "world"`, "hello world"},
@@ -214,7 +210,7 @@ func TestEvalExpr(t *testing.T) {
 		{"null || null", object.Nil},
 	}
 	for i, tt := range tests {
-		evaluated, err := testEval(tt.input)
+		evaluated, err := testEval(tt.input, nil)
 		if nil != err {
 			t.Fatalf("i: %v, err: %v", i, err)
 		}
@@ -224,9 +220,8 @@ func TestEvalExpr(t *testing.T) {
 	}
 }
 
-func testEval(input string) (object.Object, error) {
-	l := lexer.New(input)
-	p, err := parser.New(l)
+func testEval(input string, s object.Symbols) (object.Object, error) {
+	p, err := parser.New(input)
 	if nil != err {
 		return object.Nil, err
 	}
@@ -234,7 +229,7 @@ func testEval(input string) (object.Object, error) {
 	if nil != err {
 		return object.Nil, err
 	}
-	env := object.NewEnv()
+	env := object.NewEnv(s)
 	return program.Eval(env)
 }
 
@@ -355,7 +350,7 @@ func TestVarStmts(t *testing.T) {
 		{"const a = 5; const b = a; const c = a + b + 5; c;", 15},
 	}
 	for _, tt := range tests {
-		evaluated, err := testEval(tt.input)
+		evaluated, err := testEval(tt.input, nil)
 		if nil != err {
 			t.Fatal(err)
 		}
@@ -365,7 +360,7 @@ func TestVarStmts(t *testing.T) {
 
 func TestFunctionObject(t *testing.T) {
 	input := "func(x) { x + 2; };"
-	evaluated, err := testEval(input)
+	evaluated, err := testEval(input, nil)
 	if nil != err {
 		t.Fatal(err)
 	}
@@ -404,7 +399,7 @@ func TestFunctionCases(t *testing.T) {
 		{"func(x) { func(y) { x + y } }(5)(5)", 10},
 	}
 	for _, tt := range tests {
-		evaluated, err := testEval(tt.input)
+		evaluated, err := testEval(tt.input, nil)
 		if nil != err {
 			t.Fatal(err)
 		}
@@ -420,7 +415,7 @@ func TestArrayCases(t *testing.T) {
 		{"[1, 2 * 3, 3 * 4]", []int64{1, 6, 12}},
 	}
 	for _, tt := range tests {
-		evaluated, err := testEval(tt.input)
+		evaluated, err := testEval(tt.input, nil)
 		if nil != err {
 			t.Fatal(err)
 		}
@@ -451,7 +446,7 @@ func TestHash(t *testing.T) {
 	};
 	`
 
-	evaluated, err := testEval(input)
+	evaluated, err := testEval(input, nil)
 	if nil != err {
 		t.Fatal(err)
 	}
@@ -483,5 +478,126 @@ func TestHash(t *testing.T) {
 			t.Fatalf("mismatch key, got=%v", *ek)
 		}
 		testIntegerObject(t, pair.Value, ev)
+	}
+}
+
+func TestSymbol(t *testing.T) {
+	tests := []struct {
+		input    string
+		s        object.Symbols
+		expected interface{}
+	}{
+		{
+			`$s1;`,
+			object.Symbols{
+				"s1": func() (object.Object, error) { return object.NewString("teststring"), nil },
+			},
+			`teststring`,
+		},
+		{
+			`$i1;`,
+			object.Symbols{
+				"i1": func() (object.Object, error) { return object.NewInteger(65535), nil },
+			},
+			65535,
+		},
+		{
+			`$t1;`,
+			object.Symbols{
+				"t1": func() (object.Object, error) { return object.True, nil },
+			},
+			true,
+		},
+	}
+	for i, tt := range tests {
+		evaluated, err := testEval(tt.input, tt.s)
+		if nil != err {
+			t.Fatalf("i: %v, err: %v", i, err)
+		}
+		if !testEvalObject(t, evaluated, tt.expected) {
+			t.Fatalf("i: %v", i)
+		}
+	}
+}
+
+func TestSymbolVM(t *testing.T) {
+	tests := []struct {
+		input    string
+		s        object.Symbols
+		expected interface{}
+	}{
+		{
+			`$s1;`,
+			object.Symbols{
+				"s1": func() (object.Object, error) { return object.NewString("teststring"), nil },
+			},
+			`teststring`,
+		},
+		{
+			`$i1;`,
+			object.Symbols{
+				"i1": func() (object.Object, error) { return object.NewInteger(65535), nil },
+			},
+			65535,
+		},
+		{
+			`$t1;`,
+			object.Symbols{
+				"t1": func() (object.Object, error) { return object.True, nil },
+			},
+			true,
+		},
+	}
+	for i, tt := range tests {
+		r, err := NewState(tt.input)
+		if nil != err {
+			t.Fatalf("i: %v, err: %v", i, err)
+		}
+		res, err := r.Run(tt.s)
+		if nil != err {
+			t.Fatalf("i: %v, err: %v", i, err)
+		}
+		if !testEvalObject(t, res, tt.expected) {
+			t.Fatalf("i: %v", i)
+		}
+	}
+}
+
+func TestSymbolBool(t *testing.T) {
+	T := func() (object.Object, error) { return object.True, nil }
+	F := func() (object.Object, error) { return object.False, nil }
+	r, err := NewState(`($a || $b) && ($c || $d);`)
+	if nil != err {
+		t.Fatalf("err: %v", err)
+	}
+	tests := []struct {
+		s        object.Symbols
+		expected interface{}
+	}{
+		{object.Symbols{"a": T, "b": T, "c": T, "d": T}, true},
+		{object.Symbols{"a": T, "b": T, "c": T, "d": F}, true},
+		{object.Symbols{"a": T, "b": T, "c": F, "d": F}, false},
+		{object.Symbols{"a": T, "b": T, "c": F, "d": T}, true},
+		{object.Symbols{"a": T, "b": F, "c": T, "d": T}, true},
+		{object.Symbols{"a": T, "b": F, "c": T, "d": F}, true},
+		{object.Symbols{"a": T, "b": F, "c": F, "d": F}, false},
+		{object.Symbols{"a": T, "b": F, "c": F, "d": T}, true},
+		{object.Symbols{"a": F, "b": T, "c": T, "d": T}, true},
+		{object.Symbols{"a": F, "b": T, "c": T, "d": F}, true},
+		{object.Symbols{"a": F, "b": T, "c": F, "d": F}, false},
+		{object.Symbols{"a": F, "b": T, "c": F, "d": T}, true},
+		{object.Symbols{"a": F, "b": F, "c": T, "d": T}, false},
+		{object.Symbols{"a": F, "b": F, "c": T, "d": F}, false},
+		{object.Symbols{"a": F, "b": F, "c": F, "d": F}, false},
+		{object.Symbols{"a": F, "b": F, "c": F, "d": T}, false},
+	}
+	for i, tt := range tests {
+		res, err := r.Run(tt.s)
+		if nil != err {
+			t.Fatalf("i: %v, err: %v", i, err)
+		}
+		if !testEvalObject(t, res, tt.expected) {
+			t.Fatalf("i: %v", i)
+		}
 	}
 }

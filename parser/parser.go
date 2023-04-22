@@ -4,26 +4,50 @@ import (
 	"fmt"
 
 	"github.com/jobs-github/escript/ast"
-	"github.com/jobs-github/escript/expr"
 	"github.com/jobs-github/escript/function"
-	"github.com/jobs-github/escript/interfaces"
-	"github.com/jobs-github/escript/lexer"
-	"github.com/jobs-github/escript/scanner"
-	"github.com/jobs-github/escript/stmt"
 	"github.com/jobs-github/escript/token"
 )
 
-type infixDecoderMap map[token.TokenType](func(ast.Expression) (ast.Expression, error))
+// public
+type Parser interface {
+	ParseProgram() (ast.Node, error)
 
-// parserImpl : implement interfaces.Parser
-type parserImpl struct {
-	scanner       scanner.Scanner
-	stmtParser    stmt.StmtParser
-	exprParser    expr.ExprParser
-	infixDecoders infixDecoderMap
+	ParseInfixExpression(left ast.Expression) (ast.Expression, error)
+	ParseCallExpression(left ast.Expression) (ast.Expression, error)
+	ParseIndexExpression(left ast.Expression) (ast.Expression, error)
+	ParseMemberExpression(left ast.Expression) (ast.Expression, error)
+	ParseConditionalExpression(left ast.Expression) (ast.Expression, error)
+
+	ParseStmt(endTok token.TokenType) (ast.Statement, error)
+	ParseBlockStmt() (*ast.BlockStmt, error)
+	ParseExpression(precedence int) (ast.Expression, error)
+	ParseExpressions(endTok token.TokenType) (ast.ExpressionSlice, error)
 }
 
-func newInfixDecoders(p interfaces.Parser) infixDecoderMap {
+func New(code string) (Parser, error) {
+	l := newLexer(code)
+	s, err := newScanner(l)
+	if nil == s {
+		return nil, err
+	}
+	p := &parserImpl{s: s}
+	p.sp = newStmtParser(s, p)
+	p.ep = newExprParser(s, p)
+	p.im = newInfixDecoders(p)
+	return p, nil
+}
+
+type infixDecoderMap map[token.TokenType](func(ast.Expression) (ast.Expression, error))
+
+// parserImpl : implement Parser
+type parserImpl struct {
+	s  scanner
+	sp stmtParser
+	ep exprParser
+	im infixDecoderMap
+}
+
+func newInfixDecoders(p Parser) infixDecoderMap {
 	return infixDecoderMap{
 		token.LT:       p.ParseInfixExpression,
 		token.GT:       p.ParseInfixExpression,
@@ -45,32 +69,16 @@ func newInfixDecoders(p interfaces.Parser) infixDecoderMap {
 	}
 }
 
-func newParser(s scanner.Scanner) interfaces.Parser {
-	p := &parserImpl{scanner: s}
-	p.stmtParser = stmt.NewStmtParser(s, p, newParser)
-	p.exprParser = expr.NewExprParser(s, p)
-	p.infixDecoders = newInfixDecoders(p)
-	return p
-}
-
-func New(l lexer.Lexer) (interfaces.Parser, error) {
-	s, err := scanner.New(l)
-	if nil == s {
-		return nil, err
-	}
-	return newParser(s), nil
-}
-
 func (this *parserImpl) ParseStmt(endTok token.TokenType) (ast.Statement, error) {
-	return this.stmtParser.Decode(this.scanner.CurTokenType(), endTok)
+	return this.sp.Decode(this.s.CurTokenType(), endTok)
 }
 
 func (this *parserImpl) ParseProgram() (ast.Node, error) {
 	program := &ast.Program{Stmts: ast.StatementSlice{}}
-	for !this.scanner.Eof() {
+	for !this.s.Eof() {
 		// need to skip ;
-		if nil == this.scanner.CurrentIs(token.SEMICOLON) {
-			this.scanner.NextToken()
+		if nil == this.s.CurrentIs(token.SEMICOLON) {
+			this.s.NextToken()
 			continue
 		}
 
@@ -79,37 +87,37 @@ func (this *parserImpl) ParseProgram() (ast.Node, error) {
 			return nil, function.NewError(err)
 		}
 		program.Stmts = append(program.Stmts, stmt)
-		this.scanner.NextToken()
+		this.s.NextToken()
 	}
 	return program, nil
 }
 
 func (this *parserImpl) ParseBlockStmt() (*ast.BlockStmt, error) {
-	block := this.scanner.NewBlock()
-	this.scanner.NextToken()
+	block := ast.NewBlock()
+	this.s.NextToken()
 	stmt, err := this.ParseStmt(token.SEMICOLON)
 	if nil != err {
 		return nil, function.NewError(err)
 	}
 	block.Stmt = stmt
-	if err := this.scanner.ExpectPeek(token.RBRACE); nil != err {
+	if err := this.s.ExpectPeek(token.RBRACE); nil != err {
 		return nil, function.NewError(err)
 	}
 	return block, nil
 }
 
 func (this *parserImpl) ParseExpression(precedence int) (ast.Expression, error) {
-	leftExpr, err := this.exprParser.Decode(this.scanner.CurTokenType())
+	leftExpr, err := this.ep.Decode(this.s.CurTokenType())
 	if nil != err {
 		return nil, function.NewError(err)
 	}
 
-	for nil != this.scanner.PeekIs(token.SEMICOLON) && precedence < this.scanner.PeekPrecedence() {
-		fn, ok := this.infixDecoders[this.scanner.PeekTokenType()]
+	for nil != this.s.PeekIs(token.SEMICOLON) && precedence < this.s.PeekPrecedence() {
+		fn, ok := this.im[this.s.PeekTokenType()]
 		if !ok {
 			return leftExpr, nil
 		}
-		this.scanner.NextToken()
+		this.s.NextToken()
 		expr, err := fn(leftExpr)
 		if nil != err {
 			return nil, function.NewError(err)
@@ -120,9 +128,9 @@ func (this *parserImpl) ParseExpression(precedence int) (ast.Expression, error) 
 }
 
 func (this *parserImpl) ParseInfixExpression(left ast.Expression) (ast.Expression, error) {
-	expr := this.scanner.NewInfix(left)
-	preced := this.scanner.CurPrecedence()
-	this.scanner.NextToken()
+	expr := this.s.NewInfix(left)
+	preced := this.s.CurPrecedence()
+	this.s.NextToken()
 	right, err := this.ParseExpression(preced)
 	if nil != err {
 		return nil, function.NewError(err)
@@ -132,7 +140,7 @@ func (this *parserImpl) ParseInfixExpression(left ast.Expression) (ast.Expressio
 }
 
 func (this *parserImpl) ParseCallExpression(left ast.Expression) (ast.Expression, error) {
-	expr := this.scanner.NewCall(left)
+	expr := this.s.NewCall(left)
 	args, err := this.ParseExpressions(token.RPAREN)
 	if nil != err {
 		return nil, function.NewError(err)
@@ -142,13 +150,13 @@ func (this *parserImpl) ParseCallExpression(left ast.Expression) (ast.Expression
 }
 
 func (this *parserImpl) ParseIndexExpression(left ast.Expression) (ast.Expression, error) {
-	expr := this.scanner.NewIndex(left)
-	this.scanner.NextToken()
-	idx, err := this.ParseExpression(scanner.PRECED_LOWEST)
+	expr := this.s.NewIndex(left)
+	this.s.NextToken()
+	idx, err := this.ParseExpression(PRECED_LOWEST)
 	if nil != err {
 		return nil, function.NewError(err)
 	}
-	if err := this.scanner.ExpectPeek(token.RBRACK); nil != err {
+	if err := this.s.ExpectPeek(token.RBRACK); nil != err {
 		return nil, function.NewError(err)
 	}
 	expr.Index = idx
@@ -156,19 +164,19 @@ func (this *parserImpl) ParseIndexExpression(left ast.Expression) (ast.Expressio
 }
 
 func (this *parserImpl) isCallMemeber() bool {
-	return this.scanner.ExpectPeek2(token.IDENT, token.LPAREN)
+	return this.s.ExpectPeek2(token.IDENT, token.LPAREN)
 }
 
 func (this *parserImpl) isObjectMember() bool {
-	return nil == this.scanner.PeekIs(token.IDENT) && nil != this.scanner.Peek2Is(token.LPAREN)
+	return nil == this.s.PeekIs(token.IDENT) && nil != this.s.Peek2Is(token.LPAREN)
 }
 
 func (this *parserImpl) parseCallMemberExpression(left ast.Expression) (ast.Expression, error) {
-	expr := this.scanner.NewCallMember(left)
-	this.scanner.NextToken()
+	expr := this.s.NewCallMember(left)
+	this.s.NextToken()
 
-	expr.Func = this.scanner.GetIdentifier()
-	this.scanner.NextToken()
+	expr.Func = this.s.GetIdentifier()
+	this.s.NextToken()
 	args, err := this.ParseExpressions(token.RPAREN)
 	if nil != err {
 		return nil, function.NewError(err)
@@ -178,9 +186,9 @@ func (this *parserImpl) parseCallMemberExpression(left ast.Expression) (ast.Expr
 }
 
 func (this *parserImpl) parseObjectMemberExpression(left ast.Expression) (ast.Expression, error) {
-	expr := this.scanner.NewObjectMember(left)
-	this.scanner.NextToken()
-	expr.Member = this.scanner.GetIdentifier()
+	expr := this.s.NewObjectMember(left)
+	this.s.NextToken()
+	expr.Member = this.s.GetIdentifier()
 	return expr, nil
 }
 
@@ -190,23 +198,23 @@ func (this *parserImpl) ParseMemberExpression(left ast.Expression) (ast.Expressi
 	} else if this.isObjectMember() {
 		return this.parseObjectMemberExpression(left)
 	} else {
-		err := fmt.Errorf("unknown pattern, %v", this.scanner.String())
+		err := fmt.Errorf("unknown pattern, %v", this.s.String())
 		return nil, function.NewError(err)
 	}
 }
 
 func (this *parserImpl) ParseConditionalExpression(left ast.Expression) (ast.Expression, error) {
-	expr := this.scanner.NewConditional(left)
-	this.scanner.NextToken()
-	yes, err := this.ParseExpression(scanner.PRECED_LOWEST)
+	expr := this.s.NewConditional(left)
+	this.s.NextToken()
+	yes, err := this.ParseExpression(PRECED_LOWEST)
 	if nil != err {
 		return nil, function.NewError(err)
 	}
-	if err := this.scanner.ExpectPeek(token.COLON); nil != err {
+	if err := this.s.ExpectPeek(token.COLON); nil != err {
 		return nil, function.NewError(err)
 	}
-	this.scanner.NextToken()
-	no, err := this.ParseExpression(scanner.PRECED_LOWEST)
+	this.s.NextToken()
+	no, err := this.ParseExpression(PRECED_LOWEST)
 	if nil != err {
 		return nil, function.NewError(err)
 	}
@@ -217,28 +225,28 @@ func (this *parserImpl) ParseConditionalExpression(left ast.Expression) (ast.Exp
 
 func (this *parserImpl) ParseExpressions(endTok token.TokenType) (ast.ExpressionSlice, error) {
 	args := ast.ExpressionSlice{}
-	if nil == this.scanner.PeekIs(endTok) {
-		this.scanner.NextToken()
+	if nil == this.s.PeekIs(endTok) {
+		this.s.NextToken()
 		return args, nil
 	}
-	this.scanner.NextToken()
-	expr, err := this.ParseExpression(scanner.PRECED_LOWEST)
+	this.s.NextToken()
+	expr, err := this.ParseExpression(PRECED_LOWEST)
 	if nil != err {
 		return nil, function.NewError(err)
 	}
 	args = append(args, expr)
 
-	for nil == this.scanner.PeekIs(token.COMMA) {
-		this.scanner.NextToken()
-		this.scanner.NextToken()
+	for nil == this.s.PeekIs(token.COMMA) {
+		this.s.NextToken()
+		this.s.NextToken()
 
-		expr, err := this.ParseExpression(scanner.PRECED_LOWEST)
+		expr, err := this.ParseExpression(PRECED_LOWEST)
 		if nil != err {
 			return nil, function.NewError(err)
 		}
 		args = append(args, expr)
 	}
-	if err := this.scanner.ExpectPeek(endTok); nil != err {
+	if err := this.s.ExpectPeek(endTok); nil != err {
 		return nil, function.NewError(err)
 	}
 	return args, nil

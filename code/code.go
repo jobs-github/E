@@ -17,18 +17,25 @@ type Opcode byte
 
 const (
 	OpUndefined Opcode = iota
+	OpArray
+	OpArrayReserve
+	OpArrayNew
+	OpArraySet
+	OpArrayAppend
+	OpArrayLen
 	OpClosure
 	OpConst
-	OpArray
 	OpHash
 	OpJumpWhenFalse
 	OpJump
+	OpSymbol
 	OpGetGlobal
 	OpSetGlobal
 	OpGetBuiltin
 	OpGetObjectFn
 	OpGetLocal
 	OpSetLocal
+	OpIncLocal
 	OpCall
 	OpGetFree
 	OpGetLambda
@@ -53,25 +60,33 @@ const (
 	OpAnd
 	OpOr
 	OpIndex
+	OpPlaceholder
 )
 
 var (
 	definitions = map[Opcode]*Definition{
+		OpArray:         {"OpArray", []int{2}},
+		OpArrayReserve:  {"OpArrayReserve", []int{}},
+		OpArrayNew:      {"OpArrayNew", []int{1}},
+		OpArraySet:      {"OpArraySet", []int{1, 1}},
+		OpArrayAppend:   {"OpArrayAppend", []int{1}},
+		OpArrayLen:      {"OpArrayLen", []int{}},
 		OpClosure:       {"OpClosure", []int{2, 1}},
 		OpConst:         {"OpConst", []int{2}},
-		OpArray:         {"OpArray", []int{2}},
 		OpHash:          {"OpHash", []int{2}},
 		OpJumpWhenFalse: {"OpJumpWhenFalse", []int{2}},
 		OpJump:          {"OpJump", []int{2}},
+		OpSymbol:        {"OpSymbol", []int{2}},
 		OpGetGlobal:     {"OpGetGlobal", []int{2}},
 		OpSetGlobal:     {"OpSetGlobal", []int{2}},
 		OpGetBuiltin:    {"OpGetBuiltin", []int{1}},
 		OpGetObjectFn:   {"OpGetObjectFn", []int{1}},
 		OpGetLocal:      {"OpGetLocal", []int{1}},
 		OpSetLocal:      {"OpSetLocal", []int{1}},
+		OpIncLocal:      {"OpIncLocal", []int{1}},
 		OpCall:          {"OpCall", []int{1}},
 		OpGetFree:       {"OpGetFree", []int{1}},
-		OpGetLambda:     {"OpCurrentClosure", []int{1}},
+		OpGetLambda:     {"OpGetLambda", []int{1}},
 		OpReturn:        {"OpReturn", []int{}},
 		OpPop:           {"OpPop", []int{}},
 		OpTrue:          {"OpTrue", []int{}},
@@ -93,6 +108,7 @@ var (
 		OpAnd:           {"OpAnd", []int{}},
 		OpOr:            {"OpOr", []int{}},
 		OpIndex:         {"OpIndex", []int{}},
+		OpPlaceholder:   {"OpPlaceholder", []int{}},
 	}
 	prefixCodePairs = tokenCodePairs{
 		{token.Not, OpNot},

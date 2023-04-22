@@ -2,7 +2,6 @@ package object
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"sort"
 	"strings"
@@ -47,13 +46,10 @@ func NewHash(pairs HashMap) Object {
 		Pairs: pairs,
 	}
 	obj.fns = objectBuiltins{
-		FnLen:    obj.builtinLen,
-		FnIndex:  obj.builtinIndex,
-		FnNot:    obj.builtinNot,
-		FnMap:    obj.builtinMap,
-		FnReduce: obj.builtinReduce,
-		FnFilter: obj.builtinFilter,
-		FnKeys:   obj.builtinKeys,
+		FnLen:   obj.builtinLen,
+		FnIndex: obj.builtinIndex,
+		FnNot:   obj.builtinNot,
+		FnKeys:  obj.builtinKeys,
 	}
 	return obj
 }
@@ -172,77 +168,6 @@ func (this *Hash) builtinNot(args Objects) (Object, error) {
 	} else {
 		return False, nil
 	}
-}
-
-func (this *Hash) builtinMap(args Objects) (Object, error) {
-	argc := len(args)
-	if argc != 1 {
-		return Nil, fmt.Errorf("map() takes exactly one argument (%v given)", argc)
-	}
-	cb := args[0]
-	if !Callable(cb) {
-		return Nil, errors.New("argument is not callable")
-	}
-	if nil == this.Pairs || len(this.Pairs) < 1 {
-		return NewHash(HashMap{}), nil
-	}
-	m := HashMap{}
-	for k, v := range this.Pairs {
-		val, err := cb.Call(Objects{v.Key, v.Value})
-		if nil != err {
-			return Nil, err
-		}
-		m[k] = &HashPair{v.Key, val}
-	}
-	return NewHash(m), nil
-}
-
-func (this *Hash) builtinReduce(args Objects) (Object, error) {
-	argc := len(args)
-	if argc != 2 {
-		return Nil, fmt.Errorf("reduce() takes 2 arguments (%v given), (`%v`)", argc, this.String())
-	}
-	cb := args[0]
-	if !Callable(cb) {
-		return Nil, errors.New("argument 1 is not callable")
-	}
-	acc := args[1]
-	if nil == this.Pairs || len(this.Pairs) < 1 {
-		return acc, nil
-	}
-	for _, v := range this.Pairs {
-		val, err := cb.Call(Objects{acc, v.Value})
-		if nil != err {
-			return Nil, err
-		}
-		acc = val
-	}
-	return acc, nil
-}
-
-func (this *Hash) builtinFilter(args Objects) (Object, error) {
-	argc := len(args)
-	if argc != 1 {
-		return Nil, fmt.Errorf("filter() takes exactly one argument (%v given), (`%v`)", argc, this.String())
-	}
-	cb := args[0]
-	if !Callable(cb) {
-		return Nil, errors.New("argument 1 is not callable")
-	}
-	if nil == this.Pairs || len(this.Pairs) < 1 {
-		return NewHash(HashMap{}), nil
-	}
-	m := HashMap{}
-	for k, v := range this.Pairs {
-		val, err := cb.Call(Objects{v.Key, v.Value})
-		if nil != err {
-			return Nil, err
-		}
-		if val.True() {
-			m[k] = v
-		}
-	}
-	return NewHash(m), nil
 }
 
 func (this *Hash) builtinKeys(args Objects) (Object, error) {

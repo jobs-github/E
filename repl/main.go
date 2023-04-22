@@ -11,24 +11,30 @@ import (
 	"github.com/jobs-github/escript/ast"
 	"github.com/jobs-github/escript/compiler"
 	"github.com/jobs-github/escript/function"
-	"github.com/jobs-github/escript/lexer"
 	"github.com/jobs-github/escript/object"
 	"github.com/jobs-github/escript/parser"
 	"github.com/jobs-github/escript/vm"
 )
 
+const (
+	useVM = true
+)
+
+func newEval() Eval {
+	if useVM {
+		return newState()
+	} else {
+		return newInterpreter()
+	}
+}
+
 func main() {
 	argc := len(os.Args)
-	e := newInterpreter()
+	e := newEval()
 	if argc == 1 {
 		e.Repl(os.Stdin, os.Stdout)
 	} else if argc == 2 {
-		if os.Args[1] == "--vm" {
-			e := newState()
-			e.Repl(os.Stdin, os.Stdout)
-		} else {
-			e.EvalScript(os.Args[1])
-		}
+		e.EvalScript(os.Args[1])
 	} else {
 		if os.Args[1] == "--dump" {
 			if s, err := e.DumpAst(os.Args[2]); nil != err {
@@ -60,8 +66,7 @@ type Eval interface {
 }
 
 func LoadAst(code string) (ast.Node, error) {
-	l := lexer.New(code)
-	p, err := parser.New(l)
+	p, err := parser.New(code)
 	if nil != err {
 		return nil, function.NewError(err)
 	}
@@ -155,12 +160,12 @@ func dumpAst(path string) (string, error) {
 type interpreter struct{}
 
 func (this *interpreter) eval(node ast.Node) (object.Object, error) {
-	return node.Eval(object.NewEnv())
+	return node.Eval(object.NewEnv(nil))
 }
 
 func (this *interpreter) Repl(in io.Reader, out io.Writer) {
 	scanner := bufio.NewScanner(in)
-	env := object.NewEnv()
+	env := object.NewEnv(nil)
 	for {
 		fmt.Printf(">> ")
 		scanned := scanner.Scan()
@@ -168,8 +173,7 @@ func (this *interpreter) Repl(in io.Reader, out io.Writer) {
 			return
 		}
 		line := scanner.Text()
-		l := lexer.New(line)
-		p, err := parser.New(l)
+		p, err := parser.New(line)
 		if nil != err {
 			io.WriteString(out, fmt.Sprintf("\t%v\n", err))
 			continue
@@ -218,8 +222,7 @@ func (this *virtualMachine) Repl(in io.Reader, out io.Writer) {
 		}
 
 		line := scanner.Text()
-		l := lexer.New(line)
-		p, err := parser.New(l)
+		p, err := parser.New(line)
 		if nil != err {
 			io.WriteString(out, fmt.Sprintf("\t%v\n", err))
 			continue
@@ -237,7 +240,7 @@ func (this *virtualMachine) Repl(in io.Reader, out io.Writer) {
 			continue
 		}
 		machine := vm.Make(c.Bytecode(), c.Constants(), globals)
-		if err := machine.Run(); nil != err {
+		if err := machine.Run(nil); nil != err {
 			fmt.Fprintf(out, fmt.Sprintf("run vm error: %v\n", err))
 			continue
 		}
@@ -258,7 +261,7 @@ func (this *virtualMachine) eval(program ast.Node) (object.Object, error) {
 		return object.Nil, function.NewError(err)
 	}
 	machine := vm.Make(c.Bytecode(), c.Constants(), globals)
-	if err := machine.Run(); nil != err {
+	if err := machine.Run(nil); nil != err {
 		return object.Nil, function.NewError(err)
 	}
 	return machine.LastPopped(), nil

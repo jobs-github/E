@@ -27,10 +27,11 @@ var (
 	errInvalidOperation = errors.New("invalid operation")
 	errNotSupportCalc   = errors.New("not support calc func")
 
-	errTypeIsNotState    = errors.New("type is not State")
 	errTypeIsNotByteFunc = errors.New("type is not ByteFunc")
 	errTypeIsNotClosure  = errors.New("type is not Closure")
 	errTypeIsNotInt      = errors.New("type is not Integer")
+	errTypeIsNotArray    = errors.New("type is not Array")
+	errInvalidIndex      = errors.New("list index out of range")
 )
 
 type defaultObject struct {
@@ -57,9 +58,7 @@ func (this *defaultObject) True() bool {
 	return false
 }
 
-func (this *defaultObject) AsState() (*State, error) {
-	return nil, errTypeIsNotState
-}
+func (this *defaultObject) Incr() {}
 
 func (this *defaultObject) AsByteFunc() (*ByteFunc, error) {
 	return nil, errTypeIsNotByteFunc
@@ -67,6 +66,10 @@ func (this *defaultObject) AsByteFunc() (*ByteFunc, error) {
 
 func (this *defaultObject) AsClosure() (*Closure, error) {
 	return nil, errTypeIsNotClosure
+}
+
+func (this *defaultObject) AsArray() (*Array, error) {
+	return nil, errTypeIsNotArray
 }
 
 func (this *defaultObject) asInteger() (int64, error) {

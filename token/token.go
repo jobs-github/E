@@ -49,15 +49,27 @@ const (
 	NULL
 	FUNC
 	CONST
+	LOOP
+	MAP
+	REDUCE
+	FILTER
+	RANGE
+	SYMBOL
 	//keyword_end
 )
 
 const (
-	Const = "const"
-	Func  = "func"
-	Null  = "null"
-	True  = "true"
-	False = "false"
+	Const  = "const"
+	Func   = "func"
+	Null   = "null"
+	True   = "true"
+	False  = "false"
+	Loop   = "loop"
+	Map    = "map"
+	Reduce = "reduce"
+	Filter = "filter"
+	Range  = "range"
+	Symbol = "$"
 )
 
 var (
@@ -119,11 +131,17 @@ var (
 		'?': QUESTION,
 	}
 	keywords = map[string]TokenType{
-		True:  TRUE,
-		False: FALSE,
-		Null:  NULL,
-		Func:  FUNC,
-		Const: CONST,
+		True:   TRUE,
+		False:  FALSE,
+		Null:   NULL,
+		Func:   FUNC,
+		Const:  CONST,
+		Loop:   LOOP,
+		Map:    MAP,
+		Reduce: REDUCE,
+		Filter: FILTER,
+		Range:  RANGE,
+		Symbol: SYMBOL,
 	}
 
 	tokenTypeStrings = map[TokenType]string{
@@ -162,6 +180,12 @@ var (
 		NULL:      "NULL",
 		FUNC:      "FUNC",
 		CONST:     "CONST",
+		LOOP:      "LOOP",
+		MAP:       "MAP",
+		REDUCE:    "REDUCE",
+		FILTER:    "FILTER",
+		RANGE:     "RANGE",
+		SYMBOL:    "SYMBOL",
 	}
 )
 

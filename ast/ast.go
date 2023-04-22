@@ -11,6 +11,7 @@ import (
 
 var (
 	errNotFunction = errors.New("ast type is not function")
+	errNotCallable = errors.New("object is not callable")
 )
 
 type Visitor interface {
@@ -18,10 +19,16 @@ type Visitor interface {
 	DoConst(v *ConstStmt) error
 	DoBlock(v *BlockStmt) error
 	DoExpr(v *ExpressionStmt) error
+	DoLoop(v *LoopExpr) error
+	DoMap(v *MapExpr) error
+	DoReduce(v *ReduceExpr) error
+	DoFilter(v *FilterExpr) error
+	DoRange(v *RangeExpr) error
 	DoFunction(v *FunctionStmt) error
 	DoPrefix(v *PrefixExpr) error
 	DoInfix(v *InfixExpr) error
 	DoIdent(v *Identifier) error
+	DoSymbol(v *SymbolExpr) error
 	DoConditional(v *ConditionalExpr) error
 	DoFn(v *Function) error
 	DoCall(v *Call) error
@@ -36,12 +43,9 @@ type Visitor interface {
 	DoHash(v *Hash) error
 }
 
-type defaultNode struct {
-}
+type defaultNode struct{}
 
-func (this *defaultNode) AsFunction() (*Function, error) {
-	return nil, errNotFunction
-}
+func (this *defaultNode) AsFunction() (*Function, error) { return nil, errNotFunction }
 
 type Node interface {
 	Do(v Visitor) error

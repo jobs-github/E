@@ -1,4 +1,4 @@
-package scanner
+package parser
 
 import "github.com/jobs-github/escript/token"
 

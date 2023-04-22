@@ -8,20 +8,23 @@
     - [conditional expression](#conditional-expression)
     - [recursion](#recursion)
     - [closure](#closure)
-    - [script parameters injection](#script-parameters-injection)
-    - [eval AST](#eval-ast)
-    - [dump & load AST as json](#dump--load-ast-as-json)
+    - [eval](#eval)
+    - [embedded eval](#embedded-eval)
+    - [dump \& load AST as json](#dump--load-ast-as-json)
   - [builtin function](#builtin-function)
     - [type](#type)
     - [str](#str)
-    - [int](#int)
     - [print](#print)
     - [println](#println)
     - [printf](#printf)
     - [sprintf](#sprintf)
-    - [getenv](#getenv)
     - [loads](#loads)
     - [dumps](#dumps)
+    - [loop](#loop)
+    - [map](#map)
+    - [reduce](#reduce)
+    - [filter](#filter)
+    - [range](#range)
   - [types](#types)
     - [null](#null)
     - [boolean](#boolean)
@@ -43,39 +46,36 @@ escript is a tiny, expression-based embedded language for Go.
     package main
 
     import (
-        "github.com/jobs-github/escript/eval"
+        "fmt"
+        "github.com/jobs-github/escript"
     )
 
     func main() {
-        e := eval.New(false)
-        code := `println("hello world");`
-        node, _ := e.LoadAst(code)
-        eval.EvalAst(node, e.NewEnv(nil, nil))
+        code := `const r = (1 > 0) ? (1 + 1) : (10 % 3); println(r);`
+        r, _ := escript.NewState(code)
+        res, _ := r.Run(nil)
+        fmt.Println(res)
     }
 
 [back to top](#id_top)
 
 ## Features ##
 
-Not only ([Writing An Interpreter In Go](https://interpreterbook.com/))  
 * go-like syntax (also borrow some from python/c)
 * variable bindings
 * arithmetic expressions
 * built-in functions
 * first-class and higher-order functions (closure)
+* conditional expression
+* object member call
+* eval AST
+* dump & load AST as json
 * data types
     * integer
     * boolean
     * string
     * array
     * hash
-
-But also:  
-* conditional expression
-* object member call
-* script parameters injection
-* eval AST
-* dump & load AST as json
 
 [back to top](#id_top)
 
@@ -86,6 +86,9 @@ But also:
     chmod +x /make.sh
     ./make.sh
     ./escript
+
+    
+**Note** : you can change `useVM` in `repl/main.go` to choose default interpreter.  
 
 [back to top](#id_top)
 
@@ -106,27 +109,27 @@ But also:
 ### [recursion](scripts/mapreduce.es) ###
 
     func map_iter(arr, accumulated, fn) {
-        return (len(arr) == 0) ? accumulated : map_iter(arr.tail(), accumulated.push(fn(arr.first())), fn);
+        (arr.len() == 0) ? accumulated : map_iter(arr.tail(), accumulated.push(fn(arr.first())), fn);
     };
-    func map(arr, fn) {
-        return map_iter(arr, [], fn);
+    func my_map(arr, fn) {
+        map_iter(arr, [], fn);
     };
     func double(x) {
-        return x * 2;
+        x * 2;
     };
 
-    func reduce(arr, result, fn) {
-        return (len(arr) == 0) ? result : reduce(arr.tail(), fn(result, arr.first()), fn);
+    func my_reduce(arr, result, fn) {
+        (arr.len() == 0) ? result : my_reduce(arr.tail(), fn(result, arr.first()), fn);
     };
     func add(x, y) {
-        return x + y;
+        x + y;
     };
     func sum(arr) {
-        return reduce(arr, 0, add);
+        my_reduce(arr, 0, add);
     };
 
     const a = [1,2,3,4,5];
-    const result = map(a, double);
+    const result = my_map(a, double);
     println(result);
 
     const rc = sum([1,2,3,4,5]);
@@ -136,80 +139,58 @@ But also:
 
 ### [closure](scripts/closure.es) ###
 
-    func sub(x) {
-        return func(y) {
-            return x - y;
-        };
-    };
+    const r = func (x) {
+        x * 2;
+    }(2);
 
-    const map = func(arr, fn) {
-        const iter = func(arr, accumulated) {
-            if (len(arr) == 0) {
-                return accumulated;
-            } else {
-                return iter(arr.tail(), accumulated.push(fn(arr.first())));
-            }
-        };
-        return iter(arr, []);
-    };
-    const double = func(x) {
-        return x * 2;
-    };
-
-    const reduce = func(arr, initial, fn) {
-        const iter = func(arr, result) {
-            if (len(arr) == 0) {
-                return result;
-            } else {
-                return iter(arr.tail(), fn(result, arr.first()));
-            }
-        };
-        return iter(arr, initial);
-    };
-    const add = func(x, y) {
-        return x + y;
-    };
-    const sum = func(arr) {
-        return reduce(arr, 0, add);
-    };
-
-    const subFn = sub(10);
-    const r = subFn(5);
     println(r);
 
-    const a = [1,2,3,4,5];
-    const result = map(a, double);
-    println(result);
+    func add(x) {
+        func(y) {
+            x + y;
+        };
+    };
 
-    const rc = sum([1,2,3,4,5]);
-    println(rc);
-
-[back to top](#id_top)
-
-### [script parameters injection](scripts/hello.es) ###
-
-    chmod +x /make.sh
-    ./make.sh
-    ./escript scripts/hello.es hello hello world
+    const fn = add(1);
+    println(fn(2));
 
 [back to top](#id_top)
 
-### eval AST ###
+### eval ###
 
     package main
 
     import (
-        "github.com/jobs-github/escript/eval"
+        "fmt"
+        "github.com/jobs-github/escript"
     )
 
     func main() {
-        e := eval.New(false)
         code := `const r = (1 > 0) ? (1 + 1) : (10 % 3); println(r);`
-        node, _ := e.LoadAst(code)
-        e.EvalAst(node, e.NewEnv(nil, nil))
+        r, _ := escript.NewState(code)
+        res, _ := r.Run(nil)
+        fmt.Println(res)
     }
 
 [back to top](#id_top)
+
+### embedded eval ###
+
+    package main
+
+    import (
+        "fmt"
+        "github.com/jobs-github/escript"
+        "github.com/jobs-github/escript/object"
+    )
+
+    func main() {
+        T := func() (object.Object, error) { return object.True, nil }
+        F := func() (object.Object, error) { return object.False, nil }
+        r, _ := escript.NewState(`($a || $b) && ($c || $d);`)
+        res, _ := r.Run(object.Symbols{"a": T, "b": T, "c": T, "d": F})
+        fmt.Println(res)
+    }
 
 ### dump & load AST as json ###
 
@@ -243,13 +224,6 @@ load & eval AST from json:
 
 [back to top](#id_top)
 
-### int ###
-
-    const is = "123";
-    println(int(is));
-
-[back to top](#id_top)
-
 ### print ###
 
     print("123 ", 456, " ", [7,8,9]);
@@ -279,12 +253,6 @@ load & eval AST from json:
 
 [back to top](#id_top)
 
-### [getenv](scripts/env.es) ###
-
-    export test_env=HAHA; ./escript scripts/env.es
-
-[back to top](#id_top)
-
 ### [loads](scripts/json.es) ###
 
     const s = "{\"k3\":{\"k31\":true,\"k32\":[1,2,3]},\"k2\":\"2\",\"k1\":1}"; 
@@ -298,6 +266,36 @@ load & eval AST from json:
     const obj1 = { "k1": null, "k2": 123 };
     const objstr = dumps(obj1);
     println(objstr);
+
+### [loop](scripts/loop.es) ###
+
+    loop(10, func(i){
+        i < 5 ? println(i) : println(i * i)
+    });
+
+### [map](scripts/array.es) ###
+
+    const arr = [1,2,3];
+    const r = map(arr, func(i, item) { item * 2 });
+    println(r);
+
+### [reduce](scripts/array.es) ###
+
+    const arr = [1,2,3];
+    const acc = reduce(arr, func(x, y) { x + y }, 0);
+    println(acc);
+
+### [filter](scripts/array.es) ###
+
+    const arr = [1,2,3];
+    const fr = filter(arr, func(i, item) { item > 1 });
+    println(fr);
+
+### [range](scripts/array.es) ###
+
+    println(range(10, func(i) { 
+        sprintf("key_%v", (i % 2 == 0) ? i * 2 : i)
+    }));
 
 [back to top](#id_top)
 
@@ -337,8 +335,6 @@ int     |convert to int
     false
     >> -b
     -1
-    >> int(b)
-    1
 
 [back to top](#id_top)
 
@@ -362,8 +358,6 @@ int     |convert to int
     false
     >> -i
     -123
-    >> int(i)
-    123
 
 [back to top](#id_top)
 ### [string](object/string.go) ###
@@ -385,14 +379,10 @@ int     |convert to int
     false
     >> s.int()
     123
-    >> len(s)
-    3
     >> s[1]
     2
     >> !s
     false
-    >> int(s)
-    123
 
 [back to top](#id_top)
 ### [array](object/array.go) ###
@@ -411,7 +401,6 @@ push    |append value
     [1, 2, 3, 4, 5]
     >> arr.push("hello")
     [1, 2, 3, 4, 5, hello]
-
     >> arr.len()
     6
     >> arr[0]
@@ -426,12 +415,6 @@ push    |append value
     hello
     >> arr.tail()
     [2, 3, 4, 5, hello]
-    >> len(arr)
-    6
-    >> arr[1] = 200
-
-    >> arr
-    [100, 200, 3, 4, 5, hello]
 
 [back to top](#id_top)
 
@@ -441,11 +424,11 @@ method  |comment
 --------|-------
 len     |length of hash pairs
 index   |get value by key
+keys    |get keys
 not     |!
 
     >> const h = {"k1": 1, "k2": "bbb", "k3": [1,2,3]}
     {k1: 1, k2: bbb, k3: [1, 2, 3]}
-
     >> h["k1"]
     1
     >> h.len()
@@ -456,8 +439,8 @@ not     |!
     1000
     >> !h
     false
-    >> len(h)
-    3
+    >> h.keys()
+    [k1, k2, k3]
 
 [back to top](#id_top)
 
@@ -467,15 +450,15 @@ method  |comment
 --------|-------
 not     |!
 
-    >> const l = len
-    <built-in function len>
+    >> const t = type
+    <built-in function type>
     >> const s = "123"
     123
-    >> l(s)
-    3
-    >> l.not()
+    >> t(s)
+    string
+    >> t.not()
     false
-    >> !l
+    >> !t
     false
 
 [back to top](#id_top)
@@ -485,10 +468,8 @@ method  |comment
 --------|-------
 not     |!
 
-    >> const fn = func(x, y) { return x + y; }
-    func (x, y) {
-    return (x + y);
-    }
+    >> const fn = func(x, y) { x + y; }
+    closure[0xc000425260]
     >> fn(1,2)
     3
     >> !fn
@@ -534,6 +515,6 @@ escript is licensed under [New BSD License](https://opensource.org/licenses/BSD-
 
 ## More ##
 
-- [Writing An Interpreter In Go](https://interpreterbook.com/)  
+- [Writing A Compiler In Go](https://compilerbook.com/)  
 
 [back to top](#id_top)

@@ -1,4 +1,4 @@
-package lexer
+package parser
 
 import (
 	"fmt"
@@ -7,16 +7,21 @@ import (
 	"github.com/jobs-github/escript/token"
 )
 
-// lexer : implement Lexer
-type lexer struct {
+type Lexer interface {
+	Parse() ([]*token.Token, error)
+	nextToken() (*token.Token, error)
+}
+
+// lexerImpl : implement Lexer
+type lexerImpl struct {
 	input        string
 	position     int
 	nextPosition int
 	ch           byte
 }
 
-func New(input string) Lexer {
-	l := &lexer{input: input}
+func newLexer(input string) Lexer {
+	l := &lexerImpl{input: input}
 	l.readChar()
 	return l
 }
@@ -26,7 +31,7 @@ func newToken(tokenType token.TokenType, ch byte) *token.Token {
 }
 
 func isLetter(ch byte) bool {
-	return 'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || '_' == ch
+	return 'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || ch == '_'
 }
 
 func isDigit(c byte) bool {
@@ -42,15 +47,15 @@ func isWhitespace(c byte) bool {
 		c == '\r'
 }
 
-func (this *lexer) startofComment() bool {
+func (this *lexerImpl) startofComment() bool {
 	return this.ch == '/' && this.peekChar() == '*'
 }
 
-func (this *lexer) endofComment() bool {
+func (this *lexerImpl) endofComment() bool {
 	return this.ch == '*' && this.peekChar() == '/'
 }
 
-func (this *lexer) skipWhitespace() {
+func (this *lexerImpl) skipWhitespace() {
 	this.readChar()
 
 	for isWhitespace(this.ch) {
@@ -62,7 +67,7 @@ func (this *lexer) skipWhitespace() {
 	}
 }
 
-func (this *lexer) skipComment() {
+func (this *lexerImpl) skipComment() {
 	this.readChar()
 	this.readChar()
 
@@ -81,7 +86,7 @@ func (this *lexer) skipComment() {
 	this.readChar()
 }
 
-func (this *lexer) skip() {
+func (this *lexerImpl) skip() {
 	for {
 		if isWhitespace(this.ch) {
 			this.skipWhitespace()
@@ -93,7 +98,7 @@ func (this *lexer) skip() {
 	}
 }
 
-func (this *lexer) twoCharToken(tokenType token.TokenType, expectedNextChar byte, tokenType2 token.TokenType, literal string) *token.Token {
+func (this *lexerImpl) twoCharToken(tokenType token.TokenType, expectedNextChar byte, tokenType2 token.TokenType, literal string) *token.Token {
 	if expectedNextChar == this.peekChar() {
 		this.readChar()
 		return &token.Token{Type: tokenType2, Literal: literal}
@@ -102,7 +107,7 @@ func (this *lexer) twoCharToken(tokenType token.TokenType, expectedNextChar byte
 	}
 }
 
-func (this *lexer) Parse() ([]*token.Token, error) {
+func (this *lexerImpl) Parse() ([]*token.Token, error) {
 	toks := []*token.Token{}
 	for {
 		tok, err := this.nextToken()
@@ -117,11 +122,11 @@ func (this *lexer) Parse() ([]*token.Token, error) {
 	return toks, nil
 }
 
-func (this *lexer) eof() bool {
+func (this *lexerImpl) eof() bool {
 	return 0 == this.ch
 }
 
-func (this *lexer) nextToken() (*token.Token, error) {
+func (this *lexerImpl) nextToken() (*token.Token, error) {
 	var tok *token.Token
 	this.skip()
 
@@ -148,6 +153,14 @@ func (this *lexer) nextToken() (*token.Token, error) {
 		tok = this.twoCharToken(token.LT, '=', token.LEQ, "<=")
 	case '>':
 		tok = this.twoCharToken(token.GT, '=', token.GEQ, ">=")
+	case '$':
+		this.readChar()
+		if isLetter(this.ch) {
+			literal := this.readIdentifier()
+			return &token.Token{Type: token.SYMBOL, Literal: literal}, nil
+		} else {
+			tok = newToken(token.ILLEGAL, this.ch)
+		}
 	default:
 		tt, ok := token.GetTokenType(this.ch)
 		if ok {
@@ -168,7 +181,7 @@ func (this *lexer) nextToken() (*token.Token, error) {
 	return tok, nil
 }
 
-func (this *lexer) readNumber() string {
+func (this *lexerImpl) readNumber() string {
 	pos := this.position
 	for isDigit(this.ch) {
 		this.readChar()
@@ -176,7 +189,7 @@ func (this *lexer) readNumber() string {
 	return this.input[pos:this.position]
 }
 
-func (this *lexer) readIdentifier() string {
+func (this *lexerImpl) readIdentifier() string {
 	pos := this.position
 	for isLetter(this.ch) || isDigit(this.ch) {
 		this.readChar()
@@ -184,7 +197,7 @@ func (this *lexer) readIdentifier() string {
 	return this.input[pos:this.position]
 }
 
-func (this *lexer) checkEscape(ch byte) bool {
+func (this *lexerImpl) checkEscape(ch byte) bool {
 	switch ch {
 	case 'a', 'b', 'f', 'n', 'r', 't', 'v', '\\', '"':
 		return true
@@ -192,7 +205,7 @@ func (this *lexer) checkEscape(ch byte) bool {
 	return false
 }
 
-func (this *lexer) readString() (string, error) {
+func (this *lexerImpl) readString() (string, error) {
 	start := this.position + 1
 	for {
 		this.readChar()
@@ -210,7 +223,7 @@ func (this *lexer) readString() (string, error) {
 	return this.input[start:this.position], nil
 }
 
-func (this *lexer) peekChar() byte {
+func (this *lexerImpl) peekChar() byte {
 	if this.nextPosition >= len(this.input) {
 		return 0
 	} else {
@@ -218,7 +231,7 @@ func (this *lexer) peekChar() byte {
 	}
 }
 
-func (this *lexer) readChar() {
+func (this *lexerImpl) readChar() {
 	if this.nextPosition >= len(this.input) {
 		this.ch = 0
 	} else {
