@@ -4,15 +4,45 @@ import (
 	"github.com/jobs-github/escript/ast"
 	"github.com/jobs-github/escript/code"
 	"github.com/jobs-github/escript/function"
-	"github.com/jobs-github/escript/object"
 )
+
+// reduceImpl : implement loop
+type reduceImpl struct {
+	define       func(name string) *Symbol
+	doLimitFn    func(arr *ast.Identifier) error
+	doBodyArgsFn func(i *ast.Identifier, arr *ast.Identifier, acc *ast.Identifier) error
+	doBodyRetFn  func(ri *Symbol) error
+	doReturnFn   func(res *ast.Identifier) error
+	doIdent      func(v *ast.Identifier) (int, error)
+	doIndex      func(arr *ast.Identifier, i *ast.Identifier) error
+	i            *ast.Identifier
+	arr          *ast.Identifier
+	res          *ast.Identifier
+	ri           *Symbol
+}
+
+func (this *reduceImpl) prepare()          { this.ri = this.define(this.res.Value) }
+func (this *reduceImpl) doLimit() error    { return this.doLimitFn(this.arr) }
+func (this *reduceImpl) doBodyArgs() error { return this.doBodyArgsFn(this.i, this.arr, this.res) }
+func (this *reduceImpl) doBodyRet() error  { return this.doBodyRetFn(this.ri) }
+func (this *reduceImpl) doReturn() error   { return this.doReturnFn(this.res) }
 
 // ReduceExpr
 func (this *visitor) DoReduce(v *ast.ReduceExpr) error {
 	i := newIdent(loopIter)
 	arr := newIdent(loopArray)
 	res := newIdent(loopResult)
-	if err := this.doReduceFn(v, i, arr, res); nil != err {
+	l := &reduceImpl{
+		define:       this.define,
+		doLimitFn:    this.doLimitArrLen,
+		doBodyArgsFn: this.doReduceArgs,
+		doBodyRetFn:  this.doReduceRet,
+		doReturnFn:   this.doReturnRes,
+		i:            i,
+		arr:          arr,
+		res:          res,
+	}
+	if err := this.doLoop(l, v.Body, i, arr); nil != err {
 		return function.NewError(err)
 	}
 	// push 0
@@ -33,57 +63,14 @@ func (this *visitor) DoReduce(v *ast.ReduceExpr) error {
 	return nil
 }
 
-func (this *visitor) doReduceFn(v *ast.ReduceExpr, i *ast.Identifier, arr *ast.Identifier, res *ast.Identifier) error {
-	this.c.enterScope()
-
-	// args
-	si := this.c.define(i.Value)
-	this.c.define(arr.Value)
-	ri := this.c.define(res.Value)
-
-	startPos, err := this.doArrayCond(i, arr)
-	if nil != err {
-		return function.NewError(err)
-	}
-	endPos, err := this.c.encode(code.OpJumpWhenFalse, -1)
-	if nil != err {
-		return function.NewError(err)
-	}
-	if err := this.doReduceBody(i, arr, res, v, ri); nil != err {
-		return function.NewError(err)
-	}
-	if _, err := this.c.encode(code.OpIncLocal, si.Index); nil != err {
-		return function.NewError(err)
-	}
-	if _, err := this.c.encode(code.OpJump, startPos); nil != err {
-		return function.NewError(err)
-	}
-	// back-patching
-	if err := this.c.changeOperand(endPos, this.c.pos()); nil != err {
-		return function.NewError(err)
-	}
-	if _, err := this.doIdent(res); nil != err { // push res
-		return function.NewError(err)
-	}
-	if _, err := this.c.encode(code.OpReturn); nil != err { // return res
-		return function.NewError(err)
-	}
-	symbols := this.c.symbols()
-	r := this.c.leaveScope()
-
-	fn := object.NewByteFunc(r.Instructions(), symbols)
-	idx := this.c.addConst(fn)
-	if _, err := this.c.encode(code.OpClosure, idx, 0); nil != err {
+func (this *visitor) doReduceRet(ri *Symbol) error {
+	if _, err := this.c.encode(code.OpSetLocal, ri.Index); nil != err {
 		return function.NewError(err)
 	}
 	return nil
 }
 
-func (this *visitor) doReduceBody(i *ast.Identifier, arr *ast.Identifier, acc *ast.Identifier, v *ast.ReduceExpr, res *Symbol) error {
-	// push closure
-	if err := v.Body.Do(this); nil != err {
-		return function.NewError(err)
-	}
+func (this *visitor) doReduceArgs(i *ast.Identifier, arr *ast.Identifier, acc *ast.Identifier) error {
 	// push args
 	if _, err := this.doIdent(acc); nil != err { // push acc
 		return function.NewError(err)
@@ -92,9 +79,6 @@ func (this *visitor) doReduceBody(i *ast.Identifier, arr *ast.Identifier, acc *a
 		return function.NewError(err)
 	}
 	if _, err := this.c.encode(code.OpCall, 2); nil != err {
-		return function.NewError(err)
-	}
-	if _, err := this.c.encode(code.OpSetLocal, res.Index); nil != err {
 		return function.NewError(err)
 	}
 	return nil

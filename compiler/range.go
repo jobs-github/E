@@ -4,15 +4,43 @@ import (
 	"github.com/jobs-github/escript/ast"
 	"github.com/jobs-github/escript/code"
 	"github.com/jobs-github/escript/function"
-	"github.com/jobs-github/escript/object"
 )
+
+// rangeImpl : implement loop
+type rangeImpl struct {
+	define       func(name string) *Symbol
+	doLimitFn    func(cnt *ast.Identifier) error
+	doBodyArgsFn func(i *ast.Identifier) error
+	doBodyRetFn  func(i *ast.Identifier, ri *Symbol) error
+	doReturnFn   func(res *ast.Identifier) error
+	i            *ast.Identifier
+	cnt          *ast.Identifier
+	res          *ast.Identifier
+	ri           *Symbol
+}
+
+func (this *rangeImpl) prepare()          { this.ri = this.define(this.res.Value) }
+func (this *rangeImpl) doLimit() error    { return this.doLimitFn(this.cnt) }
+func (this *rangeImpl) doBodyArgs() error { return this.doBodyArgsFn(this.i) }
+func (this *rangeImpl) doBodyRet() error  { return this.doBodyRetFn(this.i, this.ri) }
+func (this *rangeImpl) doReturn() error   { return this.doReturnFn(this.res) }
 
 // RangeExpr
 func (this *visitor) DoRange(v *ast.RangeExpr) error {
 	i := newIdent(loopIter)
 	cnt := newIdent(loopCnt)
 	res := newIdent(loopResult)
-	if err := this.doRangeFn(v, i, cnt, res); nil != err {
+	l := &rangeImpl{
+		define:       this.define,
+		doLimitFn:    this.doLimitCnt,
+		doBodyArgsFn: this.doRangeArgs,
+		doBodyRetFn:  this.doMapRet,
+		doReturnFn:   this.doReturnRes,
+		i:            i,
+		cnt:          cnt,
+		res:          res,
+	}
+	if err := this.doLoop(l, v.Body, i, cnt); nil != err {
 		return function.NewError(err)
 	}
 	// push 0
@@ -33,68 +61,12 @@ func (this *visitor) DoRange(v *ast.RangeExpr) error {
 	return nil
 }
 
-func (this *visitor) doRangeFn(v *ast.RangeExpr, i *ast.Identifier, cnt *ast.Identifier, res *ast.Identifier) error {
-	this.c.enterScope()
-
-	// args
-	si := this.c.define(i.Value)
-	this.c.define(cnt.Value)
-	ri := this.c.define(res.Value)
-
-	startPos, err := this.doLoopCond(i, cnt)
-	if nil != err {
-		return function.NewError(err)
-	}
-	endPos, err := this.c.encode(code.OpJumpWhenFalse, -1)
-	if nil != err {
-		return function.NewError(err)
-	}
-	if err := this.doRangeBody(i, v, ri); nil != err {
-		return function.NewError(err)
-	}
-	if _, err := this.c.encode(code.OpIncLocal, si.Index); nil != err {
-		return function.NewError(err)
-	}
-	if _, err := this.c.encode(code.OpJump, startPos); nil != err {
-		return function.NewError(err)
-	}
-	// back-patching
-	if err := this.c.changeOperand(endPos, this.c.pos()); nil != err {
-		return function.NewError(err)
-	}
-	if _, err := this.doIdent(res); nil != err { // push res
-		return function.NewError(err)
-	}
-	if _, err := this.c.encode(code.OpReturn); nil != err {
-		return function.NewError(err)
-	}
-	symbols := this.c.symbols()
-	r := this.c.leaveScope()
-
-	fn := object.NewByteFunc(r.Instructions(), symbols)
-	idx := this.c.addConst(fn)
-	if _, err := this.c.encode(code.OpClosure, idx, 0); nil != err {
-		return function.NewError(err)
-	}
-	return nil
-}
-
-func (this *visitor) doRangeBody(i *ast.Identifier, v *ast.RangeExpr, res *Symbol) error {
-	// push closure
-	if err := v.Body.Do(this); nil != err {
-		return function.NewError(err)
-	}
+func (this *visitor) doRangeArgs(i *ast.Identifier) error {
 	// push args
 	if _, err := this.doIdent(i); nil != err { // push i
 		return function.NewError(err)
 	}
 	if _, err := this.c.encode(code.OpCall, 1); nil != err {
-		return function.NewError(err)
-	}
-	if _, err := this.doIdent(i); nil != err { // push i
-		return function.NewError(err)
-	}
-	if _, err := this.c.encode(code.OpArraySet, res.Index); nil != err {
 		return function.NewError(err)
 	}
 	return nil

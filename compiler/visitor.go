@@ -144,3 +144,7 @@ func (this *visitor) doIndex(arr *ast.Identifier, i *ast.Identifier) error {
 	}
 	return nil
 }
+
+func (this *visitor) define(name string) *Symbol {
+	return this.c.define(name)
+}
